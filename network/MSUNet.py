@@ -9,7 +9,7 @@ import logging
 
 import torch
 import torch.nn as nn
-from .model_parts import MSUNetSys
+from .model_parts import ms_unet
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +20,7 @@ class MSUNet(nn.Module):
         self.zero_head = zero_head
         self.config = config
 
-        self.ms_unet = MSUNetSys(
+        self.ms_unet = ms_unet(
                                 img_size = config.DATA.IMG_SIZE,                # image size 
                                 patch_size = config.MODEL.SWIN.PATCH_SIZE,      # patch size (4x4)
                                 in_chans = config.MODEL.SWIN.IN_CHANS,          # number of input channels (3)

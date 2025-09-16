@@ -834,136 +834,131 @@ class MSUNetSys(nn.Module):
         # build decoder layers
         self.layers_up = nn.ModuleList()
         self.concat_back_dim = nn.ModuleList()
-        
+
+        # iterates other the four layers
         for i_layer in range(self.num_layers):
-            concat_linear = nn.Linear(2 * int(embed_dim * 2 ** (self.num_layers - 1 - i_layer)),
-                                      int(embed_dim * 2 ** (self.num_layers - 1 - i_layer))) if i_layer > 0 else nn.Identity()
+            # Encoder layers and decoder layers are connected by linear layers. 
+            # Due to the skip connection, the input dimension is multiplied by 2.
+            concat_linear = nn.Linear(
+                        2 * int(embed_dim * 2 ** (self.num_layers - 1 - i_layer)),                               # input dimension
+                        int(embed_dim * 2 ** (self.num_layers - 1 - i_layer))) if i_layer > 0 else nn.Identity() # output dimension
+            
             if i_layer == 0:
+                # PatchExpand is the upsampling variant for swin
+                # resolution is increased an dchannels are reduced
                 layer_up = PatchExpand(
-                    input_resolution=(patches_resolution[0] // (2 ** (self.num_layers - 1 - i_layer)),
-                                      patches_resolution[1] // (2 ** (self.num_layers - 1 - i_layer))),
-                    dim=int(embed_dim * 2 ** (self.num_layers - 1 - i_layer)), dim_scale=2, norm_layer=norm_layer)
+                    # Current spatial size of the feature map at the bottleneck: 
+                    input_resolution = (patches_resolution[0] // (2 ** (self.num_layers - 1 - i_layer)),  
+                                      patches_resolution[1] // (2 ** (self.num_layers - 1 - i_layer))), 
+                    # number of channels at this point
+                    dim = int(embed_dim * 2 ** (self.num_layers - 1 - i_layer)), 
+                    # double resolution
+                    dim_scale = 2, 
+                    norm_layer = norm_layer)
             else:
-                layer_up = BasicLayer_up(dim=int(embed_dim * 2 ** (self.num_layers - 1 - i_layer)),
-                                         input_resolution=(
-                                         patches_resolution[0] // (2 ** (self.num_layers - 1 - i_layer)),
-                                         patches_resolution[1] // (2 ** (self.num_layers - 1 - i_layer))),
-                                         depth=depths[(self.num_layers - 1 - i_layer)],
-                                         num_heads=num_heads[(self.num_layers - 1 - i_layer)],
-                                         window_size=window_size,
-                                         mlp_ratio=self.mlp_ratio,
-                                         qkv_bias=qkv_bias, qk_scale=qk_scale,
-                                         drop=drop_rate, attn_drop=attn_drop_rate,
-                                         drop_path=dpr[sum(depths[:(self.num_layers - 1 - i_layer)]):sum(
+                layer_up = BasicLayer_up(dim = int(embed_dim * 2 ** (self.num_layers - 1 - i_layer)),
+                                         input_resolution =(
+                                            patches_resolution[0] // (2 ** (self.num_layers - 1 - i_layer)),
+                                             patches_resolution[1] // (2 ** (self.num_layers - 1 - i_layer))),
+                                            depth=depths[(self.num_layers - 1 - i_layer)],
+                                         num_heads = num_heads[(self.num_layers - 1 - i_layer)],
+                                         window_size = window_size,
+                                         mlp_ratio = self.mlp_ratio,
+                                         qkv_bias = qkv_bias, 
+                                         qk_scale = qk_scale,
+                                         drop = drop_rate, 
+                                         attn_drop = attn_drop_rate,
+                                         drop_path = dpr[sum(depths[:(self.num_layers - 1 - i_layer)]):sum(
                                              depths[:(self.num_layers - 1 - i_layer) + 1])],
-                                         norm_layer=norm_layer,
-                                         upsample=PatchExpand if (i_layer < self.num_layers - 1) else None,
-                                         use_checkpoint=use_checkpoint)
+                                         norm_layer = norm_layer,
+                                         upsample = PatchExpand if (i_layer < self.num_layers - 1) else None,
+                                         use_checkpoint = use_checkpoint)
             self.layers_up.append(layer_up)
             self.concat_back_dim.append(concat_linear)
 
-        """ Von MS-Unet, keine Lizens !!! """
-         # build middle decoder layers1
+        # build first central decoder (MSUNet special)
 
-        self.layers_up1 = nn.ModuleList()
+        self.layers_cent1 = nn.ModuleList()
 
         for i_layer1 in range(self.num_layers-1):
-
             if i_layer1 ==0 :
-
-                layer_up1 = PatchExpand(input_resolution=(patches_resolution[0] // (2 ** (self.num_layers-2-i_layer1)),
-
-                patches_resolution[1] // (2 ** (self.num_layers-2-i_layer1))), dim=int(embed_dim * 2 ** (self.num_layers-2-i_layer1)), dim_scale=2, norm_layer=norm_layer)
-
+                layers_cent1 = PatchExpand(
+                    input_resolution = (patches_resolution[0] // (2 ** (self.num_layers-2-i_layer1)),
+                                        patches_resolution[1] // (2 ** (self.num_layers-2-i_layer1))), 
+                    dim = int(embed_dim * 2 ** (self.num_layers-2-i_layer1)), 
+                    dim_scale = 2, 
+                    norm_layer=norm_layer)
             else:
-
-                layer_up1 = BasicLayer_up(dim=int(embed_dim * 2 ** (self.num_layers-2-i_layer1)),
-
-                                input_resolution=(patches_resolution[0] // (2 ** (self.num_layers-2-i_layer1)),
-
-                                                    patches_resolution[1] // (2 ** (self.num_layers-2-i_layer1))),
-
-                                depth=depths[(self.num_layers-2-i_layer1)],
-
-                                num_heads=num_heads[(self.num_layers-2-i_layer1)],
-
-                                window_size=window_size,
-
-                                mlp_ratio=self.mlp_ratio,
-
-                                qkv_bias=qkv_bias, qk_scale=qk_scale,
-
-                                drop=drop_rate, attn_drop=attn_drop_rate,
-
-                                drop_path=dpr[sum(depths[:(self.num_layers-2-i_layer1)]):sum(depths[:(self.num_layers-2-i_layer1) + 1])],
-
-                                norm_layer=norm_layer,
-
-                                upsample=PatchExpand if (i_layer1 < self.num_layers - 2) else None,
-
-                                use_checkpoint=use_checkpoint)
-
-            self.layers_up1.append(layer_up1)
+                layers_cent1 = BasicLayer_up(   dim = int(embed_dim * 2 ** (self.num_layers - 2 - i_layer1)),
+                                            input_resolution =(
+                                            patches_resolution[0] // (2 ** (self.num_layers - 2 - i_layer1)),
+                                            patches_resolution[1] // (2 ** (self.num_layers - 2 - i_layer1))),
+                                            depth=depths[(self.num_layers - 2 - i_layer1)],
+                                            num_heads = num_heads[(self.num_layers - 2 - i_layer1)],
+                                            window_size = window_size,
+                                            mlp_ratio = self.mlp_ratio,
+                                            qkv_bias = qkv_bias, 
+                                            qk_scale = qk_scale,
+                                            drop = drop_rate, 
+                                            attn_drop = attn_drop_rate,
+                                            drop_path = dpr[sum(depths[:(self.num_layers - 2 - i_layer1)]):sum(
+                                            depths[:(self.num_layers - 2 - i_layer1) + 1])],
+                                            norm_layer = norm_layer,
+                                            upsample = PatchExpand if (i_layer1 < self.num_layers - 2) else None,
+                                            use_checkpoint = use_checkpoint)
+            self.layers_cent1.append(layers_cent1)
         
+        # second central decoder (MSUNet special)
 
-
-        # build middle decoder layers2
-
-        self.layers_up2 = nn.ModuleList()
+        self.layers_cent2 = nn.ModuleList()
 
         for i_layer2 in range(self.num_layers-2):
-
             if i_layer2 ==0 :
-
-                layer_up2 = PatchExpand(input_resolution=(patches_resolution[0] // (2 ** (self.num_layers-3-i_layer2)),
-
-                patches_resolution[1] // (2 ** (self.num_layers-3-i_layer2))), dim=int(embed_dim * 2 ** (self.num_layers-3-i_layer2)), dim_scale=2, norm_layer=norm_layer)
-
+                layers_cent2 = PatchExpand(
+                    input_resolution = (patches_resolution[0] // (2 ** (self.num_layers-3-i_layer2)),
+                                        patches_resolution[1] // (2 ** (self.num_layers-3-i_layer2))), 
+                    dim = int(embed_dim * 2 ** (self.num_layers-2-i_layer2)), 
+                    dim_scale = 2, 
+                    norm_layer=norm_layer)
             else:
+                layers_cent2 = BasicLayer_up(   dim = int(embed_dim * 2 ** (self.num_layers - 3 - i_layer2)),
+                                            input_resolution =(
+                                            patches_resolution[0] // (2 ** (self.num_layers - 3 - i_layer2)),
+                                            patches_resolution[1] // (2 ** (self.num_layers - 3 - i_layer2))),
+                                            depth=depths[(self.num_layers - 3 - i_layer2)],
+                                            num_heads = num_heads[(self.num_layers - 3 - i_layer2)],
+                                            window_size = window_size,
+                                            mlp_ratio = self.mlp_ratio,
+                                            qkv_bias = qkv_bias, 
+                                            qk_scale = qk_scale,
+                                            drop = drop_rate, 
+                                            attn_drop = attn_drop_rate,
+                                            drop_path = dpr[sum(depths[:(self.num_layers - 3 - i_layer2)]):sum(
+                                            depths[:(self.num_layers - 3 - i_layer2) + 1])],
+                                            norm_layer = norm_layer,
+                                            upsample = PatchExpand if (i_layer2 < self.num_layers - 3) else None,
+                                            use_checkpoint = use_checkpoint)
+            self.layers_cent2.append(layers_cent2)
 
-                layer_up2 = BasicLayer_up(dim=int(embed_dim * 2 ** (self.num_layers-3-i_layer2)),
-
-                                input_resolution=(patches_resolution[0] // (2 ** (self.num_layers-3-i_layer2)),
-
-                                                    patches_resolution[1] // (2 ** (self.num_layers-3-i_layer2))),
-
-                                depth=depths[(self.num_layers-3-i_layer2)],
-
-                                num_heads=num_heads[(self.num_layers-3-i_layer2)],
-
-                                window_size=window_size,
-
-                                mlp_ratio=self.mlp_ratio,
-
-                                qkv_bias=qkv_bias, qk_scale=qk_scale,
-
-                                drop=drop_rate, attn_drop=attn_drop_rate,
-
-                                drop_path=dpr[sum(depths[:(self.num_layers-3-i_layer2)]):sum(depths[:(self.num_layers-3-i_layer2) + 1])],
-
-                                norm_layer=norm_layer,
-
-                                upsample=PatchExpand if (i_layer2 < self.num_layers - 3) else None,
-
-                                use_checkpoint=use_checkpoint)
-
-            self.layers_up2.append(layer_up2)
-        """ Von MS-Unet, keine Lizens !!! """
-
-        self.norm = norm_layer(self.num_features)
+        self.norm = norm_layer(self.num_features) # deepest encoder level
         self.norm_up = norm_layer(self.embed_dim)
 
+        # Decoder sampled up to patch size, i.e. 256x256, and from there it still needs to be scaled to image size.
         if self.final_upsample == "expand_first":
             print("---final upsample expand_first---")
-            self.up = FinalPatchExpand_X4(input_resolution=(img_size // patch_size, img_size // patch_size),
-                                          dim_scale=4, dim=embed_dim)
+            self.up = FinalPatchExpand_X4(
+                            input_resolution = (img_size // patch_size, img_size // patch_size),
+                            dim_scale = 4, 
+                            dim = embed_dim)
+            # here the pixel get a class-logit
             self.output = nn.Conv2d(in_channels=embed_dim, out_channels=self.num_classes, kernel_size=1, bias=False)
 
+        # applyes init weights to the whole model
         self.apply(self._init_weights)
 
     def _init_weights(self, m):
         if isinstance(m, nn.Linear):
-            trunc_normal_(m.weight, std=.02)
+            trunc_normal_(m.weight, std=.02) # smal random weights
             if isinstance(m, nn.Linear) and m.bias is not None:
                 nn.init.constant_(m.bias, 0)
         elif isinstance(m, nn.LayerNorm):
@@ -985,68 +980,49 @@ class MSUNetSys(nn.Module):
             x = x + self.absolute_pos_embed
         x = self.pos_drop(x)
         x_downsample = []
-
-        """ Von MS-Unet, keine Lizens !!! """
-         for inx, layer in enumerate(self.layers):
-
-            if inx == 1:
-
-                x_num2 = x
-
-                for i, layer_up2 in enumerate(self.layers_up2):
-
-                    if i ==0:
-
-                        x_num2 = layer_up2(x_num2)
-
+        
+        # i_layer = inex of the layer (0,1,2,3)
+        for i_layer, layer in enumerate(self.layers):
+            # second layer
+            if i_layer == 1:
+                x2 = x
+                for i, layers_cent2 in enumerate(self.layers_cent2): # iteration over the second between layer
+                    if i == 0:
+                        # only up-sampling + conv/transformer
+                        x2 = layers_cent2(x2)
                     else:
-
-                        x_num2 = torch.cat([x_num2, x_downsample[inx-i]], -1)
-
-                        x_num2 = self.concat_back_dim[i+2](x_num2)
-
-                        x_downsample[inx-i] = x_num2
-
-                        x_num2 = layer_up2(x_num2)
-
-
-
-            if inx == 2:
-
-                x_num1 = x
-
-                for j, layer_up1 in enumerate(self.layers_up1):
-
-                    if j ==0:
-
-                        x_num1 = layer_up1(x_num1)
-
+                        x2 = torch.cat([x2, x_downsample[i_layer - i]], -1) # sticks layers together (more channels)
+                        x2 = self.concat_back_dim[i + 2](x2) # reduce the channals to the original dim
+                        x_downsample[i_layer-i] = x2 # replace the old x_downsample
+                        x2 = layers_cent2(x2) # send it through the middle layer
+            # thired layer
+            if i_layer == 2:
+                x1 = x
+                for i, layers_cent1 in enumerate(self.layers_cent1): # iteration over the first between layer
+                    if i == 0:
+                        # only up-sampling + conv/transformer
+                        x1 = layers_cent1(x1)
                     else:
+                        x1 = torch.cat([x1, x_downsample[i_layer - i]], -1) # sticks layers together (more channels)
+                        x1 = self.concat_back_dim[i + 1](x1) # reduce the channals to the original dim
+                        x_downsample[i_layer - i] = x1 # replace the old x_downsample
+                        x1 = layers_cent1(x1) # send it through the middle layer
 
-                        x_num1 = torch.cat([x_num1, x_downsample[inx-j]], -1)
-
-                        x_num1 = self.concat_back_dim[j+1](x_num1)
-
-                        x_downsample[inx-j] = x_num1
-
-                        x_num1 = layer_up1(x_num1)
-        """ Von MS-Unet, keine Lizens !!! """
-
-        #for layer in self.layers:
             x_downsample.append(x)
-            x = layer(x)
+            x = layer(x)    
 
+        # Stabilise the final feature (from the deepest level)
         x = self.norm(x)  # B L C
-
+  
         return x, x_downsample
 
     # Dencoder and Skip connection
     def forward_up_features(self, x, x_downsample):
         for inx, layer_up in enumerate(self.layers_up):
-            if inx == 0:
+            if inx == 0: # layer on the bootom
                 x = layer_up(x)
             else:
-                x = torch.cat([x, x_downsample[3 - inx]], -1)
+                x = torch.cat([x, x_downsample[3 - inx]], -1) # get the information from the center layers
                 x = self.concat_back_dim[inx](x)
                 x = layer_up(x)
 
@@ -1054,6 +1030,7 @@ class MSUNetSys(nn.Module):
 
         return x
 
+    # gets the image from 256x256 to 1024x1024
     def up_x4(self, x):
         H, W = self.patches_resolution
         B, L, C = x.shape
@@ -1068,12 +1045,13 @@ class MSUNetSys(nn.Module):
         return x
 
     def forward(self, x):
-        x, x_downsample = self.forward_features(x)
-        x = self.forward_up_features(x, x_downsample)
-        x = self.up_x4(x)
+        x, x_downsample = self.forward_features(x)      # encoder
+        x = self.forward_up_features(x, x_downsample)   # decoder
+        x = self.up_x4(x)                               # upsampling
 
         return x
 
+    # function to estimate how many calculation steps the model performs
     def flops(self):
         flops = 0
         flops += self.patch_embed.flops()
@@ -1083,482 +1061,3 @@ class MSUNetSys(nn.Module):
         flops += self.num_features * self.num_classes
         return flops
     
-""" Von MS-Unet, keine Lizens !!! """
-def Norm_layer(norm_cfg, inplanes):
-
-    norm_op_kwargs = {'eps': 1e-5, 'affine': True, 'momentum': 0.1}
-
-    if norm_cfg == 'BN':
-
-        out = nn.BatchNorm2d(inplanes)
-
-    elif norm_cfg == 'SyncBN':
-
-        out = nn.SyncBatchNorm(inplanes)
-
-    elif norm_cfg == 'GN':
-
-        out = nn.GroupNorm(16, inplanes)
-
-    elif norm_cfg == 'IN':
-
-        out = nn.InstanceNorm2d(inplanes, **norm_op_kwargs)
-
-
-
-    return out
-
-
-
-
-
-def Activation_layer(activation_cfg, inplace=True):
-
-    if activation_cfg == 'ReLU':
-
-        out = nn.ReLU(inplace=inplace)
-
-    elif activation_cfg == 'LeakyReLU':
-
-        out = nn.LeakyReLU(negative_slope=1e-2, inplace=inplace)
-
-
-
-    return out
-
-
-
-
-
-class ConvNormNonlin(nn.Module):
-
-    def __init__(self, in_channels, out_channels, kernel_size=3, stride=1, padding=1, groups=1,
-
-                 norm_cfg='IN', activation_cfg='LeakyReLU'):
-
-        super(ConvNormNonlin, self).__init__()
-
-        self.conv = nn.Conv2d(in_channels, out_channels, kernel_size=kernel_size, stride=stride, padding=padding, groups=groups)
-
-        self.norm = Norm_layer(norm_cfg, out_channels)
-
-        self.nonlin = Activation_layer(activation_cfg)
-
-
-
-    def forward(self, x):
-
-        x = self.nonlin(self.norm(self.conv(x)))
-
-        return x
-
-
-
-class GaussianBlurConv(nn.Module):
-
-    def __init__(self, channels=3):
-
-        super(GaussianBlurConv, self).__init__()
-
-        self.channels = channels
-
-        self.bias = nn.Parameter(torch.zeros(size=(channels,), dtype=torch.float32), requires_grad=True)
-
-        kernel = [[0.00078633, 0.00655965, 0.01330373, 0.00655965, 0.00078633],
-
-                  [0.00655965, 0.05472157, 0.11098164, 0.05472157, 0.00655965],
-
-                  [0.01330373, 0.11098164, 0.22508352, 0.11098164, 0.01330373],
-
-                  [0.00655965, 0.05472157, 0.11098164, 0.05472157, 0.00655965],
-
-                  [0.00078633, 0.00655965, 0.01330373, 0.00655965, 0.00078633]]
-
-        kernel = torch.FloatTensor(kernel).unsqueeze(0).unsqueeze(0)
-
-        kernel = np.repeat(kernel, self.channels, axis=0)
-
-        self.gaussian_weight = nn.Parameter(data=kernel, requires_grad=False)
-
-        self.gaussian_factor = nn.Parameter(torch.ones(size=(3, 1, 1, 1), dtype=torch.float32),
-
-                                             requires_grad=True)
-
- 
-
-    def forward(self, x):
-
-        if torch.cuda.is_available():
-
-            self.gaussian_factor = self.gaussian_factor.cuda()
-
-            if isinstance(self.bias, nn.Parameter):
-
-                self.bias = self.bias.cuda()
-
-
-
-        gaussian_weight = self.gaussian_weight * self.gaussian_factor
-
-
-
-        if torch.cuda.is_available():
-
-            gaussian_weight = gaussian_weight.cuda()
-
-        # print("gaussian_shape:", gaussian_weight.shape)
-
-        x = F.conv2d(x, gaussian_weight, self.bias, padding=2, groups=self.channels)
-
-        return x
-
-
-
-
-
-class AnisoDiff2D(nn.Module):
-
- 
-
-    def __init__(self, num_iter=10, delta_t=1/7, kappa=30, option=2, channels=3):
-
- 
-
-        super(AnisoDiff2D, self).__init__()
-
- 
-
-        self.num_iter = num_iter
-
-        self.delta_t = delta_t
-
-        self.kappa = kappa
-
-        self.option = option
-
-        self.channels = channels
-
-
-
-        self.hN_bias = nn.Parameter(torch.zeros(size=(channels,), dtype=torch.float32), requires_grad=True)
-
-        self.hS_bias = nn.Parameter(torch.zeros(size=(channels,), dtype=torch.float32), requires_grad=True)
-
-        self.hE_bias = nn.Parameter(torch.zeros(size=(channels,), dtype=torch.float32), requires_grad=True)
-
-        self.hW_bias = nn.Parameter(torch.zeros(size=(channels,), dtype=torch.float32), requires_grad=True)
-
-        self.hNE_bias = nn.Parameter(torch.zeros(size=(channels,), dtype=torch.float32), requires_grad=True)
-
-        self.hSE_bias = nn.Parameter(torch.zeros(size=(channels,), dtype=torch.float32), requires_grad=True)
-
-        self.hSW_bias = nn.Parameter(torch.zeros(size=(channels,), dtype=torch.float32), requires_grad=True)
-
-        self.hNW_bias = nn.Parameter(torch.zeros(size=(channels,), dtype=torch.float32), requires_grad=True)
-
- 
-
-        self.hN_weight = nn.Parameter(data=np.repeat(torch.FloatTensor(
-
-                                    [[0, 1, 0], [0, -1, 0], [0, 0, 0]]).unsqueeze(0).unsqueeze(0),
-
-                                     self.channels, axis=0), 
-
-                                     requires_grad=False)  
-
-        self.hN_factor = nn.Parameter(torch.ones(size=(3, 1, 1, 1), dtype=torch.float32),requires_grad=True)
-
-        self.hS_weight = nn.Parameter(data=np.repeat(torch.FloatTensor(
-
-                                    [[0, 0, 0], [0, -1, 0], [0, 1, 0]]).unsqueeze(0).unsqueeze(0),
-
-                                     self.channels, axis=0), 
-
-                                     requires_grad=False) 
-
-        self.hS_factor = nn.Parameter(torch.ones(size=(3, 1, 1, 1), dtype=torch.float32),requires_grad=True)
-
-        self.hE_weight = nn.Parameter(data=np.repeat(torch.FloatTensor(
-
-                                    [[0, 0, 0], [0, -1, 1], [0, 0, 0]]).unsqueeze(0).unsqueeze(0),
-
-                                     self.channels, axis=0), 
-
-                                     requires_grad=False)
-
-        self.hE_factor = nn.Parameter(torch.ones(size=(3, 1, 1, 1), dtype=torch.float32),requires_grad=True)
-
-        self.hW_weight = nn.Parameter(data=np.repeat(torch.FloatTensor(
-
-                                    [[0, 0, 0], [1, -1, 0], [0, 0, 0]]).unsqueeze(0).unsqueeze(0),
-
-                                     self.channels, axis=0), 
-
-                                     requires_grad=False)
-
-        self.hW_factor = nn.Parameter(torch.ones(size=(3, 1, 1, 1), dtype=torch.float32),requires_grad=True)
-
-        self.hNE_weight = nn.Parameter(data=np.repeat(torch.FloatTensor(
-
-                                    [[0, 0, 1], [0, -1, 0], [0, 0, 0]]).unsqueeze(0).unsqueeze(0),
-
-                                     self.channels, axis=0), 
-
-                                     requires_grad=False)
-
-        self.hNE_factor = nn.Parameter(torch.ones(size=(3, 1, 1, 1), dtype=torch.float32),requires_grad=True)
-
-        self.hSE_weight = nn.Parameter(data=np.repeat(torch.FloatTensor(
-
-                                    [[0, 0, 0], [0, -1, 0], [0, 0, 1]]).unsqueeze(0).unsqueeze(0),
-
-                                     self.channels, axis=0), 
-
-                                     requires_grad=False) 
-
-        self.hSE_factor = nn.Parameter(torch.ones(size=(3, 1, 1, 1), dtype=torch.float32),requires_grad=True)
-
-        self.hSW_weight = nn.Parameter(data=np.repeat(torch.FloatTensor(
-
-                                    [[0, 0, 0], [0, -1, 0], [1, 0, 0]]).unsqueeze(0).unsqueeze(0),
-
-                                     self.channels, axis=0), 
-
-                                     requires_grad=False) 
-
-        self.hSW_factor = nn.Parameter(torch.ones(size=(3, 1, 1, 1), dtype=torch.float32),requires_grad=True)
-
-        self.hNW_weight = nn.Parameter(data=np.repeat(torch.FloatTensor(
-
-                                    [[1, 0, 0], [0, -1, 0], [0, 0, 0]]).unsqueeze(0).unsqueeze(0),
-
-                                     self.channels, axis=0), 
-
-                                     requires_grad=False) 
-
-        self.hNW_factor = nn.Parameter(torch.ones(size=(3, 1, 1, 1), dtype=torch.float32),requires_grad=True)
-
- 
-
-    def forward(self, diff_im):
-
-
-
-        if torch.cuda.is_available():
-
-            self.hN_factor = self.hN_factor.cuda()
-
-            self.hS_factor = self.hS_factor.cuda()
-
-            self.hW_factor = self.hW_factor.cuda()
-
-            self.hE_factor = self.hE_factor.cuda()
-
-            self.hNE_factor = self.hNE_factor.cuda()
-
-            self.hSE_factor = self.hSE_factor.cuda()
-
-            self.hSW_factor = self.hSW_factor.cuda()
-
-            self.hNW_factor = self.hNW_factor.cuda()
-
-            if isinstance(self.hN_bias, nn.Parameter):
-
-                self.hN_bias = self.hN_bias.cuda()
-
-                self.hS_bias = self.hS_bias.cuda()
-
-                self.hW_bias = self.hW_bias.cuda()
-
-                self.hE_bias = self.hE_bias.cuda()
-
-                self.hNE_bias = self.hNE_bias.cuda()
-
-                self.hSE_bias = self.hSE_bias.cuda()
-
-                self.hSW_bias = self.hSW_bias.cuda()
-
-                self.hNW_bias = self.hNW_bias.cuda()
-
-
-
-        # diff_im = x
-
- 
-
-        dx = 1; dy = 1; dd = math.sqrt(2)
-
-
-
-        hN = self.hN_weight * self.hN_factor
-
-        hS = self.hS_weight * self.hS_factor
-
-        hW = self.hW_weight * self.hW_factor
-
-        hE = self.hE_weight * self.hE_factor
-
-        hNE = self.hNE_weight * self.hNE_factor
-
-        hSE = self.hSE_weight * self.hSE_factor
-
-        hSW = self.hSW_weight * self.hSW_factor
-
-        hNW = self.hNW_weight * self.hNW_factor
-
-
-
-        if torch.cuda.is_available():
-
-            hN = hN.cuda()
-
-            hS = hS.cuda()
-
-            hW = hW.cuda()
-
-            hE = hE.cuda()
-
-            hNE = hNE.cuda()
-
-            hSE = hSE.cuda()
-
-            hSW = hSW.cuda()
-
-            hNW = hNW.cuda()
-
-
-
-        for i in range(self.num_iter):
-
-            nablaN = F.conv2d(diff_im, hN, self.hN_bias, padding=1, groups=self.channels)
-
-            nablaS = F.conv2d(diff_im, hS, self.hS_bias, padding=1, groups=self.channels)
-
-            nablaW = F.conv2d(diff_im, hW, self.hW_bias, padding=1, groups=self.channels)
-
-            nablaE = F.conv2d(diff_im, hE, self.hE_bias, padding=1, groups=self.channels)
-
-            nablaNE = F.conv2d(diff_im, hNE, self.hNE_bias, padding=1, groups=self.channels)
-
-            nablaSE = F.conv2d(diff_im, hSE, self.hSE_bias, padding=1, groups=self.channels)
-
-            nablaSW = F.conv2d(diff_im, hSW, self.hSW_bias, padding=1, groups=self.channels)
-
-            nablaNW = F.conv2d(diff_im, hNW, self.hNW_bias, padding=1, groups=self.channels)
-
- 
-
-            cN = 0; cS = 0; cW = 0; cE = 0; cNE = 0; cSE = 0; cSW = 0; cNW = 0
-
- 
-
-            if self.option == 1:
-
-                cN = torch.exp(-(nablaN/self.kappa)**2)
-
-                cS = torch.exp(-(nablaS/self.kappa)**2)
-
-                cW = torch.exp(-(nablaW/self.kappa)**2)
-
-                cE = torch.exp(-(nablaE/self.kappa)**2)
-
-                cNE = torch.exp(-(nablaNE/self.kappa)**2)
-
-                cSE = torch.exp(-(nablaSE/self.kappa)**2)
-
-                cSW = torch.exp(-(nablaSW/self.kappa)**2)
-
-                cNW = torch.exp(-(nablaNW/self.kappa)**2)
-
-            elif self.option == 2:
-
-                cN = 1/(1+(nablaN/self.kappa)**2)
-
-                cS = 1/(1+(nablaS/self.kappa)**2)
-
-                cW = 1/(1+(nablaW/self.kappa)**2)
-
-                cE = 1/(1+(nablaE/self.kappa)**2)
-
-                cNE = 1/(1+(nablaNE/self.kappa)**2)
-
-                cSE = 1/(1+(nablaSE/self.kappa)**2)
-
-                cSW = 1/(1+(nablaSW/self.kappa)**2)
-
-                cNW = 1/(1+(nablaNW/self.kappa)**2)
-
- 
-
-            diff_im = diff_im + self.delta_t * (
-
- 
-
-                (1/dy**2)*cN*nablaN +
-
-                (1/dy**2)*cS*nablaS +
-
-                (1/dx**2)*cW*nablaW +
-
-                (1/dx**2)*cE*nablaE +
-
- 
-
-                (1/dd**2)*cNE*nablaNE +
-
-                (1/dd**2)*cSE*nablaSE +
-
-                (1/dd**2)*cSW*nablaSW +
-
-                (1/dd**2)*cNW*nablaNW
-
-            )
-
- 
-
-        return diff_im
-
-
-
-
-
-class ImgDenoising(nn.Module):
-
-    def __init__(self, channels=3, norm_cfg='IN', activation_cfg='LeakyReLU'):
-
-        super(ImgDenoising, self).__init__()
-
-
-
-        self.gaussian = GaussianBlurConv()
-
-        self.anisodiff = AnisoDiff2D()
-
-        self.flow = nn.Conv2d(channels * 3, channels, kernel_size=1)
-
-        self.norm = Norm_layer(norm_cfg, channels)
-
-
-
-    def forward(self, x):
-
-        
-
-        x_gauss = self.gaussian(x)
-
-        x_anisodiff = self.anisodiff(x)
-
-        flow = torch.cat([x, x_gauss, x_anisodiff], dim=1)
-
-        flow = self.norm(self.flow(flow))
-
-        attn = torch.sigmoid(flow)
-
-        x = x * attn
-
-
-
-        return x
-
-
-""" Von MS-Unet, keine Lizens !!! """
