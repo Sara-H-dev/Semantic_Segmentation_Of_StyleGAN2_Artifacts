@@ -1,0 +1,81 @@
+import os
+import random
+import h5py
+import numpy as np
+import torch
+from torch.utils.data import Dataset
+from PIL import Image
+
+# flips the image and label
+def random_flip(image, label):
+    image = np.flip(image, axis=1).copy()
+    label = np.flip(label, axis=1).copy()
+    return image, label
+
+
+
+class RandomGenerator(object):
+    def __init__(self, output_size):
+        self.output_size = output_size
+
+    def __call__(self, sample):
+        image, label = sample['image'], sample['label']
+
+        # PIL → NumPy
+        image = np.array(image, dtype=np.float32)   # [H,W,3]
+        label = np.array(label, dtype=np.uint8)    # [H,W]
+
+        if random.random() > 0.5:
+            image, label = random_flip(image, label)
+
+        H, W = image.shape[:2]
+        
+        if (H, W) != tuple(self.output_size):
+            raise ValueError(f"Wrong image size: {H, W}")
+        
+        # Normalisation 0-1, if PNGs 0..255
+        if image.max() > 1.0:
+            image = image / 255.0
+        label = (label > 127).astype(np.uint8)
+        
+        image = torch.from_numpy(image).permute(2, 0, 1)  # [3,H,W]
+        label = torch.from_numpy(label.astype(np.float32))
+
+        return {'image': image, 'label': label.long()}
+
+
+# inherits from torch.utils.data.Dataset
+class SegArtifact_dataset(Dataset):
+    r"""
+    SegArtifact_dataset
+
+    Args:
+        base_dir (str): root folder where the image and lable file lies
+        list_dir (str): folder to file (which sample belongs to which split)
+        split (str): options: "train", "val" and "test"
+        transform: oprional pyTorch-Transfomration-pipeline (resize, flip, normalize)
+    """
+    def __init__(self, base_dir, list_dir, split, transform=None):
+        self.transform = transform  # using transform in torch!
+        self.split = split
+        # opens for example train.txt and reads all lines in the list
+        self.sample_list = open(os.path.join(list_dir, self.split+'.txt')).readlines()
+        self.data_dir = base_dir
+
+    def __len__(self):
+        return len(self.sample_list)
+
+    def __getitem__(self, idx):
+
+        # gets the name of the next data. 
+        slice_name = self.sample_list[idx].strip('\n')
+        # loads image and label
+        image = Image.open(os.path.join(self.data_dir, "images", slice_name + ".png")).convert("RGB")
+        label = Image.open(os.path.join(self.data_dir, "labels", slice_name + "_mask.png")).convert("L")
+
+
+        sample = {'image': image, 'label': label}
+        if self.transform:
+            sample = self.transform(sample)
+        sample['case_name'] = self.sample_list[idx].strip('\n')
+        return sample
