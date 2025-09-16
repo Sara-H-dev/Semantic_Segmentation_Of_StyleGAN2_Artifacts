@@ -19,7 +19,7 @@ _C.BASE = ['']
 # -----------------------------------------------------------------------------
 _C.DATA = CN()
 # Batch size for a single GPU, could be overwritten by command line argument
-_C.DATA.BATCH_SIZE = 128
+_C.DATA.BATCH_SIZE = 8
 # Path to dataset, could be overwritten by command line argument
 _C.DATA.DATA_PATH = './dataset'
 # Dataset name
@@ -48,6 +48,9 @@ _C.MODEL.TYPE = 'swin'
 _C.MODEL.NAME = 'swin_b'
 # Checkpoint to resume, could be overwritten by command line argument
 _C.MODEL.PRETRAIN_CKPT = './pretrained_ckpt/swin_b.pth'
+# path to segface weights
+_C.MODEL.PRETRAIN_SEGFACE = './network/pretrained_weights/SegFace_swin_celaba_512.pt'
+
 _C.MODEL.RESUME = ''
 # Number of classes, overwritten in data preparation
 _C.MODEL.NUM_CLASSES = 1
@@ -123,15 +126,15 @@ _C.AUG.COLOR_JITTER = 0.4
 # Use AutoAugment policy. "v0" or "original"
 _C.AUG.AUTO_AUGMENT = 'rand-m9-mstd0.5-inc1'
 # Random erase prob
-_C.AUG.REPROB = 0.25
+_C.AUG.REPROB = 0.0
 # Random erase mode
 _C.AUG.REMODE = 'pixel'
 # Random erase count
 _C.AUG.RECOUNT = 1
 # Mixup alpha, mixup enabled if > 0
-_C.AUG.MIXUP = 0.8
+_C.AUG.MIXUP = 0.0
 # Cutmix alpha, cutmix enabled if > 0
-_C.AUG.CUTMIX = 1.0
+_C.AUG.CUTMIX = 0.0
 # Cutmix min/max ratio, overrides alpha and enables cutmix if set
 _C.AUG.CUTMIX_MINMAX = None
 # Probability of performing mixup or cutmix when either/both is enabled
@@ -225,6 +228,7 @@ def get_config(args):
     # Return a clone so that the defaults will not be altered
     # This is for the "local variable" use pattern
     config = _C.clone()
-    update_config(config, args)
+    if args != None:
+        update_config(config, args)
 
     return config

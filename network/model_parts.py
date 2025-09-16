@@ -32,6 +32,7 @@ import torch
 import torch.nn as nn
 import torch.utils.checkpoint as checkpoint
 from timm.models.layers import DropPath, to_2tuple, trunc_normal_
+import torch.nn.functional as F
 
 
 class Mlp(nn.Module):
@@ -62,9 +63,22 @@ def window_partition(x, window_size):
     Returns:
         windows: (num_windows*B, window_size, window_size, C)
     """
+
+    # inspired by https://docs.pytorch.org/vision/0.14/_modules/torchvision/models/swin_transformer
+
     B, H, W, C = x.shape
-    x = x.view(B, H // window_size, window_size, W // window_size, window_size, C)
+    # pad to multiples of window_size (wie torchvision)
+    pad_r = (window_size - W % window_size) % window_size
+    pad_b = (window_size - H % window_size) % window_size
+
+    x = F.pad(x, (0, 0, 0, pad_r, 0, pad_b))
+    _, pad_H, pad_W, _ = x.shape
+
+    num_windows = (pad_H // window_size) * (pad_W // window_size)
+
+    x = x.view(B, pad_H // window_size, window_size, pad_W // window_size, window_size, C)
     windows = x.permute(0, 1, 3, 2, 4, 5).contiguous().view(-1, window_size, window_size, C)
+
     return windows
 
 
