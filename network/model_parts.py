@@ -537,9 +537,12 @@ class SwinTransformer(nn.Module):
         self.mlp_ratio = mlp_ratio
 
         # split image into non-overlapping patches
-        self.patch_embed = PatchEmbed(
-            img_size=img_size, patch_size=patch_size, in_chans=in_chans, embed_dim=embed_dim,
-            norm_layer=norm_layer if self.patch_norm else None)
+        self.patch_embed = PatchEmbed(  img_size = img_size, 
+                                        patch_size = patch_size, 
+                                        in_chans = in_chans, 
+                                        embed_dim = embed_dim,
+                                        norm_layer = norm_layer if self.patch_norm else None)
+        
         num_patches = self.patch_embed.num_patches
         patches_resolution = self.patch_embed.patches_resolution
         self.patches_resolution = patches_resolution
@@ -739,7 +742,7 @@ class BasicLayer_up(nn.Module):
             x = self.upsample(x)
         return x
     
-class SwinTransformerSys(nn.Module):
+class MSUNetSys(nn.Module):
     r""" Swin Transformer
         A PyTorch impl of : `Swin Transformer: Hierarchical Vision Transformer using Shifted Windows`  -
           https://arxiv.org/pdf/2103.14030
@@ -765,12 +768,12 @@ class SwinTransformerSys(nn.Module):
         use_checkpoint (bool): Whether to use checkpointing to save memory. Default: False
     """
 
-    def __init__(self, img_size=224, patch_size=4, in_chans=3, num_classes=1000,
-                 embed_dim=96, depths=[2, 2, 2, 2], depths_decoder=[1, 2, 2, 2], num_heads=[3, 6, 12, 24],
-                 window_size=7, mlp_ratio=4., qkv_bias=True, qk_scale=None,
-                 drop_rate=0., attn_drop_rate=0., drop_path_rate=0.1,
-                 norm_layer=nn.LayerNorm, ape=False, patch_norm=True,
-                 use_checkpoint=False, final_upsample="expand_first", **kwargs):
+    def __init__(self, img_size = 1024, patch_size = 4, in_chans = 3, num_classes =1 ,
+                 embed_dim = 128, depths = [2, 2, 18, 2], depths_decoder = [2, 2, 6, 2], num_heads = [4, 8, 16, 32],
+                 window_size = 7, mlp_ratio = 4., qkv_bias = True, qk_scale = None,
+                 drop_rate = 0., attn_drop_rate = 0., drop_path_rate = 0.1,
+                 norm_layer = nn.LayerNorm, ape = False, patch_norm = True,
+                 use_checkpoint = False, final_upsample = "expand_first", **kwargs):
         super().__init__()
 
         print(
@@ -789,9 +792,11 @@ class SwinTransformerSys(nn.Module):
         self.final_upsample = final_upsample
 
         # split image into non-overlapping patches
-        self.patch_embed = PatchEmbed(
-            img_size=img_size, patch_size=patch_size, in_chans=in_chans, embed_dim=embed_dim,
-            norm_layer=norm_layer if self.patch_norm else None)
+        self.patch_embed = PatchEmbed(  img_size = img_size, 
+                                        patch_size = patch_size, 
+                                        in_chans = in_chans,
+                                        embed_dim = embed_dim,
+                                        norm_layer=norm_layer if self.patch_norm else None)
         num_patches = self.patch_embed.num_patches
         patches_resolution = self.patch_embed.patches_resolution
         self.patches_resolution = patches_resolution
@@ -804,29 +809,32 @@ class SwinTransformerSys(nn.Module):
         self.pos_drop = nn.Dropout(p=drop_rate)
 
         # stochastic depth
-        dpr = [x.item() for x in torch.linspace(0, drop_path_rate, sum(depths))]  # stochastic depth decay rule
+        # = drop out path -> transformer block can be skipped with a certain probability.
+        dpr = [x.item() for x in torch.linspace(0, drop_path_rate, sum(depths))] 
 
         # build encoder and bottleneck layers
         self.layers = nn.ModuleList()
         for i_layer in range(self.num_layers):
-            layer = BasicLayer(dim=int(embed_dim * 2 ** i_layer),
-                               input_resolution=(patches_resolution[0] // (2 ** i_layer),
+            layer = BasicLayer(dim = int(embed_dim * 2 ** i_layer),
+                               input_resolution = (patches_resolution[0] // (2 ** i_layer),
                                                  patches_resolution[1] // (2 ** i_layer)),
-                               depth=depths[i_layer],
-                               num_heads=num_heads[i_layer],
-                               window_size=window_size,
-                               mlp_ratio=self.mlp_ratio,
-                               qkv_bias=qkv_bias, qk_scale=qk_scale,
-                               drop=drop_rate, attn_drop=attn_drop_rate,
-                               drop_path=dpr[sum(depths[:i_layer]):sum(depths[:i_layer + 1])],
-                               norm_layer=norm_layer,
-                               downsample=PatchMerging if (i_layer < self.num_layers - 1) else None,
-                               use_checkpoint=use_checkpoint)
+                               depth = depths[i_layer],
+                               num_heads = num_heads[i_layer],
+                               window_size = window_size,
+                               mlp_ratio = self.mlp_ratio,
+                               qkv_bias = qkv_bias, qk_scale=qk_scale,
+                               drop = drop_rate, attn_drop=attn_drop_rate,
+                               drop_path = dpr[sum(depths[:i_layer]):sum(depths[:i_layer + 1])],
+                               norm_layer = norm_layer,
+                               downsample = PatchMerging if (i_layer < self.num_layers - 1) else None,
+                               use_checkpoint = use_checkpoint)
             self.layers.append(layer)
 
+        """ from Swin-UNet: https://github.com/HuCaoFighting/Swin-Unet/blob/main/networks/swin_transformer_unet_skip_expand_decoder_sys.py """
         # build decoder layers
         self.layers_up = nn.ModuleList()
         self.concat_back_dim = nn.ModuleList()
+        
         for i_layer in range(self.num_layers):
             concat_linear = nn.Linear(2 * int(embed_dim * 2 ** (self.num_layers - 1 - i_layer)),
                                       int(embed_dim * 2 ** (self.num_layers - 1 - i_layer))) if i_layer > 0 else nn.Identity()

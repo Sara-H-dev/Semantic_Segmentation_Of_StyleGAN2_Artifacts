@@ -6,18 +6,10 @@ from __future__ import print_function
 
 import copy
 import logging
-import math
-
-from os.path import join as pjoin
 
 import torch
 import torch.nn as nn
-import numpy as np
-
-from torch.nn import CrossEntropyLoss, Dropout, Softmax, Linear, Conv2d, LayerNorm
-from torch.nn.modules.utils import _pair
-from scipy import ndimage
-from .model import ModelSys
+from .model_parts import MSUNetSys
 
 logger = logging.getLogger(__name__)
 
@@ -28,35 +20,42 @@ class MSUNet(nn.Module):
         self.zero_head = zero_head
         self.config = config
 
-        self.ms_unet = ModelSys(img_size = config.DATA.IMG_SIZE,
-                                patch_size = config.MODEL.SWIN.PATCH_SIZE,
-                                in_chans = config.MODEL.SWIN.IN_CHANS,
-                                num_classes = self.num_classes,
-                                embed_dim = config.MODEL.SWIN.EMBED_DIM,
-                                depths = config.MODEL.SWIN.DEPTHS,
-                                num_heads = config.MODEL.SWIN.NUM_HEADS,
-                                window_size = config.MODEL.SWIN.WINDOW_SIZE,
-                                mlp_ratio = config.MODEL.SWIN.MLP_RATIO,
-                                qkv_bias = config.MODEL.SWIN.QKV_BIAS,
-                                qk_scale = config.MODEL.SWIN.QK_SCALE,
-                                drop_rate = config.MODEL.DROP_RATE,
-                                drop_path_rate = config.MODEL.DROP_PATH_RATE,
-                                ape= config.MODEL.SWIN.APE,
-                                patch_norm = config.MODEL.SWIN.PATCH_NORM,
-                                use_checkpoint = config.TRAIN.USE_CHECKPOINT)
+        self.ms_unet = MSUNetSys(
+                                img_size = config.DATA.IMG_SIZE,                # image size 
+                                patch_size = config.MODEL.SWIN.PATCH_SIZE,      # patch size (4x4)
+                                in_chans = config.MODEL.SWIN.IN_CHANS,          # number of input channels (3)
+                                num_classes = self.num_classes,                 # number of classes
+                                embed_dim = config.MODEL.SWIN.EMBED_DIM,        # dimension after path-embeding (128)
+                                depths = config.MODEL.SWIN.DEPTHS,              # how many transformer blocks [2, 2, 18, 2]
+                                num_heads = config.MODEL.SWIN.NUM_HEADS,        # number of attention heads [4, 8, 16, 32]
+                                window_size = config.MODEL.SWIN.WINDOW_SIZE,    # self-attention-window-size 7x7
+                                mlp_ratio = config.MODEL.SWIN.MLP_RATIO,        # indicates how much this intermediate layer is inflated.
+                                qkv_bias = config.MODEL.SWIN.QKV_BIAS,          # qkv with bias (True)
+                                qk_scale = config.MODEL.SWIN.QK_SCALE,          # overwritting if diffrent scale wanted 
+                                drop_rate = config.MODEL.DROP_RATE,             # dropout MLP or features
+                                drop_path_rate = config.MODEL.DROP_PATH_RATE,   # transformer blocks can be sciped (reduce overfitting)
+                                ape = config.MODEL.SWIN.APE,                    # absolute position embedding (False for swin)
+                                patch_norm = config.MODEL.SWIN.PATCH_NORM,      # if after patch-embedding a layernorm (True)
+                                use_checkpoint = config.TRAIN.USE_CHECKPOINT)   # activating gradient checkpoint (saves GPU-memory)
 
     def forward(self, x):
-        if x.size()[1] == 1:
-            x = x.repeat(1,3,1,1)
-        logits = self.ms_unet(x)
-        return logits
+        if x.size()[1] != 3:
+            msg = f"Expected 3 channels, but got {x.size(1)}"
+            logger.error(msg)
+            raise ValueError(msg)
+        return self.ms_unet(x)
 
+    # for loading pretrained weights
     def load_from(self, config):
+        # pretrained_path
         pretrained_path = config.MODEL.PRETRAIN_CKPT
+
         if pretrained_path is not None:
             print("pretrained_path:{}".format(pretrained_path))
+            # cpu or cuda
             device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
             pretrained_dict = torch.load(pretrained_path, map_location=device)
+
             if "model"  not in pretrained_dict:
                 print("---start load pretrained modle by splitting---")
                 pretrained_dict = {k[17:]:v for k,v in pretrained_dict.items()}
