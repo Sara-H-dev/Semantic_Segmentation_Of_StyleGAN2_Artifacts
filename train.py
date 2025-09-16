@@ -6,7 +6,7 @@ import random
 import numpy as np
 import torch
 import torch.backends.cudnn as cudnn
-from networks.MSUNet import MSUNet as MSUNet
+from network.MSUNet import MSUNet as MSUNet
 from trainer import trainer_MS_UNet
 from config import get_config
 
@@ -131,10 +131,13 @@ if __name__ == "__main__":
         os.makedirs(args.output_dir)
     
     # .cuda() puts the model on GPU, everything on VRAM
-    net = MSUNet(config, img_size=args.img_size, num_classes=args.num_classes).cuda()
+    model = MSUNet( config, 
+                    img_size=args.img_size, 
+                    num_classes=args.num_classes
+                    ).cuda()
     # pretrained weights are loaded
-    net.load_from(config)
+    model.load_from(config)
 
     # train dictionary wiht the trianer_MS_UNet function
-    trainer_dic = {'Synapse': trainer_MS_UNet,}
-    trainer_dic[dataset_name](args, net, args.output_dir)
+    trainer_dic = {'SegArtifact': trainer_MS_UNet,}
+    trainer_dic[dataset_name](args, model, args.output_dir)

@@ -41,7 +41,7 @@ import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 from network.transformer import *
-from network.utils_models import *
+from network.tray.utils_models import *
 
 class MLPSegFace(nn.Module):
     """

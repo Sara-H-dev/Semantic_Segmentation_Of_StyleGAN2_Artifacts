@@ -1,12 +1,9 @@
-# von trainer_Synapse.py
+# from trainer_Synapse.py
 
-import argparse
 import logging
 import os
 import random
 import sys
-import time
-import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -14,16 +11,15 @@ from tensorboardX import SummaryWriter
 from torch.nn.modules.loss import CrossEntropyLoss
 from torch.utils.data import DataLoader
 from tqdm import tqdm
-from utils import DiceLoss, ELoss
+#from utils import DiceLoss, ELoss
 from torchvision import transforms
-from utils import test_single_volume
 
 def trainer_MS_UNet(args, model, log_save_path = ""):
     from dataset.dataset import SegArtifact_dataset, RandomGenerator
 
     # logger config
     logging.basicConfig(
-        filename = "./log.txt", 
+        filename=log_save_path + "/log.txt" 
         level=logging.INFO,
         format='[%(asctime)s.%(msecs)03d] %(message)s', 
         datefmt='%H:%M:%S') #houres, minutes, seconds
@@ -71,7 +67,7 @@ def trainer_MS_UNet(args, model, log_save_path = ""):
                             weight_decay=0.0001)    # L2 regularisation. 
                                                     # keeps weights small → reduces overfitting.
                                                     
-    writer = SummaryWriter('./log')
+    writer = SummaryWriter(log_save_path + '/log')
 
     iter_num = 0
     max_epoch = args.max_epochs
