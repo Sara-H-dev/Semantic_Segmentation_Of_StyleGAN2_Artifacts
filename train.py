@@ -51,7 +51,7 @@ parser.add_argument('--seed', type=int,
                     default=1234, help='random seed')
 # path to JSON with model/train/eval-setings
 parser.add_argument('--cfg', type=str, 
-                    required=True, metavar="FILE", help='path to config file', )
+                    default = 'None', required=False, metavar="FILE", help='path to config file', )
 # Modify config options by adding 'KEY VALUE' pairs.
 parser.add_argument(
         "--opts",
@@ -129,15 +129,18 @@ if __name__ == "__main__":
 
     if not os.path.exists(args.output_dir):
         os.makedirs(args.output_dir)
+
+    # if cuda is avilable
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
-    # .cuda() puts the model on GPU, everything on VRAM
     model = MSUNet( config, 
                     img_size=args.img_size, 
                     num_classes=args.num_classes
-                    ).cuda()
+                    ).to(device)
     # pretrained weights are loaded
-    model.load_from(config)
+    
+    model.load_segface_weight(config)
 
     # train dictionary wiht the trianer_MS_UNet function
     trainer_dic = {'SegArtifact': trainer_MS_UNet,}
-    trainer_dic[dataset_name](args, model, args.output_dir)
+    #trainer_dic[dataset_name](args, model, args.output_dir)

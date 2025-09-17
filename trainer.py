@@ -19,7 +19,7 @@ def trainer_MS_UNet(args, model, log_save_path = ""):
 
     # logger config
     logging.basicConfig(
-        filename=log_save_path + "/log.txt" 
+        filename = log_save_path + "/log.txt",
         level=logging.INFO,
         format='[%(asctime)s.%(msecs)03d] %(message)s', 
         datefmt='%H:%M:%S') #houres, minutes, seconds

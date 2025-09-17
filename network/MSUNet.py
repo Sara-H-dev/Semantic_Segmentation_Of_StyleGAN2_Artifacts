@@ -132,5 +132,77 @@ class MSUNet(nn.Module):
         else:
             print("none pretrain")
 
+    def load_segface_weight(self, config):
+        # cpu or cuda
+        pretrained_path = config.MODEL.PRETRAIN_SEGFACE
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+        segface_dict = torch.load(pretrained_path, map_location = device)
+        segface_dict = segface_dict["state_dict_backbone"]
+        nums = list(range(18))
+        new_state_dict = {}
+        skip = False
+
+        for k, v in segface_dict.items():
+            new_k = k
+            skip = False
+            if k.startswith("backbone"):
+                if k.startswith("backbone.0.0.0."):
+                    new_k = k.replace("backbone.0.0.0", "ms_unet.patch_embed.proj")
+                elif k.startswith("backbone.0.0.2."):
+                    new_k = k.replace("backbone.0.0.2", "ms_unet.patch_embed.norm")
+                elif k.startswith("backbone.0.1.0."):
+                    new_k = k.replace("backbone.0.1.0", "ms_unet.layers.0.blocks.0")
+                elif k.startswith("backbone.0.1.1."):
+                    new_k = k.replace("backbone.0.1.1", "ms_unet.layers.0.blocks.1")
+                elif k.startswith("backbone.0.2."):
+                    new_k = k.replace("backbone.0.2", "ms_unet.layers.0.downsample")
+                elif k.startswith("backbone.0.3.0."):
+                    new_k = k.replace("backbone.0.3.0", "ms_unet.layers.1.blocks.0")
+                elif k.startswith("backbone.0.3.1."):
+                    new_k = k.replace("backbone.0.3.1", "ms_unet.layers.1.blocks.1")
+                elif k.startswith("backbone.0.4."):
+                    new_k = k.replace("backbone.0.4", "ms_unet.layers.1.downsample")
+                elif k.startswith("backbone.0.5."):
+                    for i in nums: # 0 to 17
+                        segface_str = "backbone.0.5." + str(i)
+                        msunet_str = "ms_unet.layers.2.blocks." + str(i)
+                        if k.startswith(segface_str):
+                            new_k = k.replace(segface_str, msunet_str)
+                            break
+                elif k.startswith("backbone.0.6."):
+                    new_k = k.replace("backbone.0.6", "ms_unet.layers.2.downsample")
+                elif k.startswith("backbone.0.7.0."):
+                    new_k = k.replace("backbone.0.7.0", "ms_unet.layers.3.blocks.0")
+                elif k.startswith("backbone.0.7.1."):
+                    new_k = k.replace("backbone.0.7.1", "ms_unet.layers.3.blocks.1")
+                elif k.startswith("backbone.1."):
+                    skip = True
+                else:
+                    msg = f"Key {k} not found in dictionary!!"
+                    logger.error(msg)
+                    raise ValueError(msg)
+                
+                if skip == False:
+                    if new_k == k:
+                        msg = f"Key {k} not replaced!"
+                        logger.error(msg)
+                        raise ValueError(msg)
+                
+                    new_state_dict[new_k] = v
+
+        model_dict = self.ms_unet.state_dict()
+
+        for k in list(new_state_dict.keys()):
+                if k in model_dict:
+                    if new_state_dict[k].shape != model_dict[k].shape:
+                        msg = f"Key {k} does not match the dictionary of MSUNet!"
+                        logger.error(msg)
+                        raise ValueError(msg)
+
+        msg = self.ms_unet.load_state_dict(new_state_dict, strict=False)
+        print(msg)
+        print("End of the pretrained copying process")
+
     
  
