@@ -141,6 +141,8 @@ if __name__ == "__main__":
     
     model.load_segface_weight(config)
 
+    freeze_encoder = config.MODEL.PRETRAIN_CKPT
+
     # train dictionary wiht the trianer_MS_UNet function
-    trainer_dic = {'SegArtifact': trainer_MS_UNet,}
+    trainer_dic = {'SegArtifact': trainer_MS_UNet(config=config),}
     #trainer_dic[dataset_name](args, model, args.output_dir)

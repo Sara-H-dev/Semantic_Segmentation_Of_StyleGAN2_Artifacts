@@ -14,8 +14,12 @@ from .model_parts import MSUNetSys
 logger = logging.getLogger(__name__)
 
 class MSUNet(nn.Module):
-    def __init__(self, config, img_size=1024, num_classes=1, zero_head=False, vis=False,
-                 freeze_encoder_epochs = 0):
+    def __init__(self, 
+                 config, 
+                 img_size = 1024, 
+                 num_classes = 1, 
+                 zero_head = False, 
+                 vis = False,):
         super(MSUNet, self).__init__()
         self.num_classes = num_classes
         self.zero_head = zero_head
@@ -45,6 +49,12 @@ class MSUNet(nn.Module):
             logger.error(msg)
             raise ValueError(msg)
         return self.ms_unet(x)
+    
+    def freeze_encoder(self, freeze):
+        self.ms_unet.freeze_encoder(freeze)
+
+    def unfreeze_encoder(self, layer_num):
+        self.ms_unet.unfreeze_encoder(layer_num)
 
     # for loading pretrained weights
     def load_segface_weights(self, config):

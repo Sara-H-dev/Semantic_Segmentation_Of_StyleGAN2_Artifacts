@@ -14,8 +14,9 @@ from tqdm import tqdm
 #from utils import DiceLoss, ELoss
 from torchvision import transforms
 
-def trainer_MS_UNet(args, model, log_save_path = ""):
+def trainer_MS_UNet(args, model, log_save_path = "", config = None):
     from dataset.dataset import SegArtifact_dataset, RandomGenerator
+
 
     # logger config
     logging.basicConfig(
@@ -26,6 +27,9 @@ def trainer_MS_UNet(args, model, log_save_path = ""):
     # every log is visible in terminal and log-file
     logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
     logging.info(str(args)) # logs the args
+
+    if config == None: raise ValueError(logging.error("Config file is not found!"))
+    freeze_encoder = config.FREEZE_ENCODER
 
     base_lr = args.base_lr                      # learning rate
     num_classes = args.num_classes              # number of classes
@@ -53,6 +57,8 @@ def trainer_MS_UNet(args, model, log_save_path = ""):
     if args.n_gpu > 1:
         model = nn.DataParallel(model)
     
+    # freez encoder if wanted
+    model.freeze_encoder()
     # training!!!
     model.train()
 
@@ -74,10 +80,35 @@ def trainer_MS_UNet(args, model, log_save_path = ""):
     max_iterations = args.max_epochs * len(trainloader)  # max_epoch = max_iterations // len(trainloader) + 1
     logging.info("{} iterations per epoch. {} max iterations ".format(len(trainloader), max_iterations))
     best_performance = 0.0
+    # parameters for unfreezing the encoder:
+    stage3_unfreeze = max_epoch*config.STAGE3_UNFREEZE_PERIODE
+    stage2_unfreeze = max_epoch*config.STAGE2_UNFREEZE_PERIODE
+    stage1_unfreeze = max_epoch*config.STAGE1_UNFREEZE_PERIODE
+    stage0_unfreeze = max_epoch*config.STAGE1_UNFREEZE_PERIODE
     # creates progress bar
     iterator = tqdm(range(max_epoch), ncols=70)
 
+    bool_s3_unfreezed = False
+    bool_s2_unfreezed = False
+    bool_s1_unfreezed = False
+    bool_s0_unfreezed = False
+
     for epoch_num in iterator:
+        if freeze_encoder == True:
+            # unfreeze form the deepest encoder level to the highests
+            if (epoch_num >= stage3_unfreeze) and (bool_s3_unfreezed == False):
+                model.unfreeze_encoder(3)
+                bool_s3_unfreezed = True
+            if (epoch_num >= stage2_unfreeze) and (bool_s2_unfreezed == False):
+                model.unfreeze_encoder(2)
+                bool_s2_unfreezed = True
+            if (epoch_num >= stage1_unfreeze) and (bool_s1_unfreezed == False):
+                model.unfreeze_encoder(1)
+                bool_s1_unfreezed = True
+            if (epoch_num >= stage0_unfreeze) and (bool_s0_unfreezed == False):
+                model.unfreeze_encoder(0)
+                bool_s0_unfreezed = True
+
         # get the batches (image & label) from the DataLoader
         for i_batch, sampled_batch in enumerate(trainloader):
 
@@ -95,7 +126,7 @@ def trainer_MS_UNet(args, model, log_save_path = ""):
                 loss = loss_dice * 0.5+ loss_ce * 0.5 +loss_edge * 0.1
             else:
                 loss = loss_dice * 0.5+ loss_ce * 0.5
-            
+
             # backprop + optimizer
             optimizer.zero_grad()
             loss.backward()

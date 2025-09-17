@@ -794,3 +794,23 @@ class MSUNetSys(nn.Module):
         flops += self.num_features * self.num_classes
         return flops
     
+    def freeze_encoder(self, freeze = True):
+    # if requires_grad is false the layer is freezed
+        # patch embedding
+        for p in self.patch_embed.parameters():
+            p.requires_grad = not freeze
+
+        # encoder layers
+        for layer in self.layers:
+            for p in layer.parameters():
+                p.requires_grad = not freeze
+
+    def unfreeze_encoder(self, num_stage: int):
+        # for unfreening diffrent stages
+        for p in self.layers[num_stage].parameters():
+            p.requires_grad = True
+
+        if num_stage == 0:
+            for p in self.patch_embed.parameters():
+                p.requires_grad = True
+    

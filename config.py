@@ -61,6 +61,15 @@ _C.MODEL.DROP_PATH_RATE = 0.1
 # Label Smoothing
 _C.MODEL.LABEL_SMOOTHING = 0.1
 
+#Encoder Freenzing
+_C.MODEL.FREEZE_ENCODER = True
+# How long should the Encoder be freezed
+# in percent (0: no freezing, 1: all epochs are freezed)
+_C.MODEL.STAGE3_UNFREEZE_PERIODE = 0.4
+_C.MODEL.STAGE2_UNFREEZE_PERIODE = 0.7
+_C.MODEL.STAGE1_UNFREEZE_PERIODE = 0.9
+_C.MODEL.STAGE0_UNFREEZE_PERIODE = 0.98
+
 # Swin Transformer parameters
 _C.MODEL.SWIN = CN()
 _C.MODEL.SWIN.PATCH_SIZE = 4
