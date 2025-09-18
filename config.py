@@ -126,6 +126,10 @@ _C.TRAIN.OPTIMIZER.BETAS = (0.9, 0.999)
 # SGD momentum
 _C.TRAIN.OPTIMIZER.MOMENTUM = 0.9
 
+# Tversky Loss
+_C.TRAIN.TVERSKY_LOSS_ALPHA = 0.4
+_C.TRAIN.TVERSKY_LOSS_BETA = 0.4
+
 # -----------------------------------------------------------------------------
 # Augmentation settings
 # -----------------------------------------------------------------------------

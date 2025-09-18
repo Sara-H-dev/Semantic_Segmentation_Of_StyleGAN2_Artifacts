@@ -8,15 +8,13 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from tensorboardX import SummaryWriter
-from torch.nn.modules.loss import CrossEntropyLoss
 from torch.utils.data import DataLoader
 from tqdm import tqdm
-#from utils import DiceLoss, ELoss
 from torchvision import transforms
+from loss.TverskyLoss import TverskyLoss_binary
 
 def trainer_MS_UNet(args, model, log_save_path = "", config = None):
     from dataset.dataset import SegArtifact_dataset, RandomGenerator
-
 
     # logger config
     logging.basicConfig(
@@ -62,9 +60,7 @@ def trainer_MS_UNet(args, model, log_save_path = "", config = None):
     # training!!!
     model.train()
 
-    ce_loss = CrossEntropyLoss()
-    dice_loss = DiceLoss(num_classes)
-    edge_loss = ELoss(num_classes)
+    tversky_loss = TverskyLoss_binary(config.TVERSKY_LOSS_ALPHA, config.TVERSKY_LOSS_BETA)
 
     # Stochastic Gradient Decent
     optimizer = optim.SGD(  model.parameters(), 
@@ -118,14 +114,8 @@ def trainer_MS_UNet(args, model, log_save_path = "", config = None):
             outputs = model(image_batch)
             
             # loss
-            loss_ce = ce_loss(outputs, label_batch[:].long())
-            loss_dice = dice_loss(outputs, label_batch, softmax=True)
-            loss_edge = edge_loss(outputs, edge_batch, softmax=True)
-            # mixing losses
-            if epoch_num >= 50:
-                loss = loss_dice * 0.5+ loss_ce * 0.5 +loss_edge * 0.1
-            else:
-                loss = loss_dice * 0.5+ loss_ce * 0.5
+            loss_tversky = tversky_loss.forward(outputs, label_batch)
+            loss = loss_tversky
 
             # backprop + optimizer
             optimizer.zero_grad()
@@ -142,8 +132,7 @@ def trainer_MS_UNet(args, model, log_save_path = "", config = None):
             iter_num = iter_num + 1
             writer.add_scalar('info/lr', lr_, iter_num)
             writer.add_scalar('info/total_loss', loss, iter_num)
-            writer.add_scalar('info/loss_ce', loss_ce, iter_num)
-            logging.info('iteration %d : loss : %f, loss_ce: %f' % (iter_num, loss.item(), loss_ce.item()))
+            logging.info('iteration %d : loss : %f' % (iter_num, loss.item()))
         
         # saves all 50 epochs
         save_interval = 50 
