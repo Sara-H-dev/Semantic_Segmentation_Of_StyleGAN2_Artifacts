@@ -13,8 +13,13 @@ from tqdm import tqdm
 from torchvision import transforms
 from loss.TverskyLoss import TverskyLoss_binary
 
+def worker_init_fn(worker_id, seed):
+        random.seed(seed + worker_id)
+
 def trainer_MS_UNet(args, model, log_save_path = "", config = None):
     from dataset.dataset import SegArtifact_dataset, RandomGenerator
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # logger config
     logging.basicConfig(
@@ -27,7 +32,7 @@ def trainer_MS_UNet(args, model, log_save_path = "", config = None):
     logging.info(str(args)) # logs the args
 
     if config == None: raise ValueError(logging.error("Config file is not found!"))
-    freeze_encoder = config.FREEZE_ENCODER
+    freeze_encoder = config.MODEL.FREEZE_ENCODER
 
     base_lr = args.base_lr                      # learning rate
     num_classes = args.num_classes              # number of classes
@@ -43,24 +48,21 @@ def trainer_MS_UNet(args, model, log_save_path = "", config = None):
     
     print("The length of train set is: {}".format(len(db_train)))
 
-    def worker_init_fn(worker_id):
-        random.seed(args.seed + worker_id)
-
     trainloader = DataLoader(   db_train, 
                                 batch_size = batch_size, 
                                 shuffle = True,                     # shuffles the data sequence
                                 num_workers = 8,                    # number of parallel processes (Number_of_CPU_cores / 2)
-                                pin_memory = True,                  # true if GPU available
-                                worker_init_fn = worker_init_fn )   # worker seed
+                                pin_memory = torch.cuda.is_available(),                  # true if GPU available
+                                worker_init_fn = worker_init_fn(0,seed=args.seed) )   # worker seed
     if args.n_gpu > 1:
         model = nn.DataParallel(model)
     
     # freez encoder if wanted
-    model.freeze_encoder()
+    model.freeze_encoder(freeze_encoder)
     # training!!!
     model.train()
 
-    tversky_loss = TverskyLoss_binary(config.TVERSKY_LOSS_ALPHA, config.TVERSKY_LOSS_BETA)
+    tversky_loss = TverskyLoss_binary(config.TRAIN.TVERSKY_LOSS_ALPHA, config.TRAIN.TVERSKY_LOSS_BETA)
 
     # Stochastic Gradient Decent
     optimizer = optim.SGD(  model.parameters(), 
@@ -77,12 +79,12 @@ def trainer_MS_UNet(args, model, log_save_path = "", config = None):
     logging.info("{} iterations per epoch. {} max iterations ".format(len(trainloader), max_iterations))
     best_performance = 0.0
     # parameters for unfreezing the encoder:
-    stage3_unfreeze = max_epoch*config.STAGE3_UNFREEZE_PERIODE
-    stage2_unfreeze = max_epoch*config.STAGE2_UNFREEZE_PERIODE
-    stage1_unfreeze = max_epoch*config.STAGE1_UNFREEZE_PERIODE
-    stage0_unfreeze = max_epoch*config.STAGE1_UNFREEZE_PERIODE
+    stage3_unfreeze = max_epoch*config.MODEL.STAGE3_UNFREEZE_PERIODE
+    stage2_unfreeze = max_epoch*config.MODEL.STAGE2_UNFREEZE_PERIODE
+    stage1_unfreeze = max_epoch*config.MODEL.STAGE1_UNFREEZE_PERIODE
+    stage0_unfreeze = max_epoch*config.MODEL.STAGE1_UNFREEZE_PERIODE
     # creates progress bar
-    iterator = tqdm(range(max_epoch), ncols=70)
+    iterator = tqdm(range(max_epoch), ncols=70,  dynamic_ncols=True)
 
     bool_s3_unfreezed = False
     bool_s2_unfreezed = False
@@ -109,9 +111,20 @@ def trainer_MS_UNet(args, model, log_save_path = "", config = None):
         for i_batch, sampled_batch in enumerate(trainloader):
 
             image_batch, label_batch = sampled_batch['image'], sampled_batch['label']
-            image_batch, label_batch = image_batch.cuda(), label_batch.cuda() # moves to GPUs
+            image_batch, label_batch = image_batch.to(device), label_batch.to(device) # moves to GPUs
+
+            print("before model \n")
 
             outputs = model(image_batch)
+
+            print("after model \n")
+            if i_batch == 0:  # nur einmal beim ersten Batch
+                with torch.no_grad():
+                    msg = (f"[CHECK E{epoch_num:03d}] "
+                       f"outputs.shape={tuple(outputs.shape)}, dtype={outputs.dtype}, "
+                       f"min={outputs.min().item():.4f}, max={outputs.max().item():.4f}, "
+                       f"labels={torch.unique(label_batch).tolist()}  (dtype={label_batch.dtype})")
+                    tqdm.write(msg)
             
             # loss
             loss_tversky = tversky_loss.forward(outputs, label_batch)

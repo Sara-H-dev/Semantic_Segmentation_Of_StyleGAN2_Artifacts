@@ -31,9 +31,10 @@
 import torch
 import torch.nn as nn
 import torch.utils.checkpoint as checkpoint
-from timm.models.layers import DropPath, to_2tuple, trunc_normal_
+from timm.layers import DropPath, to_2tuple, trunc_normal_
 import torch.nn.functional as F
 from torchvision.models.swin_transformer import SwinTransformerBlock
+from einops import rearrange
 
 
 class Mlp(nn.Module):
@@ -72,11 +73,12 @@ class PatchMerging(nn.Module):
 
     def forward(self, x):
         """
-        x: B, H*W, C
+        x: B, H, W, C
         """
-        H, W = self.input_resolution
-        B, L, C = x.shape
-        assert L == H * W, "input feature has wrong size"
+        Hi, Wi = self.input_resolution
+        B, H, W, C = x.shape
+        assert Hi == H , "input feature has wrong size"
+        assert Wi == W , "input feature has wrong size"
         assert H % 2 == 0 and W % 2 == 0, f"x size ({H}*{W}) are not even."
 
         x = x.view(B, H, W, C)
@@ -155,6 +157,11 @@ class BasicLayer(nn.Module):
             self.downsample = None
 
     def forward(self, x):
+        B, N, C = x.shape
+        H, W = self.input_resolution
+        assert H*W == N, f"{N=} passt nicht zu {H}x{W}"
+        x = x.view(B, H, W, C)
+
         for blk in self.blocks:
             if self.use_checkpoint:
                 x = checkpoint.checkpoint(blk, x)
@@ -372,18 +379,29 @@ class PatchExpand(nn.Module):
         self.norm = norm_layer(dim // dim_scale)
 
     def forward(self, x):
-        """
-        x: B, H*W, C
-        """
-        H, W = self.input_resolution
-        x = self.expand(x)
+        if x.dim() == 4:
+            B, H_in, W_in, C_in = x.shape
+            H, W = H_in, W_in
+            x = x.view(B, H * W, C_in)
+        elif x.dim() == 3:
+            B, L, C_in = x.shape
+            H, W = self.input_resolution
+            if L != H * W:
+                assert L == H * W, "input feature has wrong size"
+        else:
+            raise ValueError(f"Unexpected dimensionality: x.dim()={x.dim()}")
+        
+        x = self.expand(x)              # (B, H*W, 2*dim)
         B, L, C = x.shape
-        assert L == H * W, "input feature has wrong size"
-
+        if L != H * W:
+            raise ValueError(f"token length L={L} != H*W={H*W} after expand().")
+        
         x = x.view(B, H, W, C)
-        x = rearrange(x, 'b h w (p1 p2 c)-> b (h p1) (w p2) c', p1=2, p2=2, c=C // 4)
-        x = x.view(B, -1, C // 4)
-        x = self.norm(x)
+        if C % 4 != 0:
+            raise ValueError(f"channels C={C} are not divisible by 4 (required for ×2 upsampling).")
+        x = rearrange(x, 'b h w (p1 p2 c)-> b (h p1) (w p2) c', p1=2, p2=2, c=C//4)
+        x = x.view(B,-1,C//4)
+        x= self.norm(x)
 
         return x
 
@@ -466,6 +484,11 @@ class BasicLayer_up(nn.Module):
             self.upsample = None
 
     def forward(self, x):
+        B, N, C = x.shape
+        H, W = self.input_resolution
+        assert H*W == N, f"{N=} passt nicht zu {H}x{W}"
+        x = x.view(B, H, W, C)
+
         for blk in self.blocks:
             if self.use_checkpoint:
                 x = checkpoint.checkpoint(blk, x)
@@ -618,7 +641,7 @@ class MSUNetSys(nn.Module):
                 layers_cent1 = PatchExpand(
                     input_resolution = (patches_resolution[0] // (2 ** (self.num_layers-2-i_layer1)),
                                         patches_resolution[1] // (2 ** (self.num_layers-2-i_layer1))), 
-                    dim = int(embed_dim * 2 ** (self.num_layers-2-i_layer1)), 
+                    dim = int(embed_dim * 2 ** (self.num_layers - 2 - i_layer1)), 
                     dim_scale = 2, 
                     norm_layer=norm_layer)
             else:
@@ -650,7 +673,7 @@ class MSUNetSys(nn.Module):
                 layers_cent2 = PatchExpand(
                     input_resolution = (patches_resolution[0] // (2 ** (self.num_layers-3-i_layer2)),
                                         patches_resolution[1] // (2 ** (self.num_layers-3-i_layer2))), 
-                    dim = int(embed_dim * 2 ** (self.num_layers-2-i_layer2)), 
+                    dim = int(embed_dim * 2 ** (self.num_layers- 3 -i_layer2)), 
                     dim_scale = 2, 
                     norm_layer=norm_layer)
             else:
@@ -766,8 +789,13 @@ class MSUNetSys(nn.Module):
     # gets the image from 256x256 to 1024x1024
     def up_x4(self, x):
         H, W = self.patches_resolution
-        B, L, C = x.shape
-        assert L == H * W, "input features has wrong size"
+        if x.dim() == 4:
+            B, H_in, W_in, C = x.shape
+            H, W = H_in, W_in
+            x = x.view(B, H * W, C)
+        elif x.dim() == 3:
+            B, L, C = x.shape
+            assert L == H * W, "input features has wrong size"      
 
         if self.final_upsample == "expand_first":
             x = self.up(x)
