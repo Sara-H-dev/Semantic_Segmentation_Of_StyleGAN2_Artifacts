@@ -18,7 +18,7 @@ from scripts.map_generator import overlay, save_color_heatmap
 def worker_init_fn(worker_id, seed):
         random.seed(seed + worker_id)
 
-def trainer_MS_UNet(args, model, log_save_path = "", config = None):
+def trainer(args, model, log_save_path = "", config = None):
     from dataset.dataset import SegArtifact_dataset, RandomGenerator
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -61,8 +61,8 @@ def trainer_MS_UNet(args, model, log_save_path = "", config = None):
     
     # freez encoder if wanted
     model.freeze_encoder(freeze_encoder)
-    # training!!!
-    print("Start training")
+    
+    # training modus
     model.train()
 
     tversky_loss = TverskyLoss_binary(config.TRAIN.TVERSKY_LOSS_ALPHA, config.TRAIN.TVERSKY_LOSS_BETA)

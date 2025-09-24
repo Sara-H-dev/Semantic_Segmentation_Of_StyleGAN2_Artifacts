@@ -7,7 +7,7 @@ import numpy as np
 import torch
 import torch.backends.cudnn as cudnn
 from network.MSUNet import MSUNet 
-from trainer import trainer_MS_UNet
+from trainer import trainer
 from config import get_config
 
 parser = argparse.ArgumentParser()
@@ -109,7 +109,8 @@ def main():
     random.seed(args.seed)
     np.random.seed(args.seed)
     torch.manual_seed(args.seed)
-    torch.cuda.manual_seed(args.seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed(args.seed)
 
     dataset_name = args.dataset
     dataset_config = {
@@ -142,7 +143,7 @@ def main():
     # model.eval()
 
     # train dictionary wiht the trianer_MS_UNet function
-    trainer_dic = {'SegArtifact': trainer_MS_UNet,}
+    trainer_dic = {'SegArtifact': trainer,}
     trainer_dic['SegArtifact'](args, model, args.output_dir, config)
 
 
