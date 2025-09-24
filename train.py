@@ -6,7 +6,7 @@ import random
 import numpy as np
 import torch
 import torch.backends.cudnn as cudnn
-from network.MSUNet import MSUNet as MSUNet
+from network.MSUNet import MSUNet 
 from trainer import trainer_MS_UNet
 from config import get_config
 
@@ -139,6 +139,7 @@ def main():
     # pretrained weights are loaded
     
     model.load_segface_weight(config)
+    # model.eval()
 
     # train dictionary wiht the trianer_MS_UNet function
     trainer_dic = {'SegArtifact': trainer_MS_UNet,}

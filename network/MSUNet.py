@@ -96,6 +96,7 @@ class MSUNet(nn.Module):
                         del full_dict[k]
 
             msg = self.ms_unet.load_state_dict(full_dict, strict=False)
+            print("Finished loading pretrained weights")
             # print(msg)
         else:
             print("none pretrain")

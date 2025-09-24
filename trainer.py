@@ -12,6 +12,8 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 from torchvision import transforms
 from loss.TverskyLoss import TverskyLoss_binary
+from torchvision.utils import save_image
+from scripts.map_generator import overlay, save_color_heatmap
 
 def worker_init_fn(worker_id, seed):
         random.seed(seed + worker_id)
@@ -60,6 +62,7 @@ def trainer_MS_UNet(args, model, log_save_path = "", config = None):
     # freez encoder if wanted
     model.freeze_encoder(freeze_encoder)
     # training!!!
+    print("Start training")
     model.train()
 
     tversky_loss = TverskyLoss_binary(config.TRAIN.TVERSKY_LOSS_ALPHA, config.TRAIN.TVERSKY_LOSS_BETA)
@@ -91,40 +94,40 @@ def trainer_MS_UNet(args, model, log_save_path = "", config = None):
     bool_s1_unfreezed = False
     bool_s0_unfreezed = False
 
+    # folder for the final output of binary and heatmap masks
+    pred_dir = os.path.join(log_save_path, "final_preds")
+    os.makedirs(pred_dir, exist_ok=True)
+
     for epoch_num in iterator:
         if freeze_encoder == True:
             # unfreeze form the deepest encoder level to the highests
-            if (epoch_num >= stage3_unfreeze) and (bool_s3_unfreezed == False):
-                model.unfreeze_encoder(3)
-                bool_s3_unfreezed = True
-            if (epoch_num >= stage2_unfreeze) and (bool_s2_unfreezed == False):
-                model.unfreeze_encoder(2)
-                bool_s2_unfreezed = True
-            if (epoch_num >= stage1_unfreeze) and (bool_s1_unfreezed == False):
-                model.unfreeze_encoder(1)
-                bool_s1_unfreezed = True
-            if (epoch_num >= stage0_unfreeze) and (bool_s0_unfreezed == False):
-                model.unfreeze_encoder(0)
-                bool_s0_unfreezed = True
+            if epoch_num > 1 :
+                if (epoch_num >= stage3_unfreeze) and (bool_s3_unfreezed == False):
+                    model.unfreeze_encoder(3)
+                    bool_s3_unfreezed = True
+                if (epoch_num >= stage2_unfreeze) and (bool_s2_unfreezed == False):
+                    model.unfreeze_encoder(2)
+                    bool_s2_unfreezed = True
+                if (epoch_num >= stage1_unfreeze) and (bool_s1_unfreezed == False):
+                    model.unfreeze_encoder(1)
+                    bool_s1_unfreezed = True
+                if (epoch_num >= stage0_unfreeze) and (bool_s0_unfreezed == False):
+                    model.unfreeze_encoder(0)
+                    bool_s0_unfreezed = True
 
         # get the batches (image & label) from the DataLoader
         for i_batch, sampled_batch in enumerate(trainloader):
+            is_last_epoch = (epoch_num >= max_epoch - 1)
+            is_last_batch = (i_batch == len(trainloader) - 1)
 
-            image_batch, label_batch = sampled_batch['image'], sampled_batch['label']
-            image_batch, label_batch = image_batch.to(device), label_batch.to(device) # moves to GPUs
+            image_batch, label_batch = sampled_batch['image'].to(device), sampled_batch['label'].to(device)
+            case_names  = sampled_batch['case_name']
 
             print("before model \n")
 
             outputs = model(image_batch)
 
             print("after model \n")
-            if i_batch == 0:  # nur einmal beim ersten Batch
-                with torch.no_grad():
-                    msg = (f"[CHECK E{epoch_num:03d}] "
-                       f"outputs.shape={tuple(outputs.shape)}, dtype={outputs.dtype}, "
-                       f"min={outputs.min().item():.4f}, max={outputs.max().item():.4f}, "
-                       f"labels={torch.unique(label_batch).tolist()}  (dtype={label_batch.dtype})")
-                    tqdm.write(msg)
             
             # loss
             loss_tversky = tversky_loss.forward(outputs, label_batch)
@@ -134,6 +137,34 @@ def trainer_MS_UNet(args, model, log_save_path = "", config = None):
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
+
+            # in the last batch of the last epoch the prediction get safed
+            if is_last_epoch and is_last_batch:
+                print("Last epoch, last batch")
+                model.eval()
+                with torch.no_grad():
+                    logits = outputs                     # (image_pre,1,H,W)
+                    heat   = torch.sigmoid(logits)       # (B,1,H,W) in [0,1]
+                    binmsk = (heat > 0.5).float()        # (B,1,H,W) 0/1
+                    img_name = case_names[image_pre]
+                    batch_size = heat.shape[0]
+                    for image_pre in range(batch_size):
+                        # heatmap
+                        save_image(heat[image_pre], os.path.join(
+                            pred_dir, f"{img_name}_grey_heats.png"))
+                        # binmap
+                        save_image(binmsk[image_pre], os.path.join(
+                            pred_dir, f"{img_name}_bin_mask.png"))
+                        
+                        save_color_heatmap(
+                            img_3chw = image_batch[b].cpu(),
+                            heat_hw  = heat[b,0].cpu(), 
+                            out_png  = os.path.join(pred_dir, f"{img_name}_overlay_color.png")
+                            alpha    = 0.45 )
+                        
+                        # overlay(image_batch, heat, binmsk, pred_dir, image_pre, case_names)
+                model.train()
+
 
             # poly-learning rate
             # learning rate slowly drops to 0 

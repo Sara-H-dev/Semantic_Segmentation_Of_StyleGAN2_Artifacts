@@ -533,9 +533,8 @@ class MSUNetSys(nn.Module):
         super().__init__()
 
         print(
-            "SwinTransformerSys expand initial----depths:{};depths_decoder:{};drop_path_rate:{};num_classes:{}".format(
-                depths,
-                depths_decoder, drop_path_rate, num_classes))
+            "SwinTransformerSys expand initial---- \n depths:{}; \n depths_decoder:{}; \n drop_path_rate:{};\n num_classes:{}".format(
+                depths, depths_decoder, drop_path_rate, num_classes))
 
         self.num_classes = num_classes
         self.num_layers = len(depths)
@@ -711,6 +710,7 @@ class MSUNetSys(nn.Module):
 
         # applyes init weights to the whole model
         self.apply(self._init_weights)
+        print("Finished MSUNet Construktor")
 
     def _init_weights(self, m):
         if isinstance(m, nn.Linear):
