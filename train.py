@@ -13,7 +13,7 @@ from config import get_config
 parser = argparse.ArgumentParser()
 # path to the dataset
 parser.add_argument('--root_path', type=str,
-                    default='./datasets/SegArtifact', help='root dir for data')
+                    default='./dataset', help='root dir for data')
 # name of the experiment or dataset
 parser.add_argument('--dataset', type=str,
                     default='SegArtifact', help='experiment_name')
@@ -94,11 +94,10 @@ parser.add_argument('--throughput', action='store_true', help='Test throughput o
 
 args = parser.parse_args()
 if args.dataset == "SegArtifact":
-    args.root_path = os.path.join(args.root_path, "train_npz")
+    args.root_path = os.path.join(args.root_path)
 config = get_config(args)
 
-
-if __name__ == "__main__":
+def main():
     # checks if the training should be deterministic or not
     if not args.deterministic:
         cudnn.benchmark = True 
@@ -141,8 +140,10 @@ if __name__ == "__main__":
     
     model.load_segface_weight(config)
 
-    freeze_encoder = config.MODEL.PRETRAIN_CKPT
-
     # train dictionary wiht the trianer_MS_UNet function
-    trainer_dic = {'SegArtifact': trainer_MS_UNet(config=config),}
-    #trainer_dic[dataset_name](args, model, args.output_dir)
+    trainer_dic = {'SegArtifact': trainer_MS_UNet,}
+    trainer_dic['SegArtifact'](args, model, args.output_dir, config)
+
+
+if __name__ == "__main__":
+    main()
