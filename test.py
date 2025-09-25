@@ -16,7 +16,7 @@ from config import get_config
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--test_path', type=str,
-                    default='./dataset/test_data', help='root dir for validation volume data')  # for acdc test_path=root_dir
+                    default='./dataset', help='root dir for the data')  # for acdc test_path=root_dir
 parser.add_argument('--dataset', type=str,
                     default='SegArtifact', help='experiment_name')
 parser.add_argument('--num_classes', type=int,
@@ -57,6 +57,7 @@ parser.add_argument('--tag', help='tag of experiment')
 parser.add_argument('--eval', action='store_true', help='Perform evaluation only')
 parser.add_argument('--throughput', action='store_true', help='Test throughput only')
 parser.add_argument('--sig_threshold', type = float, default = 0.5, help = 'treshold that decides if a pixel is an artefact or not')
+parser.add_argument('--split', type = str, default = 'test',choices=['test', 'val'], help = 'test or val')
 
 args = parser.parse_args()
 if args.dataset == "SegArtifact":
@@ -68,7 +69,7 @@ def inference(args, model, test_save_path=None, device = None):
 
     db_test = args.Dataset(
             base_dir = args.test_path, 
-            split="test_vol", 
+            split = args.split, 
             list_dir = args.list_dir)
     
     testloader = DataLoader(
