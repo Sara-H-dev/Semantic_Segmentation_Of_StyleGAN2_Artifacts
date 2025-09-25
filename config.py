@@ -19,11 +19,11 @@ _C.BASE = ['']
 # -----------------------------------------------------------------------------
 _C.DATA = CN()
 # Batch size for a single GPU, could be overwritten by command line argument
-_C.DATA.BATCH_SIZE = 8
+_C.DATA.BATCH_SIZE = 4
 # Path to dataset, could be overwritten by command line argument
 _C.DATA.DATA_PATH = './dataset'
 # Dataset name
-_C.DATA.DATASET = 'imagenet'
+_C.DATA.DATASET = 'SegArtifact'
 # Input image size
 _C.DATA.IMG_SIZE = 1024
 # Interpolation to resize image (random, bilinear, bicubic)
@@ -128,7 +128,7 @@ _C.TRAIN.OPTIMIZER.MOMENTUM = 0.9
 
 # Tversky Loss
 _C.TRAIN.TVERSKY_LOSS_ALPHA = 0.4
-_C.TRAIN.TVERSKY_LOSS_BETA = 0.4
+_C.TRAIN.TVERSKY_LOSS_BETA = 0.6
 
 # -----------------------------------------------------------------------------
 # Augmentation settings
@@ -232,6 +232,18 @@ def update_config(config, args):
         config.EVAL_MODE = True
     if args.throughput:
         config.THROUGHPUT_MODE = True
+    if args.loss_alpha:
+        config.TVERSKY_LOSS_ALPHA = args.loss_alpha
+    if args.loss_beta:
+        config.TVERSKY_LOSS_BETA = args.loss_beta
+    if args.unfreeze_stage3:
+        config.MODEL.STAGE3_UNFREEZE_PERIODE = args.unfreeze_stage3
+    if args.unfreeze_stage2:
+        config.MODEL.STAGE2_UNFREEZE_PERIODE = args.unfreeze_stage2
+    if args.unfreeze_stage1:
+        config.MODEL.STAGE1_UNFREEZE_PERIODE = args.unfreeze_stage1
+    if args.unfreeze_stage0:
+        config.MODEL.STAGE0_UNFREEZE_PERIODE = args.unfreeze_stage0 
 
     config.freeze()
 
