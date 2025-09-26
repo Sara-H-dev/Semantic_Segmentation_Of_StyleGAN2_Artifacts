@@ -70,8 +70,6 @@ class SegArtifact_dataset(Dataset):
         # gets the name of the next data. 
         slice_name = self.sample_list[idx].strip('\n')
         # loads image and label
-        image = Image.open(os.path.join(self.data_dir, "images", slice_name + ".png")).convert("RGB")
-        label = Image.open(os.path.join(self.data_dir, "labels", slice_name + "_mask.png")).convert("L")
 
         real_img_path = os.path.join(self.data_dir, "real_images", slice_name + ".png")
         fake_img_path = os.path.join(self.data_dir, "fake_images", slice_name + ".png")

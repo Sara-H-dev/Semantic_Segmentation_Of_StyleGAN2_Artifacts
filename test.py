@@ -16,8 +16,8 @@ from config import get_config
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--test_path', type=str,
-                        default='./dataset', help='root dir for the data')  # for acdc test_path=root_dir
+    parser.add_argument('--dataset_path', type=str,
+                        default='./dataset', help='root dir for the data')  # for acdc dataset_path=root_dir
     parser.add_argument('--dataset', type=str,
                         default='SegArtifact', help='experiment_name')
     parser.add_argument('--num_classes', type=int,
@@ -63,7 +63,7 @@ def main():
 
     args = parser.parse_args()
     if args.dataset == "SegArtifact":
-        args.test_path = os.path.join(args.test_path)
+        args.dataset_path = os.path.join(args.dataset_path)
 
     args.output_dir = './model_out/' + args.timestamp + '/' + args.split
     args.test_save_dir = './model_out/' + args.timestamp + '/' + args.split + '/predictions'
@@ -87,14 +87,14 @@ def main():
     dataset_config = {
         'SegArtifact': {
             'Dataset': SegArtifact_dataset,
-            'test_path': args.test_path,
+            'dataset_path': args.dataset_path,
             'list_dir': './lists',
             'num_classes': 1,
         },
     }
     dataset_name = args.dataset
     args.num_classes = dataset_config[dataset_name]['num_classes']
-    args.test_path = dataset_config[dataset_name]['test_path']
+    args.dataset_path = dataset_config[dataset_name]['dataset_path']
     args.Dataset = dataset_config[dataset_name]['Dataset']
     args.list_dir = dataset_config[dataset_name]['list_dir']
     args.is_pretrain = True
@@ -136,7 +136,7 @@ def main():
 def inference(args, model, test_save_path=None, device = None):
 
     db_test = args.Dataset(
-            base_dir = args.test_path, 
+            base_dir = args.dataset_path, 
             split = args.split, 
             list_dir = args.list_dir)
     
@@ -202,8 +202,6 @@ def inference(args, model, test_save_path=None, device = None):
     )
 
     return "Testing Finished!"
-
-
 
 
 
