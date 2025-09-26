@@ -111,7 +111,7 @@ def main():
     print("self trained ms_unet",msg)
     snapshot_name = snapshot.split('/')[-1]
 
-    log_folder = './model_out/SegArtifact/test_log'
+    log_folder = './model_out/' + args.timestamp + 'test_log'
     os.makedirs(log_folder, exist_ok=True)
     logging.basicConfig(
         filename = os.path.join(log_folder, f"{snapshot_name}.txt"),

@@ -73,6 +73,20 @@ class SegArtifact_dataset(Dataset):
         image = Image.open(os.path.join(self.data_dir, "images", slice_name + ".png")).convert("RGB")
         label = Image.open(os.path.join(self.data_dir, "labels", slice_name + "_mask.png")).convert("L")
 
+        real_img_path = os.path.join(self.data_dir, "real_images", slice_name + ".png")
+        fake_img_path = os.path.join(self.data_dir, "fake_images", slice_name + ".png")
+        real_label_path = os.path.join(self.data_dir, "real_labels", slice_name + "_mask.png")
+        fake_label_path = os.path.join(self.data_dir, "fake_labels", slice_name + "_mask.png")
+
+        if os.path.exists(real_img_path):
+            image = Image.open(real_img_path).convert("RGB")
+            label = Image.open(real_label_path).convert("L")
+
+        elif os.path.exists(fake_img_path):
+            image = Image.open(fake_img_path).convert("RGB")
+            label = Image.open(fake_label_path).convert("L")
+        else:
+            raise FileNotFoundError(f"Sample {slice_name} not found in real_images/ or fake_images/")
 
         sample = {'image': image, 'label': label}
         if self.transform:
