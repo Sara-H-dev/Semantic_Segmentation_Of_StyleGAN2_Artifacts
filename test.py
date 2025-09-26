@@ -169,23 +169,24 @@ def inference(args, model, test_save_path=None, device = None):
                                       threshold = args.sig_threshold)
         
         # Transfer to a robust 1D vector and limit to 5 key figures
-        metric_i = np.asarray(metric_i, dtype=np.float64).reshape(-1)[:5]
+        metric_i = np.asarray(metric_i, dtype=np.float64).reshape(-1)[:7]
 
         
-        if metric_i.shape[0] != 5:
-            msg = f"Expected 5 metrics, got {metric_i.shape[0]} for case {case_name}"
+        if metric_i.shape[0] != 7:
+            msg = f"Expected 7 metrics, got {metric_i.shape[0]} for case {case_name}"
             logging.error(msg)
             raise ValueError(msg)
 
         metrics_sum += metric_i
         num_cases += 1
 
-        m_dice, m_iou, m_rec, m_prec, m_f1 = metric_i
+        m_dice, m_iou, m_rec, m_prec, m_f1, m_soft_dice, m_soft_iou = metric_i
 
         logging.info(
             f"idx {i_batch} case {case_name} "
             f"mean_dice {m_dice:.4f} mean_IoU {m_iou:.4f} "
             f"mean_recall {m_rec:.4f} mean_precision {m_prec:.4f} mean_f1_score {m_f1:.4f}"
+            f"mean_soft_dice {m_soft_dice:.4f} mean_soft_IoU {m_soft_iou:.4f}"
         )
     
     if num_cases == 0:
@@ -194,11 +195,11 @@ def inference(args, model, test_save_path=None, device = None):
     
     mean_metrics = metrics_sum / num_cases
 
-    mean_dice, mean_IoU, mean_recall, mean_precision, mean_f1_score = mean_metrics
+    mean_dice, mean_IoU, mean_recall, mean_precision, mean_f1_score, mean_soft_dice, mean_soft_IoU = mean_metrics
         
     logging.info(
-        "Testing performance : mean_dice %.4f mean_IoU %.4f mean_recall %.4f mean_precision %.4f mean_f1_score %.4f",
-        mean_dice, mean_IoU, mean_recall, mean_precision, mean_f1_score
+        "Testing performance : mean_dice %.4f mean_IoU %.4f mean_recall %.4f mean_precision %.4f mean_f1_score %.4f mean_soft_dice %.4f mean_soft_IoU %.4f",
+        mean_dice, mean_IoU, mean_recall, mean_precision, mean_f1_score, mean_soft_dice, mean_soft_IoU
     )
 
     return "Testing Finished!"

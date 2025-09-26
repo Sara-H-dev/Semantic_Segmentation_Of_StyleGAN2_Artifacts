@@ -45,21 +45,22 @@ def predict_and_score(
         out_logits = model(image)
         if out_logits.shape[1] != 1:
             raise ValueError(f"Binary task expected 1 logit channel, got {out_logits.shape[1]}")
-        out = torch.sigmoid(out_logits) 
-        pred_bin = (out > threshold).long().squeeze(0).squeeze(0) #(H, W)
+        pred = torch.sigmoid(out_logits) 
+        pred_bin = (pred > threshold).long().squeeze(0).squeeze(0) #(H, W)
 
-    pred_np = pred_bin.cpu().numpy().astype(np.uint8)
+    pred_bin_np = pred_bin.cpu().numpy().astype(np.uint8)
     lab_np  = label.cpu().numpy().astype(np.uint8)
 
-    dice, iou, recall, precision, f1 = calculate_metrics_binary(pred_np, lab_np)
+    dice_b, iou_b, recall_b, precision_b, f1_b = calculate_metrics_binary(pred_bin_np, lab_np)
+    soft_dice, soft_iou = calculate_metrics_soft(pred.squeeze(0).squeeze(0), label)
 
     if test_save_path is not None and case is not None:
         os.makedirs(test_save_path, exist_ok=True)
         # Skaliere 0/1-Masken auf 0/255
-        imageio.imwrite(os.path.join(test_save_path, f"{case}_pred.png"), pred_np * 255)
+        imageio.imwrite(os.path.join(test_save_path, f"{case}_pred.png"), pred_bin_np * 255)
         imageio.imwrite(os.path.join(test_save_path, f"{case}_gt.png"),   lab_np * 255)
 
-    return [(dice, iou, recall, precision, f1)]
+    return [(dice_b, iou_b, recall_b, precision_b, f1_b, soft_dice, soft_iou)]
 
 def calculate_metrics_binary(pred, gt):
     # makes sure the arrays are binary
@@ -81,3 +82,29 @@ def calculate_metrics_binary(pred, gt):
         return dice, IoU, recall, precision, f1
 
     return 0.0, 0.0, 0.0, 0.0, 0.0
+
+def calculate_metrics_soft(pred_map: torch.Tensor, gt: torch.Tensor):
+    """
+    Soft-Dice und Soft-IoU (Jaccard) mit 'weichen' Zählungen.
+    pred_map: (H,W), in [0,1]
+    gt:       (H,W), {0,1} oder {0,255}
+    """
+    eps = 1e-6
+    pred = pred_map.float().view(-1)
+    gtruth = gt.float().view(-1)
+    if gtruth.max() > 1:  # normalisiere {0,255} -> {0,1}
+        gtruth = gtruth / 255.0
+
+    intersection = (pred * gtruth).sum()
+    sum_p_2 = (pred * pred).sum()
+    sum_g_2 = (gtruth * gtruth).sum()
+    sum_p = pred.sum()
+    sum_g = gtruth.sum()
+
+    # Soft Dice 
+    soft_dice = (2.0 * intersection + eps) / (sum_p_2 + sum_g_2 + eps)
+
+    # Soft IoU (Jaccard)
+    soft_iou = (intersection + eps) / (sum_p + sum_g - intersection + eps)
+
+    return soft_dice.item(), soft_iou.item()

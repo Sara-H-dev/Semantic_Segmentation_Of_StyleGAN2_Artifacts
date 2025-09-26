@@ -157,9 +157,9 @@ def trainer(args, model, log_save_path = "", config = None):
                             pred_dir, f"{img_name}_bin_mask.png"))
                         
                         save_color_heatmap(
-                            img_3chw = image_batch[b].cpu(),
-                            heat_hw  = heat[b,0].cpu(), 
-                            out_png  = os.path.join(pred_dir, f"{img_name}_overlay_color.png")
+                            img_3chw = image_batch[image_pre].cpu(),
+                            heat_hw  = heat[image_pre,0].cpu(), 
+                            out_png  = os.path.join(pred_dir, f"{img_name}_overlay_color.png"),
                             alpha    = 0.45 )
                         
                         # overlay(image_batch, heat, binmsk, pred_dir, image_pre, case_names)
