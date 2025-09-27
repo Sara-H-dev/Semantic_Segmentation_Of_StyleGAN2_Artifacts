@@ -11,7 +11,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 from dataset.dataset import SegArtifact_dataset
 from scripts.predict_and_score import predict_and_score
-from network.MSUNet import MSUNet as MSUNet
+from network.MSUNet import MSUNet
 from config import get_config
 
 def main():
@@ -59,11 +59,9 @@ def main():
     parser.add_argument('--timestamp', type = str, required= True,  help = 'The timestamp from the trainset')
 
     args = parser.parse_args()
-    if args.dataset == "SegArtifact":
-        args.dataset_path = os.path.join(args.dataset_path)
 
-    args.output_dir = './model_out/' + args.timestamp + '/' + args.split
-    args.test_save_dir = './model_out/' + args.timestamp + '/' + args.split + '/predictions'
+    args.output_dir    = os.path.join('./model_out', args.timestamp, args.split)
+    args.test_save_dir = os.path.join(args.output_dir, 'predictions')
     
     config = get_config(args)
 
@@ -85,15 +83,13 @@ def main():
         'SegArtifact': {
             'Dataset': SegArtifact_dataset,
             'dataset_path': args.dataset_path,
-            'list_dir': './lists',
+            'list_dir': args.list_dir,
             'num_classes': 1,
         },
     }
     dataset_name = args.dataset
     args.num_classes = dataset_config[dataset_name]['num_classes']
-    args.dataset_path = dataset_config[dataset_name]['dataset_path']
     args.Dataset = dataset_config[dataset_name]['Dataset']
-    args.list_dir = dataset_config[dataset_name]['list_dir']
     args.is_pretrain = True
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -101,14 +97,21 @@ def main():
     model = MSUNet(config, 
                  img_size = args.img_size, 
                  num_classes = args.num_classes).to(device)
+    
+    
+    
 
     snapshot = os.path.join(args.output_dir, 'best_model.pth')
-    if not os.path.exists(snapshot): snapshot = snapshot.replace('best_model', 'epoch_'+str(args.max_epochs-1))
-    msg = model.load_state_dict(torch.load(snapshot), map_location = device)
+    if not os.path.exists(snapshot):
+        snapshot = os.path.join(args.output_dir, f'epoch_{args.max_epochs-1}.pth')
+    if not os.path.exists(snapshot):
+        raise FileNotFoundError(f"Checkpoint not found: {snapshot}")
+    ckpt = torch.load(snapshot, map_location=device)
+    msg = model.load_state_dict(ckpt['model'], strict=True)
     print("self trained ms_unet",msg)
     snapshot_name = snapshot.split('/')[-1]
 
-    log_folder = './model_out/' + args.timestamp + 'test_log'
+    log_folder = os.path.join('./model_out', args.timestamp, args.split, 'test_log')
     os.makedirs(log_folder, exist_ok=True)
     logging.basicConfig(
         filename = os.path.join(log_folder, f"{snapshot_name}.txt"),
@@ -141,7 +144,8 @@ def inference(args, model, test_save_path=None, device = None):
             db_test, 
             batch_size = 1, 
             shuffle = False, 
-            num_workers = 1)
+            num_workers = 1,
+            pin_memory = torch.cuda.is_available())
     
     logging.info("{} test iterations per epoch".format(len(testloader)))
 
@@ -149,46 +153,46 @@ def inference(args, model, test_save_path=None, device = None):
 
     num_cases = 0
 
-    metrics_sum = np.zeros(5, dtype=np.float64)  # [dice, IoU, recall, precision, f1]
+    metrics_sum = np.zeros(7, dtype=np.float64)  # [dice, IoU, recall, precision, f1, soft_dice, soft_IoU]
+    with torch.inference_mode():
+        for i_batch, sampled_batch in tqdm(enumerate(testloader), total=len(testloader)):
+            image = sampled_batch["image"]
+            label = sampled_batch["label"]
+            case_name =  sampled_batch['case_name'][0]
 
-    for i_batch, sampled_batch in tqdm(enumerate(testloader), total=len(testloader)):
-        image = sampled_batch["image"]
-        label = sampled_batch["label"]
-        case_name =  sampled_batch['case_name'][0]
+            metric_i = predict_and_score(image, 
+                                        label, 
+                                        model,  
+                                        patch_size = [args.img_size, args.img_size],
+                                        test_save_path = test_save_path, 
+                                        case = case_name, 
+                                        device = device,
+                                        threshold = args.sig_threshold)
+            
+            # Transfer to a robust 1D vector and limit to 7 key figures
+            metric_i = np.asarray(metric_i, dtype=np.float64).reshape(-1)[:7]
 
-        metric_i = predict_and_score(image, 
-                                      label, 
-                                      model,  
-                                      patch_size = [args.img_size, args.img_size],
-                                      test_save_path = test_save_path, 
-                                      case = case_name, 
-                                      device = device,
-                                      threshold = args.sig_threshold)
-        
-        # Transfer to a robust 1D vector and limit to 5 key figures
-        metric_i = np.asarray(metric_i, dtype=np.float64).reshape(-1)[:7]
+            
+            if metric_i.shape[0] != 7:
+                msg = f"Expected 7 metrics, got {metric_i.shape[0]} for case {case_name}"
+                logging.error(msg)
+                raise ValueError(msg)
 
-        
-        if metric_i.shape[0] != 7:
-            msg = f"Expected 7 metrics, got {metric_i.shape[0]} for case {case_name}"
-            logging.error(msg)
-            raise ValueError(msg)
+            metrics_sum += metric_i
+            num_cases += 1
 
-        metrics_sum += metric_i
-        num_cases += 1
+            m_dice, m_iou, m_rec, m_prec, m_f1, m_soft_dice, m_soft_iou = metric_i
 
-        m_dice, m_iou, m_rec, m_prec, m_f1, m_soft_dice, m_soft_iou = metric_i
-
-        logging.info(
-            f"idx {i_batch} case {case_name} "
-            f"mean_dice {m_dice:.4f} mean_IoU {m_iou:.4f} "
-            f"mean_recall {m_rec:.4f} mean_precision {m_prec:.4f} mean_f1_score {m_f1:.4f}"
-            f"mean_soft_dice {m_soft_dice:.4f} mean_soft_IoU {m_soft_iou:.4f}"
-        )
+            logging.info(
+                f"idx {i_batch} case {case_name} "
+                f"mean_dice {m_dice:.4f} mean_IoU {m_iou:.4f} "
+                f"mean_recall {m_rec:.4f} mean_precision {m_prec:.4f} mean_f1_score {m_f1:.4f} "
+                f"mean_soft_dice {m_soft_dice:.4f} mean_soft_IoU {m_soft_iou:.4f} "
+            )
     
     if num_cases == 0:
         logging.error("No test cases processed. Check your dataset/split.")
-        raise ValueError("Expected at leas one test cases")
+        raise ValueError("Expected at least one test cases")
     
     mean_metrics = metrics_sum / num_cases
 
