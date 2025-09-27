@@ -25,7 +25,6 @@ def main():
     parser.add_argument('--list_dir', type=str,
                         default='./lists', help='list dir')
     parser.add_argument('--output_dir', type=str, default='./model_out/timestamp/test', help='output dir')   
-    parser.add_argument('--max_iterations', type=int,default=30000, help='maximum epoch number to train')
     parser.add_argument('--max_epochs', type=int, default=150, help='maximum epoch number to train')
     parser.add_argument('--batch_size', type=int, default=24,
                         help='batch_size per gpu')
@@ -35,8 +34,6 @@ def main():
     parser.add_argument('--deterministic', type=int,  default=1, help='whether use deterministic training')
     parser.add_argument('--base_lr', type=float,  default=0.01, help='segmentation network learning rate')
     parser.add_argument('--seed', type=int, default=1234, help='random seed')
-    parser.add_argument('--cfg', type=str, 
-                        default = 'None', required=False, metavar="FILE", help='path to config file', )
     parser.add_argument(
             "--opts",
             help="Modify config options by adding 'KEY VALUE' pairs. ",

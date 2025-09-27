@@ -4,6 +4,7 @@ import logging
 import os
 import random
 import sys
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -15,13 +16,25 @@ from loss.TverskyLoss import TverskyLoss_binary
 from torchvision.utils import save_image
 from scripts.map_generator import overlay, save_color_heatmap
 
-def worker_init_fn(worker_id, seed):
-        random.seed(seed + worker_id)
+def make_worker_init_fn(base_seed: int):
+    def _init(worker_id: int):
+        seed = base_seed + worker_id
+        random.seed(seed); 
+        np.random.seed(seed); 
+        torch.manual_seed(seed)
+    return _init
+
+        
 
 def trainer(args, model, log_save_path = "", config = None):
     from dataset.dataset import SegArtifact_dataset, RandomGenerator
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    # folder for the final output of binary and heatmap masks
+    os.makedirs(log_save_path, exist_ok=True)
+    pred_dir = os.path.join(log_save_path, "final_preds")
+    os.makedirs(pred_dir, exist_ok=True)
 
     # logger config
     logging.basicConfig(
@@ -33,13 +46,18 @@ def trainer(args, model, log_save_path = "", config = None):
     logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
     logging.info(str(args)) # logs the args
 
-    if config == None: raise ValueError(logging.error("Config file is not found!"))
+    if config == None: 
+        logging.error("Config file is not found!")
+        raise ValueError("Config file is not found!")
+ 
     freeze_encoder = config.MODEL.FREEZE_ENCODER
 
     base_lr = args.base_lr                      # learning rate
     num_classes = args.num_classes              # number of classes
-    batch_size = args.batch_size * args.n_gpu   # batch_size
-    # max_iterations = args.max_iterations
+    if args.n_gpu > 0:
+        batch_size = args.batch_size * args.n_gpu   # batch_size
+    else:
+        batch_size = args.batch_size
 
     # preparation of data
     db_train = SegArtifact_dataset( base_dir = args.root_path, 
@@ -54,13 +72,16 @@ def trainer(args, model, log_save_path = "", config = None):
                                 batch_size = batch_size, 
                                 shuffle = True,                     # shuffles the data sequence
                                 num_workers = 8,                    # number of parallel processes (Number_of_CPU_cores / 2)
-                                pin_memory = torch.cuda.is_available(),                  # true if GPU available
-                                worker_init_fn = worker_init_fn(0,seed=args.seed) )   # worker seed
+                                pin_memory = torch.cuda.is_available(),           # true if GPU available
+                                worker_init_fn=make_worker_init_fn(args.seed) )   # worker seed
     if args.n_gpu > 1:
         model = nn.DataParallel(model)
+
+    def core(m):  
+        return m.module if isinstance(m, nn.DataParallel) else m 
     
     # freez encoder if wanted
-    model.freeze_encoder(freeze_encoder)
+    core(model).freeze_encoder(freeze_encoder)
     
     # training modus
     model.train()
@@ -85,7 +106,7 @@ def trainer(args, model, log_save_path = "", config = None):
     stage3_unfreeze = max_epoch*config.MODEL.STAGE3_UNFREEZE_PERIODE
     stage2_unfreeze = max_epoch*config.MODEL.STAGE2_UNFREEZE_PERIODE
     stage1_unfreeze = max_epoch*config.MODEL.STAGE1_UNFREEZE_PERIODE
-    stage0_unfreeze = max_epoch*config.MODEL.STAGE1_UNFREEZE_PERIODE
+    stage0_unfreeze = max_epoch*config.MODEL.STAGE0_UNFREEZE_PERIODE
     # creates progress bar
     iterator = tqdm(range(max_epoch), ncols=70,  dynamic_ncols=True)
 
@@ -94,25 +115,22 @@ def trainer(args, model, log_save_path = "", config = None):
     bool_s1_unfreezed = False
     bool_s0_unfreezed = False
 
-    # folder for the final output of binary and heatmap masks
-    pred_dir = os.path.join(log_save_path, "final_preds")
-    os.makedirs(pred_dir, exist_ok=True)
 
     for epoch_num in iterator:
         if freeze_encoder == True:
             # unfreeze form the deepest encoder level to the highests
             if epoch_num > 1 :
                 if (epoch_num >= stage3_unfreeze) and (bool_s3_unfreezed == False):
-                    model.unfreeze_encoder(3)
+                    core(model).unfreeze_encoder(3)
                     bool_s3_unfreezed = True
                 if (epoch_num >= stage2_unfreeze) and (bool_s2_unfreezed == False):
-                    model.unfreeze_encoder(2)
+                    core(model).unfreeze_encoder(2)
                     bool_s2_unfreezed = True
                 if (epoch_num >= stage1_unfreeze) and (bool_s1_unfreezed == False):
-                    model.unfreeze_encoder(1)
+                    core(model).unfreeze_encoder(1)
                     bool_s1_unfreezed = True
                 if (epoch_num >= stage0_unfreeze) and (bool_s0_unfreezed == False):
-                    model.unfreeze_encoder(0)
+                    core(model).unfreeze_encoder(0)
                     bool_s0_unfreezed = True
 
         # get the batches (image & label) from the DataLoader
@@ -130,7 +148,7 @@ def trainer(args, model, log_save_path = "", config = None):
             print("after model \n")
             
             # loss
-            loss_tversky = tversky_loss.forward(outputs, label_batch)
+            loss_tversky = tversky_loss(outputs, label_batch)
             loss = loss_tversky
 
             # backprop + optimizer
@@ -146,9 +164,9 @@ def trainer(args, model, log_save_path = "", config = None):
                     logits = outputs                     # (image_pre,1,H,W)
                     heat   = torch.sigmoid(logits)       # (B,1,H,W) in [0,1]
                     binmsk = (heat > 0.5).float()        # (B,1,H,W) 0/1
-                    img_name = case_names[image_pre]
                     batch_size = heat.shape[0]
                     for image_pre in range(batch_size):
+                        img_name = str(case_names[image_pre])
                         # heatmap
                         save_image(heat[image_pre], os.path.join(
                             pred_dir, f"{img_name}_grey_heats.png"))
@@ -157,8 +175,8 @@ def trainer(args, model, log_save_path = "", config = None):
                             pred_dir, f"{img_name}_bin_mask.png"))
                         
                         save_color_heatmap(
-                            img_3chw = image_batch[image_pre].cpu(),
-                            heat_hw  = heat[image_pre,0].cpu(), 
+                            img_3chw = image_batch[image_pre].detach().cpu(),
+                            heat_hw  = heat[image_pre,0].detach().cpu(), 
                             out_png  = os.path.join(pred_dir, f"{img_name}_overlay_color.png"),
                             alpha    = 0.45 )
                         
@@ -175,7 +193,7 @@ def trainer(args, model, log_save_path = "", config = None):
             # iter and logging
             iter_num = iter_num + 1
             writer.add_scalar('info/lr', lr_, iter_num)
-            writer.add_scalar('info/total_loss', loss, iter_num)
+            writer.add_scalar('info/total_loss', loss.item(), iter_num)
             logging.info('iteration %d : loss : %f' % (iter_num, loss.item()))
         
         # saves all 50 epochs
@@ -184,7 +202,7 @@ def trainer(args, model, log_save_path = "", config = None):
         if epoch_num > int(max_epoch / 2) and (epoch_num + 1) % save_interval == 0:
             save_mode_path = os.path.join(log_save_path, 'epoch_' + str(epoch_num) + '.pth')
             torch.save({    'epoch': epoch_num,
-                            'model': model.state_dict(),
+                            'model': core(model).state_dict(),
                             'optimizer': optimizer.state_dict(),
                             'iter_num': iter_num,}, save_mode_path)
             logging.info("save model to {}".format(save_mode_path))
@@ -193,7 +211,7 @@ def trainer(args, model, log_save_path = "", config = None):
         if epoch_num >= max_epoch - 1:
             save_mode_path = os.path.join(log_save_path, 'epoch_' + str(epoch_num) + '.pth')
             torch.save({    'epoch': epoch_num,
-                            'model': model.state_dict(),
+                            'model':  core(model).state_dict(),
                             'optimizer': optimizer.state_dict(),
                             'iter_num': iter_num,}, save_mode_path)
             logging.info("save model to {}".format(save_mode_path))

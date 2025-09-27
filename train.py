@@ -27,21 +27,17 @@ def main():
                         default=1, help='output channel of network')
     # folder for logs, checkpoints, preds
     parser.add_argument('--output_dir', type=str, default='./model_out', help='output dir') 
-    # max iteramtion               
-    parser.add_argument('--max_iterations', type=int,
-                        default=30000, help='maximum epoch number to train')
     # max epoch 
     parser.add_argument('--max_epochs', type=int,
-                        default=150, help='maximum epoch number to train')
+                        default=30000, help='maximum epoch number to train')
     # batch size
     parser.add_argument('--batch_size', type=int,
-                        default=4, help='batch_size per gpu')
+                        default=2, help='batch_size per gpu')
     # numer of used GPUs
     parser.add_argument('--n_gpu', type=int, default=1, help='total gpu')
     # forces the pythorch/CUDA to just perform deterministic operation
     # so the exact same result is archieved every time
-    parser.add_argument('--deterministic', type=int,  default=1,
-                        help='whether use deterministic training')
+    parser.add_argument('--deterministic', action='store_true', help='use deterministic training')
     # learning rate
     parser.add_argument('--base_lr', type=float,  default=0.01,
                         help='segmentation network learning rate')
@@ -51,9 +47,6 @@ def main():
     # random seed (set for reproductioon)
     parser.add_argument('--seed', type=int,
                         default=1234, help='random seed')
-    # path to JSON with model/train/eval-setings
-    parser.add_argument('--cfg', type=str, 
-                        default = 'None', required=False, metavar="FILE", help='path to config file', )
     # Modify config options by adding 'KEY VALUE' pairs.
     parser.add_argument(
             "--opts",
@@ -74,7 +67,7 @@ def main():
     # calucaltes mini-batces and calculates gradient, and then doese opimization
     # if you want batch=32 but your GPU just can handle 8
     # -> set accumulation-steps = 4
-    parser.add_argument('--accumulation-steps', type=int, help="gradient accumulation steps")
+    parser.add_argument('--accumulation-steps', default=4, type=int, help="gradient accumulation steps")
     # if you want to use ceckpoints
     parser.add_argument('--use-checkpoint', action='store_true',
                         help="whether to use gradient checkpointing to save memory")
@@ -104,13 +97,11 @@ def main():
 
  
     args = parser.parse_args()
-    if args.dataset == "SegArtifact":
-        args.root_path = os.path.join(args.root_path)
 
     now = datetime.now()
     # format: DayMonthYear_HourMinute
     timestamp_str = now.strftime("%d%m%y_%H%M")
-    args.output_dir = './model_out/' + timestamp_str
+    args.output_dir = os.path.join(args.output_dir, timestamp_str)
 
 
     config = get_config(args)
@@ -121,41 +112,51 @@ def main():
     else:
         cudnn.benchmark = False
         cudnn.deterministic = True
+        torch.use_deterministic_algorithms(True)
 
     random.seed(args.seed)
     np.random.seed(args.seed)
     torch.manual_seed(args.seed)
     if torch.cuda.is_available():
         torch.cuda.manual_seed(args.seed)
+        torch.cuda.manual_seed_all(args.seed)
 
     dataset_name = args.dataset
     dataset_config = {
         'SegArtifact': {
             'root_path': args.root_path,
             'list_dir': './lists',
-            'num_classes': 1,
+            'num_classes': args.num_classes,
         },
     }
 
-    if args.batch_size != 24 and args.batch_size % 6 == 0:
-        args.base_lr *= args.batch_size / 24
-    args.num_classes = dataset_config[dataset_name]['num_classes']
-    args.root_path = dataset_config[dataset_name]['root_path']
-    args.list_dir = dataset_config[dataset_name]['list_dir']
+    # calculation of base learning rate
+    ref_bs = 24
+    acc_steps = args.accumulation_steps or 1
+    effective_bs = args.batch_size * acc_steps
+    if effective_bs != ref_bs:
+        print(f"[LR] Scaling base_lr {args.base_lr:.6f} -> {args.base_lr * (effective_bs/ref_bs):.6f} "
+            f"(eff_BS={effective_bs}, ref={ref_bs})")
+        args.base_lr *= effective_bs / ref_bs
 
     if not os.path.exists(args.output_dir):
         os.makedirs(args.output_dir)
 
-    # if cuda is avilable
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    
     model = MSUNet( config, 
                     img_size=args.img_size, 
                     num_classes=args.num_classes
-                    ).to(device)
+                    )
     # pretrained weights are loaded
     
-    model.load_segface_weight(config)
+    try:
+        model.load_segface_weight(config)
+    except Exception as e:
+        logging.error(f"Could not load segface weights: {e}")
+
+    # if cuda is avilable
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    model.to(device)
     # model.eval()
 
     # train dictionary wiht the trianer_MS_UNet function
