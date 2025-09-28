@@ -1,6 +1,5 @@
 import os
 import random
-import h5py
 import numpy as np
 import torch
 from torch.utils.data import Dataset
@@ -41,7 +40,7 @@ class RandomGenerator(object):
         image = torch.from_numpy(image).permute(2, 0, 1)  # [3,H,W]
         label = torch.from_numpy(label.astype(np.float32))
 
-        return {'image': image, 'label': label.long()}
+        return {'image': image, 'label': label}
 
 
 # inherits from torch.utils.data.Dataset
@@ -59,7 +58,8 @@ class SegArtifact_dataset(Dataset):
         self.transform = transform  # using transform in torch!
         self.split = split
         # opens for example train.txt and reads all lines in the list
-        self.sample_list = open(os.path.join(list_dir, self.split+'.txt')).readlines()
+        with open(os.path.join(list_dir, self.split + '.txt'), 'r', encoding='utf-8') as f:
+            self.sample_list = [ln.strip() for ln in f if ln.strip()]
         self.data_dir = base_dir
 
     def __len__(self):
@@ -68,8 +68,8 @@ class SegArtifact_dataset(Dataset):
     def __getitem__(self, idx):
 
         # gets the name of the next data. 
-        slice_name = self.sample_list[idx].strip('\n')
-        # loads image and label
+        slice_name = self.sample_list[idx]
+        # loads image and labels
 
         real_img_path = os.path.join(self.data_dir, "real_images", slice_name + ".png")
         fake_img_path = os.path.join(self.data_dir, "fake_images", slice_name + ".png")
@@ -78,11 +78,15 @@ class SegArtifact_dataset(Dataset):
 
         if os.path.exists(real_img_path):
             image = Image.open(real_img_path).convert("RGB")
-            label = Image.open(real_label_path).convert("L")
+            if os.path.exists(real_label_path):
+                label = Image.open(real_label_path).convert("L")
+            else: raise FileNotFoundError(f"Label {slice_name} not found in real_labels")
 
         elif os.path.exists(fake_img_path):
             image = Image.open(fake_img_path).convert("RGB")
-            label = Image.open(fake_label_path).convert("L")
+            if os.path.exists(fake_label_path):
+                label = Image.open(fake_label_path).convert("L")
+            else: raise FileNotFoundError(f"Label {slice_name} not found in fake_labels")
         else:
             raise FileNotFoundError(f"Sample {slice_name} not found in real_images/ or fake_images/")
 

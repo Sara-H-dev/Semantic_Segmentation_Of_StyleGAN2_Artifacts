@@ -6,7 +6,7 @@ from __future__ import print_function
 
 import copy
 import logging
-
+import os
 import torch
 import torch.nn as nn
 from .model_parts import MSUNetSys
@@ -25,7 +25,7 @@ class MSUNet(nn.Module):
         self.zero_head = zero_head
         self.config = config
 
-        self.ms_unet = MSUNetSys(img_size = config.DATA.IMG_SIZE,               # image size 
+        self.ms_unet = MSUNetSys(img_size = img_size,                           # image size 
                                 patch_size = config.MODEL.SWIN.PATCH_SIZE,      # patch size (4x4)
                                 in_chans = config.MODEL.SWIN.IN_CHANS,          # number of input channels (3)
                                 num_classes = self.num_classes,                 # number of classes
@@ -56,68 +56,34 @@ class MSUNet(nn.Module):
     def unfreeze_encoder(self, layer_num):
         self.ms_unet.unfreeze_encoder(layer_num)
 
-    # for loading pretrained weights
-    def load_segface_weights(self, config):
-        # pretrained_path
-        pretrained_path = config.MODEL.PRETRAIN_SEGFACE
-
-        if pretrained_path is not None:
-            print("pretrained_path:{}\n".format(pretrained_path))
-            # cpu or cuda
-            device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-            ckpt = torch.load(pretrained_path, map_location=device)
-
-            pretrained_dict = ckpt["state_dict_backbone"]
-
-            if "model"  not in pretrained_dict:
-                print("---start load pretrained modle by splitting---")
-                pretrained_dict = {k[17:]:v for k,v in pretrained_dict.items()}
-                for k in list(pretrained_dict.keys()):
-                    if "output" in k:
-                        print("delete key:{}".format(k))
-                        del pretrained_dict[k]
-                msg = self.ms_unet.load_state_dict(pretrained_dict,strict=False)
-                # print(msg)
-                return
-            pretrained_dict = pretrained_dict['model']
-            print("---start load pretrained modle of swin encoder---")
-
-            model_dict = self.ms_unet.state_dict()
-            full_dict = copy.deepcopy(pretrained_dict)
-            for k, v in pretrained_dict.items():
-                if "layers." in k:
-                    current_layer_num = 3-int(k[7:8])
-                    current_k = "layers_up." + str(current_layer_num) + k[8:]
-                    full_dict.update({current_k:v})
-            for k in list(full_dict.keys()):
-                if k in model_dict:
-                    if full_dict[k].shape != model_dict[k].shape:
-                        print("delete:{};shape pretrain:{};shape model:{}".format(k,v.shape,model_dict[k].shape))
-                        del full_dict[k]
-
-            msg = self.ms_unet.load_state_dict(full_dict, strict=False)
-            print("Finished loading pretrained weights")
-            # print(msg)
-        else:
-            print("none pretrain")
-
-
 
     def load_segface_weight(self, config):
         # cpu or cuda
         pretrained_path = config.MODEL.PRETRAIN_SEGFACE
+
+        if not pretrained_path or not os.path.exists(pretrained_path):
+            logger.error(f"No segface pretrain found at: {pretrained_path}")
+            return
+
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
         segface_dict = torch.load(pretrained_path, map_location = device)
+        if "state_dict_backbone" not in segface_dict:
+            msg = f"'state_dict_backbone' not found in checkpoint: {pretrained_path}"
+            logger.error(msg)
+            raise KeyError(msg)
+        
         segface_dict = segface_dict["state_dict_backbone"]
         nums = list(range(18))
         new_state_dict = {}
         skip = False
+        backbone_counter = 0
 
         for k, v in segface_dict.items():
             new_k = k
             skip = False
             if k.startswith("backbone"):
+                backbone_counter = 1
                 if k.startswith("backbone.0.0.0."):
                     new_k = k.replace("backbone.0.0.0", "patch_embed.proj")
                 elif k.startswith("backbone.0.0.2."):
@@ -158,9 +124,14 @@ class MSUNet(nn.Module):
                     if new_k == k:
                         msg = f"Key {k} not replaced!"
                         logger.error(msg)
-                        raise ValueError(msg)
-                
+                        raise ValueError(msg)           
                     new_state_dict[new_k] = v
+                
+            
+        if backbone_counter == 0:
+            msg = f"No new keys from backbone!!"
+            logger.error(msg)
+            raise ValueError(msg)
 
         model_dict = self.ms_unet.state_dict()
 
@@ -172,8 +143,8 @@ class MSUNet(nn.Module):
                         raise ValueError(msg)
 
         msg = self.ms_unet.load_state_dict(new_state_dict, strict=False)
-        #print(msg)
-        print("End of the pretrained copying process")
+        #logger.info(msg)
+        logger.info("End of the pretrained copying process")
 
 """
     # for loading pretrained weights
