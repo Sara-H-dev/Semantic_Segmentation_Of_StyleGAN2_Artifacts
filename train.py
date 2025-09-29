@@ -74,14 +74,14 @@ def main():
     acc_steps = args.accumulation_steps or 1
     effective_bs = args.batch_size * acc_steps
     if effective_bs != ref_bs:
-        print(f"[LR] Scaling base_lr {args.base_lr:.6f} -> {args.base_lr * (effective_bs/ref_bs):.6f} "
+        logging.info(f"[LR] Scaling base_lr {args.base_lr:.6f} -> {args.base_lr * (effective_bs/ref_bs):.6f} "
             f"(eff_BS={effective_bs}, ref={ref_bs})")
         args.base_lr *= effective_bs / ref_bs
 
     if not os.path.exists(args.output_dir):
         os.makedirs(args.output_dir)
 
-    model = MSUNet( config, 
+    model = MSUNet( logging, config, 
                     img_size=args.img_size, 
                     num_classes=args.num_classes
                     )
@@ -98,7 +98,9 @@ def main():
     # train dictionary wiht the trianer_MS_UNet function
     trainer_dic = {'SegArtifact': trainer,}
     trainer_dic['SegArtifact'](args, model, args.output_dir, config)
-    return args.output_dir
+    return timestamp_str
 
 if __name__ == "__main__":
-    main()
+    timestamp_str = ""
+    timestamp_str = main()
+    print(timestamp_str)

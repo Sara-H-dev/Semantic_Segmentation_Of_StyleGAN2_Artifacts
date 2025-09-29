@@ -35,6 +35,7 @@ from timm.layers import DropPath, to_2tuple, trunc_normal_
 import torch.nn.functional as F
 from torchvision.models.swin_transformer import SwinTransformerBlock
 from einops import rearrange
+import sys
 
 
 class Mlp(nn.Module):
@@ -532,9 +533,9 @@ class MSUNetSys(nn.Module):
                  use_checkpoint = False, final_upsample = "expand_first", **kwargs):
         super().__init__()
 
-        print(
-            "SwinTransformerSys expand initial---- \n depths:{}; \n depths_decoder:{}; \n drop_path_rate:{};\n num_classes:{}".format(
-                depths, depths_decoder, drop_path_rate, num_classes))
+        msg = "SwinTransformerSys expand initial---- \n depths:{}; \n depths_decoder:{}; \n drop_path_rate:{};\n num_classes:{}".format(
+                depths, depths_decoder, drop_path_rate, num_classes)
+        print(msg, file=sys.stderr)
 
         self.num_classes = num_classes
         self.num_layers = len(depths)
@@ -700,7 +701,7 @@ class MSUNetSys(nn.Module):
 
         # Decoder sampled up to patch size, i.e. 256x256, and from there it still needs to be scaled to image size.
         if self.final_upsample == "expand_first":
-            print("---final upsample expand_first---")
+            print("---final upsample expand_first---", file=sys.stderr)
             self.up = FinalPatchExpand_X4(
                             input_resolution = (img_size // patch_size, img_size // patch_size),
                             dim_scale = 4, 
@@ -710,7 +711,7 @@ class MSUNetSys(nn.Module):
 
         # applyes init weights to the whole model
         self.apply(self._init_weights)
-        print("Finished MSUNet Construktor")
+        print("Finished MSUNet Construktor", file=sys.stderr)
 
     def _init_weights(self, m):
         if isinstance(m, nn.Linear):

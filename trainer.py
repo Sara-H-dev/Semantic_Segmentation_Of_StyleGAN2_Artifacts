@@ -65,7 +65,7 @@ def trainer(args, model, log_save_path = "", config = None):
                                     transform = transforms.Compose(
                                    [RandomGenerator(output_size=[args.img_size, args.img_size])]))
     
-    print("The length of train set is: {}".format(len(db_train)))
+    logging.info("The length of train set is: {}".format(len(db_train)))
 
     trainloader = DataLoader(   db_train, 
                                 batch_size = batch_size, 
@@ -147,9 +147,9 @@ def trainer(args, model, log_save_path = "", config = None):
             image_batch, label_batch = sampled_batch['image'].to(device), sampled_batch['label'].to(device)
             case_names  = sampled_batch['case_name']
 
-            print("before model \n")
+            logging.info("before model \n")
             outputs = model(image_batch)
-            print("after model \n")
+            logging.info("after model \n")
             
             # loss
             loss = tversky_loss(outputs, label_batch)
@@ -172,7 +172,7 @@ def trainer(args, model, log_save_path = "", config = None):
 
             # In the last epoch, bit masks and heat masks are created for the last batch.
             if is_last_epoch and is_last_batch:
-                print("Last epoch, last batch")
+                logging.info("Last epoch, last batch")
                 model.eval()
                 with torch.no_grad():
                     create_bin_heat_mask(outputs, case_names, pred_dir, image_batch)
