@@ -54,11 +54,13 @@ def predict_and_score(
     dice_b, iou_b, recall_b, precision_b, f1_b = calculate_metrics_binary(pred_bin_np, lab_np)
     soft_dice, soft_iou = calculate_metrics_soft(pred.squeeze(0).squeeze(0), label)
 
+    """
     if test_save_path is not None and case is not None:
         os.makedirs(test_save_path, exist_ok=True)
         # Skaliere 0/1-Masken auf 0/255
         imageio.imwrite(os.path.join(test_save_path, f"{case}_pred.png"), pred_bin_np * 255)
         imageio.imwrite(os.path.join(test_save_path, f"{case}_gt.png"),   lab_np * 255)
+    """
 
     return [(dice_b, iou_b, recall_b, precision_b, f1_b, soft_dice, soft_iou)]
 

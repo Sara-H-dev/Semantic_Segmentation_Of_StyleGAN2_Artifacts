@@ -89,11 +89,17 @@ def main():
     # parameters of the tversky loss
     parser.add_argument('--loss_alpha', type = float, default = 0.4, help='parameter for the tversky loss')
     parser.add_argument('--loss_beta', type = float, default = 0.6, help='parameter for the tversky loss')
+    # if encoder should be frozen:
+    parser.add_argument('--freeze_encoder', type = bool, default = True, help='If true, encoder is frozen')
     # percent of epochs then the stages are unfrozen:
     parser.add_argument('--unfreeze_stage3', type = float, default = 0.4, help='Percentage of epochs when this stage is unfrozen')
     parser.add_argument('--unfreeze_stage2', type = float, default = 0.7, help='Percentage of epochs when this stage is unfrozen')
     parser.add_argument('--unfreeze_stage1', type = float, default = 0.9, help='Percentage of epochs when this stage is unfrozen')
     parser.add_argument('--unfreeze_stage0', type = float, default = 0.98, help='Percentage of epochs when this stage is unfrozen')
+    # threshold for the gereration of the binary mask for the validation
+    parser.add_argument('--sig_threshold', type = float, default = 0.5, help = 'treshold that decides if a pixel is an artefact or not')
+    # number of epochs at which the process is terminated if the result does not improve
+    parser.add_argument('--early_stopping_patience ', type = int, default = 15, help = 'number of epochs at which the process is terminated if the result does not improve')
 
  
     args = parser.parse_args()

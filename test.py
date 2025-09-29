@@ -130,15 +130,23 @@ def main():
         os.makedirs(test_save_path, exist_ok=True)
     else:
         test_save_path = None
-    inference(args, model, test_save_path, device)
+    inference(model, test_save_path, device, args.dataset_path, 
+                args.split, args.list_dir, args.img_size, args.sig_threshold)
 
+def inference(model, 
+              test_save_path=None, 
+              device = None, 
+              dataset_path = None, 
+              split = "test", 
+              list_dir = './lists',
+              img_size = 1024,
+              sig_threshold = 0.5):
+    from dataset.dataset import SegArtifact_dataset, RandomGenerator
 
-def inference(args, model, test_save_path=None, device = None):
-
-    db_test = args.Dataset(
-            base_dir = args.dataset_path, 
-            split = args.split, 
-            list_dir = args.list_dir)
+    db_test = SegArtifact_dataset(
+            base_dir = dataset_path, 
+            split = split, 
+            list_dir = list_dir)
     
     testloader = DataLoader(
             db_test, 
@@ -148,30 +156,27 @@ def inference(args, model, test_save_path=None, device = None):
             pin_memory = torch.cuda.is_available())
     
     logging.info("{} test iterations per epoch".format(len(testloader)))
-
     model.eval()
-
     num_cases = 0
 
     metrics_sum = np.zeros(7, dtype=np.float64)  # [dice, IoU, recall, precision, f1, soft_dice, soft_IoU]
     with torch.inference_mode():
         for i_batch, sampled_batch in tqdm(enumerate(testloader), total=len(testloader)):
-            image = sampled_batch["image"]
-            label = sampled_batch["label"]
+            image = sampled_batch["image"].to(device, non_blocking=True)
+            label = sampled_batch["label"].to(device, non_blocking=True)
             case_name =  sampled_batch['case_name'][0]
 
             metric_i = predict_and_score(image, 
                                         label, 
                                         model,  
-                                        patch_size = [args.img_size, args.img_size],
+                                        patch_size = [img_size, img_size],
                                         test_save_path = test_save_path, 
                                         case = case_name, 
                                         device = device,
-                                        threshold = args.sig_threshold)
+                                        threshold = sig_threshold)
             
             # Transfer to a robust 1D vector and limit to 7 key figures
             metric_i = np.asarray(metric_i, dtype=np.float64).reshape(-1)[:7]
-
             
             if metric_i.shape[0] != 7:
                 msg = f"Expected 7 metrics, got {metric_i.shape[0]} for case {case_name}"
@@ -180,7 +185,6 @@ def inference(args, model, test_save_path=None, device = None):
 
             metrics_sum += metric_i
             num_cases += 1
-
             m_dice, m_iou, m_rec, m_prec, m_f1, m_soft_dice, m_soft_iou = metric_i
 
             logging.info(
@@ -191,21 +195,16 @@ def inference(args, model, test_save_path=None, device = None):
             )
     
     if num_cases == 0:
-        logging.error("No test cases processed. Check your dataset/split.")
-        raise ValueError("Expected at least one test cases")
+        logging.error(f"No {split} cases processed. Check your dataset/split.")
+        raise ValueError(f"Expected at least one {split} cases")
     
     mean_metrics = metrics_sum / num_cases
-
     mean_dice, mean_IoU, mean_recall, mean_precision, mean_f1_score, mean_soft_dice, mean_soft_IoU = mean_metrics
         
     logging.info(
-        "Testing performance : mean_dice %.4f mean_IoU %.4f mean_recall %.4f mean_precision %.4f mean_f1_score %.4f mean_soft_dice %.4f mean_soft_IoU %.4f",
-        mean_dice, mean_IoU, mean_recall, mean_precision, mean_f1_score, mean_soft_dice, mean_soft_IoU
-    )
-
-    return "Testing Finished!"
-
-
+        f"{split} performance : mean_dice %.4f mean_IoU %.4f mean_recall %.4f mean_precision %.4f mean_f1_score %.4f mean_soft_dice %.4f mean_soft_IoU %.4f",
+        mean_dice, mean_IoU, mean_recall, mean_precision, mean_f1_score, mean_soft_dice, mean_soft_IoU)
+    return mean_metrics
 
 if __name__ == "__main__":
     main()
