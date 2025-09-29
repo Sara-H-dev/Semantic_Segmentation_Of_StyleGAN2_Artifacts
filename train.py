@@ -6,6 +6,7 @@ import random
 import numpy as np
 import torch
 import torch.backends.cudnn as cudnn
+import sys
 from network.MSUNet import MSUNet 
 from trainer import trainer
 from config import get_config
@@ -103,4 +104,4 @@ def main():
 if __name__ == "__main__":
     timestamp_str = ""
     timestamp_str = main()
-    print(timestamp_str)
+    print(timestamp_str, file=sys.stdout)
