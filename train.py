@@ -28,8 +28,8 @@ def main():
     parser.add_argument('--seed', type=int, default=1234, help='random seed')
     # forces the pythorch/CUDA to just perform deterministic operation, so the exact same result is archieved every time
     parser.add_argument('--deterministic', action='store_true', help='use deterministic training')
-    parser.add_argument('--accumulation-steps', type=int, help="gradient accumulation steps")
-    parser.add_argument('--use-checkpoint', action='store_true',
+    parser.add_argument('--accumulation_steps', type=int, help="gradient accumulation steps")
+    parser.add_argument('--use_checkpoint', action='store_true',
                         help="whether to use gradient checkpointing to save memory")
     # parameters of the tversky loss
     parser.add_argument('--loss_alpha', type = float, default = 0.4, help='parameter for the tversky loss')
@@ -47,6 +47,20 @@ def main():
     parser.add_argument('--early_stopping_patience', type = int, default = 15, help = 'number of epochs at which the process is terminated if the result does not improve')
     parser.add_argument('--cfg', type=str, required=True, metavar="FILE", help='path to config file', )
 
+
+
+
+ 
+  
+  --freeze_encoder "${FREEZE_ENCODER}" \
+  --sig_threshold "${SIG_THRESHOLD}" \
+  --early_stopping_patience "${EARLY_STOP}" \
+  --loss_alpha "${LOSS_ALPHA}"\
+  --loss_beta "${LOSS_BETA}"\
+  --unfreeze_stage3 "${UNFREEZE_STAGE3}"\
+  --unfreeze_stage2 "${UNFREEZE_STAGE2}"\
+  --unfreeze_stage1 "${UNFREEZE_STAGE1}"\
+  --unfreeze_stage0 "${UNFREEZE_STAGE0}"\)
     args = parser.parse_args()
     now = datetime.now()
     # format: DayMonthYear_HourMinute

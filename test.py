@@ -17,24 +17,17 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataset_path', type=str,
                         default='./dataset', help='root dir for the data')  # for acdc dataset_path=root_dir
-    parser.add_argument('--dataset', type=str,
-                        default='SegArtifact', help='experiment_name')
     parser.add_argument('--num_classes', type=int,
                         default=1, help='output channel of network')
     parser.add_argument('--list_dir', type=str,
                         default='./lists', help='list dir')
     parser.add_argument('--output_dir', type=str, default='./model_out/timestamp/test', help='output dir')   
     parser.add_argument('--max_epochs', type=int, default=150, help='maximum epoch number to train')
-    parser.add_argument('--batch_size', type=int, default=24,
-                        help='batch_size per gpu')
     parser.add_argument('--img_size', type=int, default=1024, help='input patch size of network input')
     parser.add_argument('--is_savenii', action="store_true", help='whether to save results during inference')
-    parser.add_argument('--test_save_dir', type=str, default='.model_out/SegArtifact/test/predictions', help='saving prediction as nii!')
     parser.add_argument('--deterministic', type=int,  default=1, help='whether use deterministic training')
-    parser.add_argument('--base_lr', type=float,  default=0.01, help='segmentation network learning rate')
     parser.add_argument('--seed', type=int, default=1234, help='random seed')
-    parser.add_argument('--accumulation-steps', type=int, help="gradient accumulation steps")
-    parser.add_argument('--use-checkpoint', action='store_true',
+    parser.add_argument('--use_checkpoint', action='store_true',
                         help="whether to use gradient checkpointing to save memory")
     parser.add_argument('--sig_threshold', type = float, default = 0.5, help = 'treshold that decides if a pixel is an artefact or not')
     parser.add_argument('--split', type = str, default = 'test',choices=['test', 'val'], help = 'test or val')
@@ -43,7 +36,6 @@ def main():
     args = parser.parse_args()
 
     args.output_dir    = os.path.join('./model_out', args.timestamp, args.split)
-    args.test_save_dir = os.path.join(args.output_dir, 'predictions')
     
     config = get_config(args)
 
@@ -93,9 +85,9 @@ def main():
     logging.info(str(args))
     logging.info(snapshot_name)
 
+    test_save_dir = os.path.join(args.output_dir, "predictions")
     if args.is_savenii:
-        args.test_save_dir = os.path.join(args.output_dir, "predictions")
-        test_save_path = args.test_save_dir 
+        test_save_path = test_save_dir 
         os.makedirs(test_save_path, exist_ok=True)
     else:
         test_save_path = None
