@@ -17,7 +17,6 @@ def main():
     parser.add_argument('--root_path', type=str, default='./dataset', help='root dir for data')
     parser.add_argument('--output_dir', type=str, default='./model_out', help='output dir') 
     parser.add_argument('--list_dir', type=str, default='./lists', help='list dir')
-   
     # Hyperparameters
     parser.add_argument('--num_classes', type=int, default=1, help='output channel of network')
     parser.add_argument('--max_epochs', type=int, default=30000, help='maximum epoch number to train')
@@ -45,6 +44,7 @@ def main():
     parser.add_argument('--sig_threshold', type = float, default = 0.5, help = 'treshold that decides if a pixel is an artefact or not')
     # number of epochs at which the process is terminated if the result does not improve
     parser.add_argument('--early_stopping_patience', type = int, default = 15, help = 'number of epochs at which the process is terminated if the result does not improve')
+    parser.add_argument('--cfg', type=str, required=True, metavar="FILE", help='path to config file', )
 
     args = parser.parse_args()
     now = datetime.now()
@@ -86,7 +86,6 @@ def main():
                     num_classes=args.num_classes
                     )
     # pretrained weights are loaded
-    
     try:
         model.load_segface_weight(config)
     except Exception as e:
@@ -94,15 +93,12 @@ def main():
 
     # if cuda is avilable
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
     model.to(device)
-    # model.eval()
 
     # train dictionary wiht the trianer_MS_UNet function
     trainer_dic = {'SegArtifact': trainer,}
     trainer_dic['SegArtifact'](args, model, args.output_dir, config)
-    return args.output_di
-
+    return args.output_dir
 
 if __name__ == "__main__":
     main()

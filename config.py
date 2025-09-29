@@ -155,7 +155,7 @@ def _update_config_from_file(config, cfg_file):
 
 
 def update_config(config, args):
-    # _update_config_from_file(config, args.cfg)
+    _update_config_from_file(config, args.cfg)
 
     # merge from specific arguments
     if args.batch_size:

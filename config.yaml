@@ -1,0 +1,74 @@
+BASE: []
+
+DATA:
+  BATCH_SIZE: 4
+  DATA_PATH: "./dataset"
+  DATASET: "SegArtifact"
+  IMG_SIZE: 1024
+  INTERPOLATION: "bicubic"
+  PIN_MEMORY: true
+  NUM_WORKERS: 8
+
+MODEL:
+  TYPE: "swin"
+  NAME: "swin_b"
+  PRETRAIN_CKPT: "./pretrained_ckpt/swin_b.pth"
+  PRETRAIN_SEGFACE: "./network/pretrained_weights/SegFace_swin_celaba_512.pt"
+
+  NUM_CLASSES: 1
+  DROP_RATE: 0.0
+  DROP_PATH_RATE: 0.1
+  LABEL_SMOOTHING: 0.1
+
+  FREEZE_ENCODER: true
+  STAGE3_UNFREEZE_PERIODE: 0.4
+  STAGE2_UNFREEZE_PERIODE: 0.7
+  STAGE1_UNFREEZE_PERIODE: 0.9
+  STAGE0_UNFREEZE_PERIODE: 0.98
+
+  SWIN:
+    PATCH_SIZE: 4
+    IN_CHANS: 3
+    EMBED_DIM: 128
+    DEPTHS: [2, 2, 18, 2]
+    DECODER_DEPTHS: [2, 2, 6, 2]
+    NUM_HEADS: [4, 8, 16, 32]
+    WINDOW_SIZE: 7
+    MLP_RATIO: 4.0
+    QKV_BIAS: true
+    QK_SCALE: null
+    APE: false
+    PATCH_NORM: true
+    FINAL_UPSAMPLE: "expand_first"
+
+TRAIN:
+  START_EPOCH: 0
+  EPOCHS: 300
+  WARMUP_EPOCHS: 20
+  WEIGHT_DECAY: 0.05
+  BASE_LR: 0.0005
+  WARMUP_LR: 0.0000005
+  MIN_LR: 0.000005
+  CLIP_GRAD: 5.0
+
+  ACCUMULATION_STEPS: 0
+  USE_CHECKPOINT: false
+
+  LR_SCHEDULER:
+    NAME: "cosine"
+    DECAY_EPOCHS: 30
+    DECAY_RATE: 0.1
+
+  OPTIMIZER:
+    NAME: "adamw"
+    EPS: 1e-8
+    BETAS: [0.9, 0.999]
+    MOMENTUM: 0.9
+
+  TVERSKY_LOSS_ALPHA: 0.4
+  TVERSKY_LOSS_BETA: 0.6
+
+AMP_OPT_LEVEL: ""   # leer lassen, wenn du native torch.amp nutzt
+OUTPUT: ""
+SEED: 0
+LOCAL_RANK: 0
