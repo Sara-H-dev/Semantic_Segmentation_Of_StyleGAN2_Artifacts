@@ -28,11 +28,6 @@ _C.DATA.DATASET = 'SegArtifact'
 _C.DATA.IMG_SIZE = 1024
 # Interpolation to resize image (random, bilinear, bicubic)
 _C.DATA.INTERPOLATION = 'bicubic'
-# Use zipped dataset instead of folder dataset
-# could be overwritten by command line argument
-_C.DATA.ZIP_MODE = False
-# Cache Data in Memory, could be overwritten by command line argument
-_C.DATA.CACHE_MODE = 'part'
 # Pin CPU memory in DataLoader for more efficient (sometimes) transfer to GPU.
 _C.DATA.PIN_MEMORY = True
 # Number of data loading threads
@@ -51,7 +46,6 @@ _C.MODEL.PRETRAIN_CKPT = './pretrained_ckpt/swin_b.pth'
 # path to segface weights
 _C.MODEL.PRETRAIN_SEGFACE = './network/pretrained_weights/SegFace_swin_celaba_512.pt'
 
-_C.MODEL.RESUME = ''
 # Number of classes, overwritten in data preparation
 _C.MODEL.NUM_CLASSES = 1
 # Dropout rate
@@ -99,8 +93,7 @@ _C.TRAIN.WARMUP_LR = 5e-7
 _C.TRAIN.MIN_LR = 5e-6
 # Clip gradient norm
 _C.TRAIN.CLIP_GRAD = 5.0
-# Auto resume from latest checkpoint
-_C.TRAIN.AUTO_RESUME = True
+
 # Gradient accumulation steps
 # could be overwritten by command line argument
 _C.TRAIN.ACCUMULATION_STEPS = 0
@@ -130,39 +123,6 @@ _C.TRAIN.OPTIMIZER.MOMENTUM = 0.9
 _C.TRAIN.TVERSKY_LOSS_ALPHA = 0.4
 _C.TRAIN.TVERSKY_LOSS_BETA = 0.6
 
-# -----------------------------------------------------------------------------
-# Augmentation settings
-# -----------------------------------------------------------------------------
-_C.AUG = CN()
-# Color jitter factor
-_C.AUG.COLOR_JITTER = 0.4
-# Use AutoAugment policy. "v0" or "original"
-_C.AUG.AUTO_AUGMENT = 'rand-m9-mstd0.5-inc1'
-# Random erase prob
-_C.AUG.REPROB = 0.0
-# Random erase mode
-_C.AUG.REMODE = 'pixel'
-# Random erase count
-_C.AUG.RECOUNT = 1
-# Mixup alpha, mixup enabled if > 0
-_C.AUG.MIXUP = 0.0
-# Cutmix alpha, cutmix enabled if > 0
-_C.AUG.CUTMIX = 0.0
-# Cutmix min/max ratio, overrides alpha and enables cutmix if set
-_C.AUG.CUTMIX_MINMAX = None
-# Probability of performing mixup or cutmix when either/both is enabled
-_C.AUG.MIXUP_PROB = 1.0
-# Probability of switching to cutmix when both mixup and cutmix enabled
-_C.AUG.MIXUP_SWITCH_PROB = 0.5
-# How to apply mixup/cutmix params. Per "batch", "pair", or "elem"
-_C.AUG.MIXUP_MODE = 'batch'
-
-# -----------------------------------------------------------------------------
-# Testing settings
-# -----------------------------------------------------------------------------
-_C.TEST = CN()
-# Whether to use center crop when testing
-_C.TEST.CROP = True
 
 # -----------------------------------------------------------------------------
 # Misc
@@ -172,18 +132,8 @@ _C.TEST.CROP = True
 _C.AMP_OPT_LEVEL = ''
 # Path to output folder, overwritten by command line argument
 _C.OUTPUT = ''
-# Tag of experiment, overwritten by command line argument
-_C.TAG = 'default'
-# Frequency to save checkpoint
-_C.SAVE_FREQ = 1
-# Frequency to logging info
-_C.PRINT_FREQ = 10
 # Fixed random seed
 _C.SEED = 0
-# Perform evaluation only, overwritten by command line argument
-_C.EVAL_MODE = False
-# Test throughput only, overwritten by command line argument
-_C.THROUGHPUT_MODE = False
 # local rank for DistributedDataParallel, given by command line argument
 _C.LOCAL_RANK = 0
 
@@ -207,35 +157,23 @@ def _update_config_from_file(config, cfg_file):
 def update_config(config, args):
     # _update_config_from_file(config, args.cfg)
 
-    config.defrost()
-    if args.opts:
-        config.merge_from_list(args.opts)
-
     # merge from specific arguments
     if args.batch_size:
         config.DATA.BATCH_SIZE = args.batch_size
-    if args.zip:
-        config.DATA.ZIP_MODE = True
-    if args.cache_mode:
-        config.DATA.CACHE_MODE = args.cache_mode
-    if args.resume:
-        config.MODEL.RESUME = args.resume
+    if args.seed:
+        config.SEED = args.seed
+    if args.output_dir:
+        config.OUTPUT = args.output_dir
     if args.accumulation_steps:
         config.TRAIN.ACCUMULATION_STEPS = args.accumulation_steps
     if args.use_checkpoint:
         config.TRAIN.USE_CHECKPOINT = True
     if args.amp_opt_level:
         config.AMP_OPT_LEVEL = args.amp_opt_level
-    if args.tag:
-        config.TAG = args.tag
-    if args.eval:
-        config.EVAL_MODE = True
-    if args.throughput:
-        config.THROUGHPUT_MODE = True
     if args.loss_alpha:
-        config.TVERSKY_LOSS_ALPHA = args.loss_alpha
+        config.TRAIN.TVERSKY_LOSS_ALPHA = args.loss_alpha
     if args.loss_beta:
-        config.TVERSKY_LOSS_BETA = args.loss_beta
+         config.TRAIN.TVERSKY_LOSS_BETA = args.loss_beta
     if args.unfreeze_stage3:
         config.MODEL.STAGE3_UNFREEZE_PERIODE = args.unfreeze_stage3
     if args.unfreeze_stage2:

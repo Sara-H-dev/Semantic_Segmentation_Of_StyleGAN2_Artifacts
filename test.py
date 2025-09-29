@@ -7,10 +7,9 @@ import numpy as np
 import torch
 import torch.backends.cudnn as cudnn
 import torch.nn as nn
-from torch.utils.data import DataLoader
 from tqdm import tqdm
 from dataset.dataset import SegArtifact_dataset
-from scripts.predict_and_score import predict_and_score
+from scripts.inference import inference
 from network.MSUNet import MSUNet
 from config import get_config
 
@@ -34,26 +33,9 @@ def main():
     parser.add_argument('--deterministic', type=int,  default=1, help='whether use deterministic training')
     parser.add_argument('--base_lr', type=float,  default=0.01, help='segmentation network learning rate')
     parser.add_argument('--seed', type=int, default=1234, help='random seed')
-    parser.add_argument(
-            "--opts",
-            help="Modify config options by adding 'KEY VALUE' pairs. ",
-            default=None,
-            nargs='+',
-        )
-    parser.add_argument('--zip', action='store_true', help='use zipped dataset instead of folder dataset')
-    parser.add_argument('--cache-mode', type=str, default='part', choices=['no', 'full', 'part'],
-                        help='no: no cache, '
-                                'full: cache all data, '
-                                'part: sharding the dataset into nonoverlapping pieces and only cache one piece')
-    parser.add_argument('--resume', help='resume from checkpoint')
     parser.add_argument('--accumulation-steps', type=int, help="gradient accumulation steps")
     parser.add_argument('--use-checkpoint', action='store_true',
                         help="whether to use gradient checkpointing to save memory")
-    parser.add_argument('--amp-opt-level', type=str, default='O1', choices=['O0', 'O1', 'O2'],
-                        help='mixed precision opt level, if O0, no amp is used')
-    parser.add_argument('--tag', help='tag of experiment')
-    parser.add_argument('--eval', action='store_true', help='Perform evaluation only')
-    parser.add_argument('--throughput', action='store_true', help='Test throughput only')
     parser.add_argument('--sig_threshold', type = float, default = 0.5, help = 'treshold that decides if a pixel is an artefact or not')
     parser.add_argument('--split', type = str, default = 'test',choices=['test', 'val'], help = 'test or val')
     parser.add_argument('--timestamp', type = str, required= True,  help = 'The timestamp from the trainset')
@@ -79,17 +61,7 @@ def main():
     if torch.cuda.is_available():
         torch.cuda.manual_seed(args.seed)
 
-    dataset_config = {
-        'SegArtifact': {
-            'Dataset': SegArtifact_dataset,
-            'dataset_path': args.dataset_path,
-            'list_dir': args.list_dir,
-            'num_classes': 1,
-        },
-    }
-    dataset_name = args.dataset
-    args.num_classes = dataset_config[dataset_name]['num_classes']
-    args.Dataset = dataset_config[dataset_name]['Dataset']
+    args.num_classes = 1
     args.is_pretrain = True
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -98,9 +70,6 @@ def main():
                  img_size = args.img_size, 
                  num_classes = args.num_classes).to(device)
     
-    
-    
-
     snapshot = os.path.join(args.output_dir, 'best_model.pth')
     if not os.path.exists(snapshot):
         snapshot = os.path.join(args.output_dir, f'epoch_{args.max_epochs-1}.pth')
@@ -130,81 +99,8 @@ def main():
         os.makedirs(test_save_path, exist_ok=True)
     else:
         test_save_path = None
-    inference(model, test_save_path, device, args.dataset_path, 
+    inference(model, logging, test_save_path, device, args.dataset_path, 
                 args.split, args.list_dir, args.img_size, args.sig_threshold)
-
-def inference(model, 
-              test_save_path=None, 
-              device = None, 
-              dataset_path = None, 
-              split = "test", 
-              list_dir = './lists',
-              img_size = 1024,
-              sig_threshold = 0.5):
-    from dataset.dataset import SegArtifact_dataset, RandomGenerator
-
-    db_test = SegArtifact_dataset(
-            base_dir = dataset_path, 
-            split = split, 
-            list_dir = list_dir)
-    
-    testloader = DataLoader(
-            db_test, 
-            batch_size = 1, 
-            shuffle = False, 
-            num_workers = 1,
-            pin_memory = torch.cuda.is_available())
-    
-    logging.info("{} test iterations per epoch".format(len(testloader)))
-    model.eval()
-    num_cases = 0
-
-    metrics_sum = np.zeros(7, dtype=np.float64)  # [dice, IoU, recall, precision, f1, soft_dice, soft_IoU]
-    with torch.inference_mode():
-        for i_batch, sampled_batch in tqdm(enumerate(testloader), total=len(testloader)):
-            image = sampled_batch["image"].to(device, non_blocking=True)
-            label = sampled_batch["label"].to(device, non_blocking=True)
-            case_name =  sampled_batch['case_name'][0]
-
-            metric_i = predict_and_score(image, 
-                                        label, 
-                                        model,  
-                                        patch_size = [img_size, img_size],
-                                        test_save_path = test_save_path, 
-                                        case = case_name, 
-                                        device = device,
-                                        threshold = sig_threshold)
-            
-            # Transfer to a robust 1D vector and limit to 7 key figures
-            metric_i = np.asarray(metric_i, dtype=np.float64).reshape(-1)[:7]
-            
-            if metric_i.shape[0] != 7:
-                msg = f"Expected 7 metrics, got {metric_i.shape[0]} for case {case_name}"
-                logging.error(msg)
-                raise ValueError(msg)
-
-            metrics_sum += metric_i
-            num_cases += 1
-            m_dice, m_iou, m_rec, m_prec, m_f1, m_soft_dice, m_soft_iou = metric_i
-
-            logging.info(
-                f"idx {i_batch} case {case_name} "
-                f"mean_dice {m_dice:.4f} mean_IoU {m_iou:.4f} "
-                f"mean_recall {m_rec:.4f} mean_precision {m_prec:.4f} mean_f1_score {m_f1:.4f} "
-                f"mean_soft_dice {m_soft_dice:.4f} mean_soft_IoU {m_soft_iou:.4f} "
-            )
-    
-    if num_cases == 0:
-        logging.error(f"No {split} cases processed. Check your dataset/split.")
-        raise ValueError(f"Expected at least one {split} cases")
-    
-    mean_metrics = metrics_sum / num_cases
-    mean_dice, mean_IoU, mean_recall, mean_precision, mean_f1_score, mean_soft_dice, mean_soft_IoU = mean_metrics
-        
-    logging.info(
-        f"{split} performance : mean_dice %.4f mean_IoU %.4f mean_recall %.4f mean_precision %.4f mean_f1_score %.4f mean_soft_dice %.4f mean_soft_IoU %.4f",
-        mean_dice, mean_IoU, mean_recall, mean_precision, mean_f1_score, mean_soft_dice, mean_soft_IoU)
-    return mean_metrics
 
 if __name__ == "__main__":
     main()

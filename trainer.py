@@ -15,7 +15,7 @@ from torchvision import transforms
 from loss.TverskyLoss import TverskyLoss_binary
 from torchvision.utils import save_image
 from scripts.map_generator import overlay, save_color_heatmap
-from test import inference
+from scripts.inference import inference
 
 def make_worker_init_fn(base_seed: int):
     def _init(worker_id: int):
@@ -180,7 +180,7 @@ def trainer(args, model, log_save_path = "", config = None):
 
         # -------- VALIDATION (aftre every Epoch-Train) --------
         model.eval()
-        mean_metrics= inference(model, log_save_path, device, args.root_path, 
+        mean_metrics= inference(model,logging, log_save_path, device, args.root_path, 
             "val", args.list_dir, args.img_size, args.sig_threshold)
         
         mean_dice, mean_IoU, mean_recall, mean_precision, mean_f1_score, mean_soft_dice, mean_soft_IoU = mean_metrics
@@ -189,7 +189,7 @@ def trainer(args, model, log_save_path = "", config = None):
         if mean_soft_dice > best_val_dice:
             best_val_dice = mean_soft_dice
             since_best = 0
-            best_path = os.path.join(log_save_path, 'best_val_epoch_' + str(epoch_num) + '.pth')
+            best_path = os.path.join(log_save_path, 'best_model.pth')
             torch.save({
                 'epoch': epoch_num,
                 'model': core(model).state_dict(),
