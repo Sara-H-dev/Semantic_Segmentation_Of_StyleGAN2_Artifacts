@@ -5,15 +5,18 @@ import os
 import random
 import sys
 import numpy as np
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from tensorboardX import SummaryWriter
 from torch.utils.data import DataLoader
-from tqdm import tqdm
 from torchvision import transforms
-from loss.TverskyLoss import TverskyLoss_binary
 from torchvision.utils import save_image
+from timm.scheduler.cosine_lr import CosineLRScheduler
+
+from tqdm import tqdm
+from loss.TverskyLoss import TverskyLoss_binary
 from scripts.map_generator import overlay, save_color_heatmap
 from scripts.inference import inference
 
@@ -63,7 +66,7 @@ def trainer(args, model, log_save_path = "", config = None):
                                     list_dir = args.list_dir, 
                                     split = "train",
                                     transform = transforms.Compose(
-                                   [RandomGenerator(output_size=[args.img_size, args.img_size])]))
+                                        [RandomGenerator(output_size=[args.img_size, args.img_size])]))
     
     logging.info("The length of train set is: {}".format(len(db_train)))
 
@@ -95,6 +98,21 @@ def trainer(args, model, log_save_path = "", config = None):
         eps = config.TRAIN.OPTIMIZER.EPS,             # kleine Konstante für Stabilität
         weight_decay = config.TRAIN.WEIGHT_DECAY,    # L2-Regularisierung (entkoppelt!)
         amsgrad = False         # optional, selten genutzt
+    )
+
+    warmup_epochs = config.TRAIN.WARMUP_EPOCHS
+
+    # Cosine Decay with linear warmup
+    lr_scheduler = CosineLRScheduler(
+        optimizer,
+        t_initial= args.max_epochs - warmup_epochs,
+        t_mul = 1.,
+        lr_min = config.TRAIN.MIN_LR,
+        warmup_lr_init = config.TRAIN.WARMUP_LR,
+        warmup_t = warmup_epochs,
+        cycle_limit = 1,
+        t_in_epochs=  True,
+        warmup_prefix = config.TRAIN.LR_SCHEDULER.WARMUP_PREFIX
     )
                                                     
     writer = SummaryWriter(log_save_path + '/log')
@@ -162,14 +180,7 @@ def trainer(args, model, log_save_path = "", config = None):
             loss.backward()
             optimizer.step()
 
-            # poly-learning rate
-            # learning rate slowly drops to 0
-            lr_ = base_lr * (1.0 - iter_num / max_iterations) ** 0.9
-            for param_group in optimizer.param_groups:
-                param_group['lr'] = lr_
-
             iter_num = iter_num + 1
-            writer.add_scalar('info/lr', lr_, iter_num)
             writer.add_scalar('info/total_loss', loss.item(), iter_num)
             logging.info('iteration %d : loss : %f' % (iter_num, loss.item()))
 
@@ -233,6 +244,10 @@ def trainer(args, model, log_save_path = "", config = None):
             logging.info("save model to {}".format(save_mode_path))
             iterator.close()
             break
+
+        # update learning rate / 
+        lr_scheduler.step(epoch_num + 1)
+        logging.info("epoch:", epoch_num + 1,  " learning rate:", lr_scheduler.get_last_lr())
 
     writer.close()
     return "Training Finished!"
