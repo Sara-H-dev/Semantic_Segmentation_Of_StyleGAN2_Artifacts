@@ -92,7 +92,7 @@ def trainer(args, model, log_save_path = "", config = None):
 
     # AdamW Optimizer
     optimizer = optim.AdamW(
-        model.parameters(),
+        filter(lambda p: p.requires_grad, model.parameters()),
         lr = base_lr,
         betas=(config.TRAIN.OPTIMIZER.MOMENTUM, 0.999),   # "Momentum"-Parameter
         eps = config.TRAIN.OPTIMIZER.EPS,             # kleine Konstante für Stabilität
