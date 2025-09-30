@@ -183,6 +183,10 @@ def update_config(config, args):
         config.MODEL.STAGE1_UNFREEZE_PERIODE = args.unfreeze_stage1
     if args.unfreeze_stage0:
         config.MODEL.STAGE0_UNFREEZE_PERIODE = args.unfreeze_stage0 
+    if args.weight_decay:
+        config.TRAIN.WEIGHT_DECAY = args.weight_decay
+    if args.momentum:
+        config.TRAIN.OPTIMIZER.MOMENTUM = args.momentum
 
     config.freeze()
 

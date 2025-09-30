@@ -87,12 +87,15 @@ def trainer(args, model, log_save_path = "", config = None):
 
     tversky_loss = TverskyLoss_binary(config.TRAIN.TVERSKY_LOSS_ALPHA, config.TRAIN.TVERSKY_LOSS_BETA)
 
-    # Stochastic Gradient Decent
-    optimizer = optim.SGD(  model.parameters(), 
-                            lr = base_lr,           # learning rate
-                            momentum = 0.9,         # accelerates updates towards the gradient direction (prevents zick, zack)
-                            weight_decay=0.0001)    # L2 regularisation. 
-                                                    # keeps weights small → reduces overfitting.
+    # AdamW Optimizer
+    optimizer = optim.AdamW(
+        model.parameters(),
+        lr = base_lr,
+        betas=(config.TRAIN.OPTIMIZER.MOMENTUM, 0.999),   # "Momentum"-Parameter
+        eps = config.TRAIN.OPTIMIZER.EPS,             # kleine Konstante für Stabilität
+        weight_decay = config.TRAIN.WEIGHT_DECAY,    # L2-Regularisierung (entkoppelt!)
+        amsgrad = False         # optional, selten genutzt
+    )
                                                     
     writer = SummaryWriter(log_save_path + '/log')
 

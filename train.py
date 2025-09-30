@@ -46,21 +46,9 @@ def main():
     # number of epochs at which the process is terminated if the result does not improve
     parser.add_argument('--early_stopping_patience', type = int, default = 15, help = 'number of epochs at which the process is terminated if the result does not improve')
     parser.add_argument('--cfg', type=str, required=True, metavar="FILE", help='path to config file', )
+    parser.add_argument('--weight_decay', type = float, default = 0.05, help = "weight_decay of the optimizer")
+    parser.add_argument('--momentum', type = float, default = 0.9, help = "momentum of the optimizer")
 
-
-
-
- 
-  
-  --freeze_encoder "${FREEZE_ENCODER}" \
-  --sig_threshold "${SIG_THRESHOLD}" \
-  --early_stopping_patience "${EARLY_STOP}" \
-  --loss_alpha "${LOSS_ALPHA}"\
-  --loss_beta "${LOSS_BETA}"\
-  --unfreeze_stage3 "${UNFREEZE_STAGE3}"\
-  --unfreeze_stage2 "${UNFREEZE_STAGE2}"\
-  --unfreeze_stage1 "${UNFREEZE_STAGE1}"\
-  --unfreeze_stage0 "${UNFREEZE_STAGE0}"\)
     args = parser.parse_args()
     now = datetime.now()
     # format: DayMonthYear_HourMinute
