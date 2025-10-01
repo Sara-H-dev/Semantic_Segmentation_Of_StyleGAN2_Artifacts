@@ -15,56 +15,50 @@ from config import get_config
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dataset_path', type=str,
-                        default='./dataset', help='root dir for the data')  # for acdc dataset_path=root_dir
-    parser.add_argument('--num_classes', type=int,
-                        default=1, help='output channel of network')
-    parser.add_argument('--list_dir', type=str,
-                        default='./lists', help='list dir')
-    parser.add_argument('--output_dir', type=str, default='./model_out/timestamp/test', help='output dir')   
-    parser.add_argument('--max_epochs', type=int, default=150, help='maximum epoch number to train')
-    parser.add_argument('--img_size', type=int, default=1024, help='input patch size of network input')
+    parser.add_argument('--output_dir', type=str, help='output dir')   
+    parser.add_argument('--max_epochs', type=int, help='maximum epoch number to train')
     parser.add_argument('--is_savenii', action="store_true", help='whether to save results during inference')
-    parser.add_argument('--deterministic', type=int,  default=1, help='whether use deterministic training')
-    parser.add_argument('--seed', type=int, default=1234, help='random seed')
-    parser.add_argument('--use_checkpoint', action='store_true',
-                        help="whether to use gradient checkpointing to save memory")
-    parser.add_argument('--sig_threshold', type = float, default = 0.5, help = 'treshold that decides if a pixel is an artefact or not')
-    parser.add_argument('--split', type = str, default = 'test',choices=['test', 'val'], help = 'test or val')
+    parser.add_argument('--deterministic', action="store_true", help='whether use deterministic training')
+    parser.add_argument('--seed', type=int, help='random seed')
+    parser.add_argument('--use_checkpoint', action='store_true', help="whether to use gradient checkpointing to save memory")
+    parser.add_argument('--sig_threshold_test', type = float,  help = 'treshold that decides if a pixel is an artefact or not')
+    parser.add_argument('--split', type = str, default = 'test',required= True, choices=['test', 'val'], help = 'test or val')
     parser.add_argument('--timestamp', type = str, required= True,  help = 'The timestamp from the trainset')
 
     args = parser.parse_args()
 
-    args.output_dir    = os.path.join('./model_out', args.timestamp, args.split)
+    output_dir = os.path.join(config.OUTPUT_DIR, args.timestamp, args.split)
     
     config = get_config(args)
 
 
-    if not args.deterministic:
+    if not config.DETERMINISTIC:
         cudnn.benchmark = True
         cudnn.deterministic = False
     else:
         cudnn.benchmark = False
         cudnn.deterministic = True
 
-    random.seed(args.seed)
-    np.random.seed(args.seed)
-    torch.manual_seed(args.seed)
+    random.seed(config.SEED)
+    np.random.seed(config.SEED)
+    torch.manual_seed(config.SEED)
     if torch.cuda.is_available():
-        torch.cuda.manual_seed(args.seed)
+        torch.cuda.manual_seed(config.SEED)
 
-    args.num_classes = 1
-    args.is_pretrain = True
+    num_classes = config.MODEL.NUM_CLASSES
+    output_dir = config.OUTPUT_DIR
+    max_epochs = config.TRAIN.MAX_EPOCHS 
+    split = args.split
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     model = MSUNet(config, 
-                 img_size = args.img_size, 
-                 num_classes = args.num_classes).to(device)
+                 img_size = config.DATA.IMG_SIZE, 
+                 num_classes = num_classes).to(device)
     
-    snapshot = os.path.join(args.output_dir, 'best_model.pth')
+    snapshot = os.path.join(output_dir, 'best_model.pth')
     if not os.path.exists(snapshot):
-        snapshot = os.path.join(args.output_dir, f'epoch_{args.max_epochs-1}.pth')
+        snapshot = os.path.join(output_dir, f'epoch_{max_epochs - 1}.pth')
     if not os.path.exists(snapshot):
         raise FileNotFoundError(f"Checkpoint not found: {snapshot}")
     ckpt = torch.load(snapshot, map_location=device)
@@ -72,7 +66,7 @@ def main():
     print("self trained ms_unet",msg)
     snapshot_name = snapshot.split('/')[-1]
 
-    log_folder = os.path.join('./model_out', args.timestamp, args.split, 'test_log')
+    log_folder = os.path.join('./model_out', args.timestamp, split, 'test_log')
     os.makedirs(log_folder, exist_ok=True)
     logging.basicConfig(
         filename = os.path.join(log_folder, f"{snapshot_name}.txt"),
@@ -85,14 +79,14 @@ def main():
     logging.info(str(args))
     logging.info(snapshot_name)
 
-    test_save_dir = os.path.join(args.output_dir, "predictions")
-    if args.is_savenii:
+    test_save_dir = os.path.join(output_dir, "predictions")
+    if config.TEST.IS_SAVENII:
         test_save_path = test_save_dir 
         os.makedirs(test_save_path, exist_ok=True)
     else:
         test_save_path = None
-    inference(model, logging, test_save_path, device, args.dataset_path, 
-                args.split, args.list_dir, args.img_size, args.sig_threshold)
+    inference(model, logging, test_save_path, device, config.DATA.DATA_PATH, 
+                split, config.LIST_DIR, config.DATA.IMG_SIZE, config.TEST.SIG_THRESHOLD)
 
 if __name__ == "__main__":
     main()

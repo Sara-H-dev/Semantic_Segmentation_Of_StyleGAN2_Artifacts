@@ -19,54 +19,45 @@ _C.BASE = ['']
 # Data settings
 # -----------------------------------------------------------------------------
 _C.DATA = CN()
-# Batch size for a single GPU, could be overwritten by command line argument
+
 _C.DATA.BATCH_SIZE = 4
-# Path to dataset, could be overwritten by command line argument
 _C.DATA.DATA_PATH = './dataset'
-# Dataset name
-_C.DATA.DATASET = 'SegArtifact'
-# Input image size
 _C.DATA.IMG_SIZE = 1024
-# Interpolation to resize image (random, bilinear, bicubic)
-_C.DATA.INTERPOLATION = 'bicubic'
-# Pin CPU memory in DataLoader for more efficient (sometimes) transfer to GPU.
 _C.DATA.PIN_MEMORY = True
-# Number of data loading threads
 _C.DATA.NUM_WORKERS = 8
+# -----------------------------------------------------------------------------
+# Hardware settings
+# -----------------------------------------------------------------------------
+_C.HARDWARE = CN()
+
+_C.HARDWARE.N_GPU = 1 # number of gpu
 
 # -----------------------------------------------------------------------------
 # Model settings
 # -----------------------------------------------------------------------------
 _C.MODEL = CN()
-# Model type
+
 _C.MODEL.TYPE = 'swin'
-# Model name
 _C.MODEL.NAME = 'swin_b'
-# Checkpoint to resume, could be overwritten by command line argument
-_C.MODEL.PRETRAIN_CKPT = './pretrained_ckpt/swin_b.pth'
-# path to segface weights
-_C.MODEL.PRETRAIN_SEGFACE = './network/pretrained_weights/SegFace_swin_celaba_512.pt'
+_C.MODEL.PRETRAIN_CKPT = './pretrained_ckpt/swin_b.pth' # Checkpoint to resume, could be overwritten by command line argument
+_C.MODEL.PRETRAIN_SEGFACE = './network/pretrained_weights/SegFace_swin_celaba_512.pt' # path to segface weights
 
-# Number of classes, overwritten in data preparation
-_C.MODEL.NUM_CLASSES = 1
-# Dropout rate
-_C.MODEL.DROP_RATE = 0.0
-# Drop path rate
-_C.MODEL.DROP_PATH_RATE = 0.1
-# Label Smoothing
-_C.MODEL.LABEL_SMOOTHING = 0.1
+_C.MODEL.NUM_CLASSES = 1 # Number of classes, overwritten in data preparation
+_C.MODEL.DROP_RATE = 0.0 # Dropout rate
+_C.MODEL.DROP_PATH_RATE = 0.1 # Drop path rate
+_C.MODEL.LABEL_SMOOTHING = 0.1 # Label Smoothing
 
-#Encoder Freenzing
-_C.MODEL.FREEZE_ENCODER = True
-# How long should the Encoder be freezed
-# in percent (0: no freezing, 1: all epochs are freezed)
-_C.MODEL.STAGE3_UNFREEZE_PERIODE = 0.4
-_C.MODEL.STAGE2_UNFREEZE_PERIODE = 0.7
+_C.MODEL.FREEZE_ENCODER = True #Encoder Freenzing
+_C.MODEL.STAGE3_UNFREEZE_PERIODE = 0.4 # in percent (0: no freezing, 1: all epochs are freezed)
+_C.MODEL.STAGE2_UNFREEZE_PERIODE = 0.7 # How long should the Encoder be freezed
 _C.MODEL.STAGE1_UNFREEZE_PERIODE = 0.9
 _C.MODEL.STAGE0_UNFREEZE_PERIODE = 0.98
 
-# Swin Transformer parameters
+# -----------------------------------------------------------------------------
+# Swin Transformer settings
+# -----------------------------------------------------------------------------
 _C.MODEL.SWIN = CN()
+
 _C.MODEL.SWIN.PATCH_SIZE = 4
 _C.MODEL.SWIN.IN_CHANS = 3
 _C.MODEL.SWIN.EMBED_DIM = 128
@@ -84,58 +75,56 @@ _C.MODEL.SWIN.FINAL_UPSAMPLE= "expand_first"
 # -----------------------------------------------------------------------------
 # Training settings
 # -----------------------------------------------------------------------------
+
 _C.TRAIN = CN()
 _C.TRAIN.START_EPOCH = 0
-_C.TRAIN.EPOCHS = 300
+_C.TRAIN.MAX_EPOCHS = 300
 _C.TRAIN.WARMUP_EPOCHS = 20
-
 _C.TRAIN.WEIGHT_DECAY = 0.05
 _C.TRAIN.BASE_LR = 5e-4
 _C.TRAIN.WARMUP_LR = 5e-7
 _C.TRAIN.MIN_LR = 5e-6
-# Clip gradient norm
-_C.TRAIN.CLIP_GRAD = 5.0
 
-# Gradient accumulation steps
-# could be overwritten by command line argument
-_C.TRAIN.ACCUMULATION_STEPS = 0
-# Whether to use gradient checkpointing to save memory
-# could be overwritten by command line argument
-_C.TRAIN.USE_CHECKPOINT = False
-
-# LR scheduler
-_C.TRAIN.LR_SCHEDULER = CN()
-_C.TRAIN.LR_SCHEDULER.NAME = 'cosine'
-_C.TRAIN.LR_SCHEDULER.WARMUP_PREFIX = True 
-
-# Optimizer
-_C.TRAIN.OPTIMIZER = CN()
-_C.TRAIN.OPTIMIZER.NAME = 'adamw'
-# Optimizer Epsilon
-_C.TRAIN.OPTIMIZER.EPS = 1e-8
-# Optimizer Betas
-_C.TRAIN.OPTIMIZER.BETAS = (0.9, 0.999)
-# SGD momentum
-_C.TRAIN.OPTIMIZER.MOMENTUM = 0.9
+_C.TRAIN.ACCUMULATION_STEPS = 0 # Gradient accumulation steps # could be overwritten by command line argument
+_C.TRAIN.USE_CHECKPOINT = False # Whether to use gradient checkpointing to save memory
 
 # Tversky Loss
 _C.TRAIN.TVERSKY_LOSS_ALPHA = 0.4
 _C.TRAIN.TVERSKY_LOSS_BETA = 0.6
+_C.TRAIN.EARLY_STOPPING_PATIENCE = 15
+_C.TRAIN.SIG_THRESHOLD = 0.5
 
+# -----------------------------------------------------------------------------
+# LR_SCHEDULER
+# -----------------------------------------------------------------------------
+_C.TRAIN.LR_SCHEDULER = CN()
+_C.TRAIN.LR_SCHEDULER.NAME = 'cosine'
+_C.TRAIN.LR_SCHEDULER.WARMUP_PREFIX = True 
+
+# -----------------------------------------------------------------------------
+# Optimizer
+# -----------------------------------------------------------------------------
+_C.TRAIN.OPTIMIZER = CN()
+_C.TRAIN.OPTIMIZER.NAME = 'adamw'
+_C.TRAIN.OPTIMIZER.EPS = 1e-8 # Optimizer Epsilon
+_C.TRAIN.OPTIMIZER.BETAS = (0.9, 0.999) # Optimizer Betas
+
+# -----------------------------------------------------------------------------
+# Test settings
+# -----------------------------------------------------------------------------
+_C.TEST = CN()
+_C.TEST.IS_SAVENII = True #if test results should be stored
+_C.TEST.SIG_THRESHOLD = 0.5 # threshold for the gereration of the binary mask for the validation
 
 # -----------------------------------------------------------------------------
 # Misc
 # -----------------------------------------------------------------------------
-# Mixed precision opt level, if O0, no amp is used ('O0', 'O1', 'O2')
-# overwritten by command line argument
-_C.AMP_OPT_LEVEL = ''
-# Path to output folder, overwritten by command line argument
-_C.OUTPUT = ''
-# Fixed random seed
-_C.SEED = 0
-# local rank for DistributedDataParallel, given by command line argument
-_C.LOCAL_RANK = 0
-
+_C.OUTPUT_DIR = './model_out'
+_C.LIST_DIR ='./lists'
+_C.SEED = 1234 # Fixed random seed
+_C.DETERMINISTIC = True
+#_C.LOCAL_RANK = 0 #only if more than one gpu
+# -----------------------------------------------------------------------------
 
 def _update_config_from_file(config, cfg_file):
     config.defrost()
@@ -155,36 +144,23 @@ def _update_config_from_file(config, cfg_file):
 
 def update_config(config, args):
     _update_config_from_file(config, args.cfg)
-
     # merge from specific arguments
-    if args.batch_size:
-        config.DATA.BATCH_SIZE = args.batch_size
+    if args.output_dir:
+        config.OUTPUT_DIR = args.output_dir
     if args.seed:
         config.SEED = args.seed
-    if args.output_dir:
-        config.OUTPUT = args.output_dir
-    if args.accumulation_steps:
-        config.TRAIN.ACCUMULATION_STEPS = args.accumulation_steps
     if args.use_checkpoint:
         config.TRAIN.USE_CHECKPOINT = True
-    if args.amp_opt_level:
-        config.AMP_OPT_LEVEL = args.amp_opt_level
-    if args.loss_alpha:
-        config.TRAIN.TVERSKY_LOSS_ALPHA = args.loss_alpha
-    if args.loss_beta:
-         config.TRAIN.TVERSKY_LOSS_BETA = args.loss_beta
-    if args.unfreeze_stage3:
-        config.MODEL.STAGE3_UNFREEZE_PERIODE = args.unfreeze_stage3
-    if args.unfreeze_stage2:
-        config.MODEL.STAGE2_UNFREEZE_PERIODE = args.unfreeze_stage2
-    if args.unfreeze_stage1:
-        config.MODEL.STAGE1_UNFREEZE_PERIODE = args.unfreeze_stage1
-    if args.unfreeze_stage0:
-        config.MODEL.STAGE0_UNFREEZE_PERIODE = args.unfreeze_stage0 
-    if args.weight_decay:
-        config.TRAIN.WEIGHT_DECAY = args.weight_decay
-    if args.momentum:
-        config.TRAIN.OPTIMIZER.MOMENTUM = args.momentum
+    if args.sig_threshold_train:
+        config.TRAIN.SIG_THRESHOLD = args.sig_threshold_train
+    if args.sig_threshold_test:
+        config.TEST.SIG_THRESHOLD = args.sig_threshold_test
+    if args.max_epochs:
+        config.TRAIN.MAX_EPOCHS = args.max_epochs
+    if args.is_savenii:
+        config.TEST.IS_SAVENII = True
+    if args.deterministic:
+        config.DETERMINISTIC = True
 
     config.freeze()
 
@@ -196,5 +172,4 @@ def get_config(args):
     config = _C.clone()
     if args != None:
         update_config(config, args)
-
     return config

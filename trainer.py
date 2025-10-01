@@ -28,7 +28,7 @@ def make_worker_init_fn(base_seed: int):
         torch.manual_seed(seed)
     return _init
 
-def trainer(args, model, log_save_path = "", config = None):
+def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
     from dataset.dataset import SegArtifact_dataset, RandomGenerator
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -46,37 +46,37 @@ def trainer(args, model, log_save_path = "", config = None):
         datefmt='%H:%M:%S') #houres, minutes, seconds
     # every log is visible in terminal and log-file
     logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
-    logging.info(str(args)) # logs the args
 
     if config == None: 
         logging.error("Config file is not found!")
         raise ValueError("Config file is not found!")
  
-    freeze_encoder = args.freeze_encoder
+    freeze_encoder = config.MODEL.FREEZE_ENCODER 
+    n_gpu = config.HARDWARE.N_GPU
 
-    base_lr = args.base_lr                      # learning rate
-    num_classes = args.num_classes              # number of classes
-    if args.n_gpu > 0:
-        batch_size = args.batch_size * args.n_gpu   # batch_size
-    else:
-        batch_size = args.batch_size
+    img_size = config.DATA.IMG_SIZE
+    batch_size = config.DATA.BATCH_SIZE
+
+    if n_gpu > 0:
+        batch_size = batch_size * n_gpu   # batch_size
+
 
     # preparation of data
-    db_train = SegArtifact_dataset( base_dir = args.root_path, 
-                                    list_dir = args.list_dir, 
+    db_train = SegArtifact_dataset( base_dir = config.DATA.DATA_PATH, 
+                                    list_dir = config.LIST_DIR, 
                                     split = "train",
                                     transform = transforms.Compose(
-                                        [RandomGenerator(output_size=[args.img_size, args.img_size])]))
+                                        [RandomGenerator(output_size=[img_size, img_size])]))
     
     logging.info("The length of train set is: {}".format(len(db_train)))
 
     trainloader = DataLoader(   db_train, 
                                 batch_size = batch_size, 
                                 shuffle = True,                     # shuffles the data sequence
-                                num_workers = 8,                    # number of parallel processes (Number_of_CPU_cores / 2)
-                                pin_memory = torch.cuda.is_available(),           # true if GPU available
-                                worker_init_fn=make_worker_init_fn(args.seed) )   # worker seed
-    if args.n_gpu > 1:
+                                num_workers = config.DATA.NUM_WORKERS,                    # number of parallel processes (Number_of_CPU_cores / 2)
+                                pin_memory = config.DATA.PIN_MEMORY and torch.cuda.is_available(),           # true if GPU available
+                                worker_init_fn=make_worker_init_fn(config.SEED) )   # worker seed
+    if n_gpu > 1:
         model = nn.DataParallel(model)
 
     def core(m):  
@@ -94,18 +94,19 @@ def trainer(args, model, log_save_path = "", config = None):
     optimizer = optim.AdamW(
         filter(lambda p: p.requires_grad, model.parameters()),
         lr = base_lr,
-        betas=(config.TRAIN.OPTIMIZER.MOMENTUM, 0.999),   # "Momentum"-Parameter
+        betas= config.TRAIN.OPTIMIZER.BETAS,   # "Momentum"-Parameter
         eps = config.TRAIN.OPTIMIZER.EPS,             # kleine Konstante für Stabilität
         weight_decay = config.TRAIN.WEIGHT_DECAY,    # L2-Regularisierung (entkoppelt!)
         amsgrad = False         # optional, selten genutzt
     )
 
     warmup_epochs = config.TRAIN.WARMUP_EPOCHS
+    max_epoch = config.TRAIN.MAX_EPOCHS
 
     # Cosine Decay with linear warmup
     lr_scheduler = CosineLRScheduler(
         optimizer,
-        t_initial= args.max_epochs - warmup_epochs,
+        t_initial= max_epoch - warmup_epochs,
         t_mul = 1.,
         lr_min = config.TRAIN.MIN_LR,
         warmup_lr_init = config.TRAIN.WARMUP_LR,
@@ -118,15 +119,14 @@ def trainer(args, model, log_save_path = "", config = None):
     writer = SummaryWriter(log_save_path + '/log')
 
     iter_num = 0
-    max_epoch = args.max_epochs
-    max_iterations = args.max_epochs * len(trainloader)  # max_epoch = max_iterations // len(trainloader) + 1
+    max_iterations = max_epoch * len(trainloader)  # max_epoch = max_iterations // len(trainloader) + 1
     logging.info("{} iterations per epoch. {} max iterations ".format(len(trainloader), max_iterations))
     best_performance = 0.0
     # parameters for unfreezing the encoder:
-    stage3_unfreeze = max_epoch*args.unfreeze_stage3
-    stage2_unfreeze = max_epoch*args.unfreeze_stage2
-    stage1_unfreeze = max_epoch*args.unfreeze_stage1
-    stage0_unfreeze = max_epoch*args.unfreeze_stage0
+    stage3_unfreeze = max_epoch * config.MODEL.STAGE3_UNFREEZE_PERIODE
+    stage2_unfreeze = max_epoch * config.MODEL.STAGE2_UNFREEZE_PERIODE
+    stage1_unfreeze = max_epoch * config.MODEL.STAGE1_UNFREEZE_PERIODE
+    stage0_unfreeze = max_epoch * config.MODEL.STAGE0_UNFREEZE_PERIODE
     # creates progress bar
     iterator = tqdm(range(max_epoch), ncols=70,  dynamic_ncols=True)
 
@@ -194,8 +194,8 @@ def trainer(args, model, log_save_path = "", config = None):
 
         # -------- VALIDATION (aftre every Epoch-Train) --------
         model.eval()
-        mean_metrics= inference(model,logging, log_save_path, device, args.root_path, 
-            "val", args.list_dir, args.img_size, args.sig_threshold)
+        mean_metrics= inference(model,logging, log_save_path, device, config.DATA.DATA_PATH, 
+            "val", config.LIST_DIR, img_size, config.TRAIN.SIG_THRESHOLD)
         
         mean_dice, mean_IoU, mean_recall, mean_precision, mean_f1_score, mean_soft_dice, mean_soft_IoU = mean_metrics
         write_to_writer(writer, mean_metrics, epoch_num)
@@ -214,8 +214,8 @@ def trainer(args, model, log_save_path = "", config = None):
             logging.info(f"Saved new BEST checkpoint to {best_path} (val_dice={best_val_dice:.5f})")
         else:
             since_best += 1
-            if since_best >= args.early_stopping_patience:
-                logging.info(f"Early stopping at epoch {epoch_num} (no val improvement for {args.early_stopping_patience} epochs).")
+            if since_best >= config.TRAIN.EARLY_STOPPING_PATIENCE:
+                logging.info(f"Early stopping at epoch {epoch_num} (no val improvement for {config.TRAIN.EARLY_STOPPING_PATIENCE} epochs).")
                 break
         # --------------------------------------------------------
         
