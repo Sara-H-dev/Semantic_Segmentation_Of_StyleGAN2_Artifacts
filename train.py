@@ -19,10 +19,14 @@ def main():
     parser.add_argument('--deterministic', action='store_true', help='use deterministic training')
     parser.add_argument('--use_checkpoint', action='store_true',
                         help="whether to use gradient checkpointing to save memory")
-    parser.add_argument('--sig_threshold_train', type = float, default = 0.5, help = 'treshold that decides if a pixel is an artefact or not')
+    parser.add_argument('--sig_threshold', type = float, default = 0.5, help = 'treshold that decides if a pixel is an artefact or not')
+    parser.add_argument('--is_savenii', action="store_true", help='whether to save results during inference')
     parser.add_argument('--cfg', type=str, required=True, metavar="FILE", help='path to config file', )
 
     args = parser.parse_args()
+
+    config = get_config(args, True, False)
+
     now = datetime.now()
     # format: DayMonthYear_HourMinute
     timestamp_str = now.strftime("%d%m%y_%H%M")
@@ -33,9 +37,8 @@ def main():
     img_size = config.DATA.IMG_SIZE
     num_classes = config.MODEL.NUM_CLASSES
 
-    config = get_config(args)
     # checks if the training should be deterministic or not
-    if not config.MODEL.DETERMINISTIC:
+    if not config.DETERMINISTIC:
         cudnn.benchmark = True 
         cudnn.deterministic = False 
     else:
@@ -64,8 +67,7 @@ def main():
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    model = MSUNet( logging, 
-                    config, 
+    model = MSUNet( config, 
                     img_size = img_size, 
                     num_classes = num_classes
                     )

@@ -104,6 +104,7 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
     max_epoch = config.TRAIN.MAX_EPOCHS
 
     # Cosine Decay with linear warmup
+    """
     lr_scheduler = CosineLRScheduler(
         optimizer,
         t_initial= max_epoch - warmup_epochs,
@@ -115,6 +116,7 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
         t_in_epochs=  True,
         warmup_prefix = config.TRAIN.LR_SCHEDULER.WARMUP_PREFIX
     )
+    """
                                                     
     writer = SummaryWriter(log_save_path + '/log')
 
@@ -246,8 +248,10 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
             break
 
         # update learning rate / 
+        """
         lr_scheduler.step(epoch_num + 1)
         logging.info("epoch:", epoch_num + 1,  " learning rate:", lr_scheduler.get_last_lr())
+        """
 
     writer.close()
     return "Training Finished!"

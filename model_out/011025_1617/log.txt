@@ -1,0 +1,3453 @@
+[16:17:10.025] The length of train set is: 1380
+[16:17:10.028] 690 iterations per epoch. 1380 max iterations 
+[16:17:10.196] before model 
+
+[16:17:10.588] after model 
+
+[16:17:10.847] iteration 1 : loss : 0.953134
+[16:17:10.848] before model 
+
+[16:17:10.974] after model 
+
+[16:17:11.216] iteration 2 : loss : 0.966162
+[16:17:11.217] before model 
+
+[16:17:11.343] after model 
+
+[16:17:11.583] iteration 3 : loss : 1.000000
+[16:17:11.585] before model 
+
+[16:17:11.710] after model 
+
+[16:17:11.949] iteration 4 : loss : 0.972287
+[16:17:11.951] before model 
+
+[16:17:12.078] after model 
+
+[16:17:12.317] iteration 5 : loss : 0.909438
+[16:17:12.318] before model 
+
+[16:17:12.444] after model 
+
+[16:17:12.685] iteration 6 : loss : 1.000000
+[16:17:12.686] before model 
+
+[16:17:12.811] after model 
+
+[16:17:13.050] iteration 7 : loss : 0.893098
+[16:17:13.051] before model 
+
+[16:17:13.178] after model 
+
+[16:17:13.417] iteration 8 : loss : 0.978810
+[16:17:13.418] before model 
+
+[16:17:13.544] after model 
+
+[16:17:13.784] iteration 9 : loss : 1.000000
+[16:17:13.785] before model 
+
+[16:17:13.911] after model 
+
+[16:17:14.150] iteration 10 : loss : 0.985506
+[16:17:14.151] before model 
+
+[16:17:14.278] after model 
+
+[16:17:14.519] iteration 11 : loss : 1.000000
+[16:17:14.520] before model 
+
+[16:17:14.647] after model 
+
+[16:17:14.886] iteration 12 : loss : 0.907079
+[16:17:14.888] before model 
+
+[16:17:15.014] after model 
+
+[16:17:15.252] iteration 13 : loss : 1.000000
+[16:17:15.254] before model 
+
+[16:17:15.380] after model 
+
+[16:17:15.620] iteration 14 : loss : 0.864333
+[16:17:15.621] before model 
+
+[16:17:15.748] after model 
+
+[16:17:15.987] iteration 15 : loss : 0.940861
+[16:17:15.988] before model 
+
+[16:17:16.115] after model 
+
+[16:17:16.355] iteration 16 : loss : 0.871662
+[16:17:16.357] before model 
+
+[16:17:16.483] after model 
+
+[16:17:16.722] iteration 17 : loss : 1.000000
+[16:17:16.724] before model 
+
+[16:17:16.850] after model 
+
+[16:17:17.090] iteration 18 : loss : 0.661345
+[16:17:17.091] before model 
+
+[16:17:17.218] after model 
+
+[16:17:17.458] iteration 19 : loss : 0.779935
+[16:17:17.460] before model 
+
+[16:17:17.586] after model 
+
+[16:17:17.825] iteration 20 : loss : 0.871666
+[16:17:17.826] before model 
+
+[16:17:17.953] after model 
+
+[16:17:18.246] iteration 21 : loss : 0.849138
+[16:17:18.248] before model 
+
+[16:17:18.374] after model 
+
+[16:17:18.614] iteration 22 : loss : 0.933744
+[16:17:18.616] before model 
+
+[16:17:18.742] after model 
+
+[16:17:18.982] iteration 23 : loss : 0.723717
+[16:17:18.983] before model 
+
+[16:17:19.109] after model 
+
+[16:17:19.348] iteration 24 : loss : 0.479546
+[16:17:19.350] before model 
+
+[16:17:19.476] after model 
+
+[16:17:19.715] iteration 25 : loss : 0.929016
+[16:17:19.717] before model 
+
+[16:17:19.843] after model 
+
+[16:17:20.083] iteration 26 : loss : 0.883326
+[16:17:20.085] before model 
+
+[16:17:20.210] after model 
+
+[16:17:20.451] iteration 27 : loss : 0.980953
+[16:17:20.452] before model 
+
+[16:17:20.579] after model 
+
+[16:17:20.818] iteration 28 : loss : 0.978672
+[16:17:20.819] before model 
+
+[16:17:20.946] after model 
+
+[16:17:21.186] iteration 29 : loss : 0.959616
+[16:17:21.187] before model 
+
+[16:17:21.314] after model 
+
+[16:17:21.553] iteration 30 : loss : 0.809327
+[16:17:21.555] before model 
+
+[16:17:21.682] after model 
+
+[16:17:21.922] iteration 31 : loss : 0.917839
+[16:17:21.923] before model 
+
+[16:17:22.049] after model 
+
+[16:17:22.289] iteration 32 : loss : 0.976989
+[16:17:22.291] before model 
+
+[16:17:22.417] after model 
+
+[16:17:22.657] iteration 33 : loss : 0.990610
+[16:17:22.658] before model 
+
+[16:17:22.785] after model 
+
+[16:17:23.025] iteration 34 : loss : 0.998849
+[16:17:23.026] before model 
+
+[16:17:23.153] after model 
+
+[16:17:23.393] iteration 35 : loss : 1.000000
+[16:17:23.394] before model 
+
+[16:17:23.521] after model 
+
+[16:17:23.760] iteration 36 : loss : 1.000000
+[16:17:23.762] before model 
+
+[16:17:23.888] after model 
+
+[16:17:24.128] iteration 37 : loss : 0.860932
+[16:17:24.129] before model 
+
+[16:17:24.256] after model 
+
+[16:17:24.495] iteration 38 : loss : 0.871072
+[16:17:24.497] before model 
+
+[16:17:24.624] after model 
+
+[16:17:24.864] iteration 39 : loss : 1.000000
+[16:17:24.865] before model 
+
+[16:17:24.992] after model 
+
+[16:17:25.232] iteration 40 : loss : 0.660222
+[16:17:25.234] before model 
+
+[16:17:25.360] after model 
+
+[16:17:25.600] iteration 41 : loss : 1.000000
+[16:17:25.601] before model 
+
+[16:17:25.727] after model 
+
+[16:17:25.968] iteration 42 : loss : 0.996525
+[16:17:25.969] before model 
+
+[16:17:26.096] after model 
+
+[16:17:26.336] iteration 43 : loss : 0.993098
+[16:17:26.338] before model 
+
+[16:17:26.465] after model 
+
+[16:17:26.704] iteration 44 : loss : 0.906103
+[16:17:26.706] before model 
+
+[16:17:26.832] after model 
+
+[16:17:27.072] iteration 45 : loss : 0.705281
+[16:17:27.074] before model 
+
+[16:17:27.201] after model 
+
+[16:17:27.440] iteration 46 : loss : 0.664817
+[16:17:27.442] before model 
+
+[16:17:27.568] after model 
+
+[16:17:27.808] iteration 47 : loss : 0.996458
+[16:17:27.810] before model 
+
+[16:17:27.936] after model 
+
+[16:17:28.176] iteration 48 : loss : 0.957866
+[16:17:28.178] before model 
+
+[16:17:28.305] after model 
+
+[16:17:28.544] iteration 49 : loss : 0.961221
+[16:17:28.546] before model 
+
+[16:17:28.672] after model 
+
+[16:17:28.912] iteration 50 : loss : 0.729208
+[16:17:28.914] before model 
+
+[16:17:29.041] after model 
+
+[16:17:29.281] iteration 51 : loss : 0.992958
+[16:17:29.282] before model 
+
+[16:17:29.409] after model 
+
+[16:17:29.648] iteration 52 : loss : 1.000000
+[16:17:29.650] before model 
+
+[16:17:29.776] after model 
+
+[16:17:30.017] iteration 53 : loss : 0.739822
+[16:17:30.018] before model 
+
+[16:17:30.144] after model 
+
+[16:17:30.383] iteration 54 : loss : 0.925361
+[16:17:30.385] before model 
+
+[16:17:30.512] after model 
+
+[16:17:30.753] iteration 55 : loss : 0.886150
+[16:17:30.754] before model 
+
+[16:17:30.881] after model 
+
+[16:17:31.120] iteration 56 : loss : 0.918677
+[16:17:31.122] before model 
+
+[16:17:31.258] after model 
+
+[16:17:31.498] iteration 57 : loss : 0.829633
+[16:17:31.499] before model 
+
+[16:17:31.625] after model 
+
+[16:17:31.866] iteration 58 : loss : 0.982363
+[16:17:31.868] before model 
+
+[16:17:31.995] after model 
+
+[16:17:32.237] iteration 59 : loss : 0.610455
+[16:17:32.239] before model 
+
+[16:17:32.368] after model 
+
+[16:17:32.608] iteration 60 : loss : 0.953330
+[16:17:32.609] before model 
+
+[16:17:32.736] after model 
+
+[16:17:32.979] iteration 61 : loss : 0.969024
+[16:17:32.981] before model 
+
+[16:17:33.108] after model 
+
+[16:17:33.353] iteration 62 : loss : 0.783925
+[16:17:33.354] before model 
+
+[16:17:33.481] after model 
+
+[16:17:33.721] iteration 63 : loss : 1.000000
+[16:17:33.722] before model 
+
+[16:17:33.849] after model 
+
+[16:17:34.092] iteration 64 : loss : 0.987655
+[16:17:34.093] before model 
+
+[16:17:34.246] after model 
+
+[16:17:34.511] iteration 65 : loss : 1.000000
+[16:17:34.513] before model 
+
+[16:17:34.649] after model 
+
+[16:17:34.909] iteration 66 : loss : 0.962221
+[16:17:34.911] before model 
+
+[16:17:35.047] after model 
+
+[16:17:35.288] iteration 67 : loss : 1.000000
+[16:17:35.289] before model 
+
+[16:17:35.417] after model 
+
+[16:17:35.659] iteration 68 : loss : 0.916592
+[16:17:35.660] before model 
+
+[16:17:35.786] after model 
+
+[16:17:36.027] iteration 69 : loss : 0.757685
+[16:17:36.029] before model 
+
+[16:17:36.156] after model 
+
+[16:17:36.396] iteration 70 : loss : 0.943693
+[16:17:36.397] before model 
+
+[16:17:36.524] after model 
+
+[16:17:36.765] iteration 71 : loss : 0.885129
+[16:17:36.767] before model 
+
+[16:17:36.894] after model 
+
+[16:17:37.133] iteration 72 : loss : 1.000000
+[16:17:37.135] before model 
+
+[16:17:37.262] after model 
+
+[16:17:37.502] iteration 73 : loss : 0.847175
+[16:17:37.504] before model 
+
+[16:17:37.631] after model 
+
+[16:17:37.873] iteration 74 : loss : 0.699687
+[16:17:37.875] before model 
+
+[16:17:38.002] after model 
+
+[16:17:38.243] iteration 75 : loss : 0.654693
+[16:17:38.245] before model 
+
+[16:17:38.372] after model 
+
+[16:17:38.612] iteration 76 : loss : 0.661388
+[16:17:38.613] before model 
+
+[16:17:38.741] after model 
+
+[16:17:38.985] iteration 77 : loss : 0.639029
+[16:17:38.987] before model 
+
+[16:17:39.114] after model 
+
+[16:17:39.357] iteration 78 : loss : 0.942565
+[16:17:39.358] before model 
+
+[16:17:39.484] after model 
+
+[16:17:39.727] iteration 79 : loss : 1.000000
+[16:17:39.728] before model 
+
+[16:17:39.855] after model 
+
+[16:17:40.095] iteration 80 : loss : 0.985348
+[16:17:40.096] before model 
+
+[16:17:40.224] after model 
+
+[16:17:40.465] iteration 81 : loss : 0.955494
+[16:17:40.466] before model 
+
+[16:17:40.593] after model 
+
+[16:17:40.835] iteration 82 : loss : 0.488577
+[16:17:40.837] before model 
+
+[16:17:40.963] after model 
+
+[16:17:41.210] iteration 83 : loss : 0.940942
+[16:17:41.212] before model 
+
+[16:17:41.346] after model 
+
+[16:17:41.600] iteration 84 : loss : 0.715062
+[16:17:41.602] before model 
+
+[16:17:41.736] after model 
+
+[16:17:41.991] iteration 85 : loss : 0.932668
+[16:17:41.993] before model 
+
+[16:17:42.129] after model 
+
+[16:17:42.382] iteration 86 : loss : 0.941483
+[16:17:42.383] before model 
+
+[16:17:42.515] after model 
+
+[16:17:42.755] iteration 87 : loss : 0.665483
+[16:17:42.757] before model 
+
+[16:17:42.883] after model 
+
+[16:17:43.123] iteration 88 : loss : 0.970383
+[16:17:43.125] before model 
+
+[16:17:43.251] after model 
+
+[16:17:43.491] iteration 89 : loss : 0.997215
+[16:17:43.493] before model 
+
+[16:17:43.619] after model 
+
+[16:17:43.859] iteration 90 : loss : 0.877721
+[16:17:43.861] before model 
+
+[16:17:43.988] after model 
+
+[16:17:44.228] iteration 91 : loss : 0.976723
+[16:17:44.229] before model 
+
+[16:17:44.356] after model 
+
+[16:17:44.597] iteration 92 : loss : 0.956571
+[16:17:44.598] before model 
+
+[16:17:44.725] after model 
+
+[16:17:44.965] iteration 93 : loss : 0.983446
+[16:17:44.966] before model 
+
+[16:17:45.094] after model 
+
+[16:17:45.333] iteration 94 : loss : 0.800111
+[16:17:45.335] before model 
+
+[16:17:45.461] after model 
+
+[16:17:45.701] iteration 95 : loss : 0.974402
+[16:17:45.703] before model 
+
+[16:17:45.829] after model 
+
+[16:17:46.069] iteration 96 : loss : 1.000000
+[16:17:46.071] before model 
+
+[16:17:46.197] after model 
+
+[16:17:46.437] iteration 97 : loss : 1.000000
+[16:17:46.439] before model 
+
+[16:17:46.565] after model 
+
+[16:17:46.805] iteration 98 : loss : 0.963456
+[16:17:46.806] before model 
+
+[16:17:46.934] after model 
+
+[16:17:47.174] iteration 99 : loss : 0.843460
+[16:17:47.175] before model 
+
+[16:17:47.301] after model 
+
+[16:17:47.542] iteration 100 : loss : 0.922911
+[16:17:47.544] before model 
+
+[16:17:47.670] after model 
+
+[16:17:47.910] iteration 101 : loss : 0.983976
+[16:17:47.911] before model 
+
+[16:17:48.038] after model 
+
+[16:17:48.279] iteration 102 : loss : 0.934809
+[16:17:48.280] before model 
+
+[16:17:48.415] after model 
+
+[16:17:48.655] iteration 103 : loss : 0.861332
+[16:17:48.657] before model 
+
+[16:17:48.785] after model 
+
+[16:17:49.024] iteration 104 : loss : 0.910011
+[16:17:49.026] before model 
+
+[16:17:49.153] after model 
+
+[16:17:49.393] iteration 105 : loss : 0.989869
+[16:17:49.395] before model 
+
+[16:17:49.521] after model 
+
+[16:17:49.761] iteration 106 : loss : 0.966626
+[16:17:49.762] before model 
+
+[16:17:49.889] after model 
+
+[16:17:50.129] iteration 107 : loss : 0.865842
+[16:17:50.131] before model 
+
+[16:17:50.257] after model 
+
+[16:17:50.498] iteration 108 : loss : 0.970176
+[16:17:50.499] before model 
+
+[16:17:50.626] after model 
+
+[16:17:50.866] iteration 109 : loss : 0.969948
+[16:17:50.868] before model 
+
+[16:17:50.994] after model 
+
+[16:17:51.234] iteration 110 : loss : 0.974855
+[16:17:51.236] before model 
+
+[16:17:51.362] after model 
+
+[16:17:51.601] iteration 111 : loss : 0.998668
+[16:17:51.603] before model 
+
+[16:17:51.730] after model 
+
+[16:17:51.970] iteration 112 : loss : 0.915200
+[16:17:51.971] before model 
+
+[16:17:52.098] after model 
+
+[16:17:52.338] iteration 113 : loss : 0.669482
+[16:17:52.340] before model 
+
+[16:17:52.466] after model 
+
+[16:17:52.706] iteration 114 : loss : 0.977436
+[16:17:52.707] before model 
+
+[16:17:52.834] after model 
+
+[16:17:53.075] iteration 115 : loss : 0.971884
+[16:17:53.076] before model 
+
+[16:17:53.203] after model 
+
+[16:17:53.443] iteration 116 : loss : 0.949563
+[16:17:53.444] before model 
+
+[16:17:53.580] after model 
+
+[16:17:53.820] iteration 117 : loss : 0.878805
+[16:17:53.821] before model 
+
+[16:17:53.948] after model 
+
+[16:17:54.188] iteration 118 : loss : 1.000000
+[16:17:54.189] before model 
+
+[16:17:54.315] after model 
+
+[16:17:54.555] iteration 119 : loss : 0.984502
+[16:17:54.557] before model 
+
+[16:17:54.683] after model 
+
+[16:17:54.924] iteration 120 : loss : 0.726490
+[16:17:54.925] before model 
+
+[16:17:55.052] after model 
+
+[16:17:55.291] iteration 121 : loss : 0.846135
+[16:17:55.293] before model 
+
+[16:17:55.420] after model 
+
+[16:17:55.660] iteration 122 : loss : 0.977045
+[16:17:55.661] before model 
+
+[16:17:55.787] after model 
+
+[16:17:56.028] iteration 123 : loss : 1.000000
+[16:17:56.030] before model 
+
+[16:17:56.156] after model 
+
+[16:17:56.396] iteration 124 : loss : 0.755753
+[16:17:56.397] before model 
+
+[16:17:56.525] after model 
+
+[16:17:56.764] iteration 125 : loss : 1.000000
+[16:17:56.766] before model 
+
+[16:17:56.892] after model 
+
+[16:17:57.132] iteration 126 : loss : 0.925035
+[16:17:57.134] before model 
+
+[16:17:57.260] after model 
+
+[16:17:57.499] iteration 127 : loss : 0.697180
+[16:17:57.501] before model 
+
+[16:17:57.627] after model 
+
+[16:17:57.884] iteration 128 : loss : 1.000000
+[16:17:57.886] before model 
+
+[16:17:58.020] after model 
+
+[16:17:58.264] iteration 129 : loss : 1.000000
+[16:17:58.266] before model 
+
+[16:17:58.404] after model 
+
+[16:17:58.684] iteration 130 : loss : 0.905897
+[16:17:58.686] before model 
+
+[16:17:58.819] after model 
+
+[16:17:59.062] iteration 131 : loss : 1.000000
+[16:17:59.064] before model 
+
+[16:17:59.196] after model 
+
+[16:17:59.440] iteration 132 : loss : 0.654748
+[16:17:59.442] before model 
+
+[16:17:59.580] after model 
+
+[16:17:59.829] iteration 133 : loss : 0.985475
+[16:17:59.830] before model 
+
+[16:17:59.961] after model 
+
+[16:18:00.206] iteration 134 : loss : 0.879394
+[16:18:00.208] before model 
+
+[16:18:00.337] after model 
+
+[16:18:00.583] iteration 135 : loss : 0.891250
+[16:18:00.585] before model 
+
+[16:18:00.713] after model 
+
+[16:18:00.955] iteration 136 : loss : 0.851557
+[16:18:00.956] before model 
+
+[16:18:01.086] after model 
+
+[16:18:01.327] iteration 137 : loss : 1.000000
+[16:18:01.329] before model 
+
+[16:18:01.458] after model 
+
+[16:18:01.699] iteration 138 : loss : 0.949175
+[16:18:01.701] before model 
+
+[16:18:01.828] after model 
+
+[16:18:02.070] iteration 139 : loss : 0.998529
+[16:18:02.071] before model 
+
+[16:18:02.201] after model 
+
+[16:18:02.444] iteration 140 : loss : 0.920215
+[16:18:02.445] before model 
+
+[16:18:02.574] after model 
+
+[16:18:02.818] iteration 141 : loss : 0.909146
+[16:18:02.820] before model 
+
+[16:18:02.946] after model 
+
+[16:18:03.190] iteration 142 : loss : 0.591130
+[16:18:03.192] before model 
+
+[16:18:03.319] after model 
+
+[16:18:03.562] iteration 143 : loss : 0.998604
+[16:18:03.564] before model 
+
+[16:18:03.701] after model 
+
+[16:18:03.946] iteration 144 : loss : 0.882412
+[16:18:03.948] before model 
+
+[16:18:04.077] after model 
+
+[16:18:04.321] iteration 145 : loss : 0.709710
+[16:18:04.323] before model 
+
+[16:18:04.454] after model 
+
+[16:18:04.697] iteration 146 : loss : 0.941232
+[16:18:04.699] before model 
+
+[16:18:04.826] after model 
+
+[16:18:05.072] iteration 147 : loss : 0.863407
+[16:18:05.074] before model 
+
+[16:18:05.203] after model 
+
+[16:18:05.448] iteration 148 : loss : 0.905640
+[16:18:05.450] before model 
+
+[16:18:05.580] after model 
+
+[16:18:05.821] iteration 149 : loss : 1.000000
+[16:18:05.822] before model 
+
+[16:18:05.949] after model 
+
+[16:18:06.207] iteration 150 : loss : 1.000000
+[16:18:06.208] before model 
+
+[16:18:06.344] after model 
+
+[16:18:06.606] iteration 151 : loss : 1.000000
+[16:18:06.608] before model 
+
+[16:18:06.745] after model 
+
+[16:18:06.995] iteration 152 : loss : 0.688551
+[16:18:06.997] before model 
+
+[16:18:07.127] after model 
+
+[16:18:07.367] iteration 153 : loss : 1.000000
+[16:18:07.369] before model 
+
+[16:18:07.500] after model 
+
+[16:18:07.750] iteration 154 : loss : 0.986137
+[16:18:07.752] before model 
+
+[16:18:07.884] after model 
+
+[16:18:08.126] iteration 155 : loss : 0.996420
+[16:18:08.127] before model 
+
+[16:18:08.256] after model 
+
+[16:18:08.496] iteration 156 : loss : 0.883472
+[16:18:08.497] before model 
+
+[16:18:08.624] after model 
+
+[16:18:08.863] iteration 157 : loss : 0.841240
+[16:18:08.865] before model 
+
+[16:18:08.991] after model 
+
+[16:18:09.231] iteration 158 : loss : 1.000000
+[16:18:09.233] before model 
+
+[16:18:09.359] after model 
+
+[16:18:09.600] iteration 159 : loss : 0.986902
+[16:18:09.601] before model 
+
+[16:18:09.728] after model 
+
+[16:18:09.973] iteration 160 : loss : 0.899991
+[16:18:09.975] before model 
+
+[16:18:10.115] after model 
+
+[16:18:10.375] iteration 161 : loss : 1.000000
+[16:18:10.377] before model 
+
+[16:18:10.510] after model 
+
+[16:18:10.750] iteration 162 : loss : 0.722458
+[16:18:10.752] before model 
+
+[16:18:10.887] after model 
+
+[16:18:11.145] iteration 163 : loss : 0.965296
+[16:18:11.146] before model 
+
+[16:18:11.281] after model 
+
+[16:18:11.532] iteration 164 : loss : 1.000000
+[16:18:11.533] before model 
+
+[16:18:11.668] after model 
+
+[16:18:11.927] iteration 165 : loss : 0.984685
+[16:18:11.928] before model 
+
+[16:18:12.063] after model 
+
+[16:18:12.302] iteration 166 : loss : 1.000000
+[16:18:12.304] before model 
+
+[16:18:12.431] after model 
+
+[16:18:12.675] iteration 167 : loss : 0.972324
+[16:18:12.677] before model 
+
+[16:18:12.810] after model 
+
+[16:18:13.061] iteration 168 : loss : 0.973094
+[16:18:13.062] before model 
+
+[16:18:13.192] after model 
+
+[16:18:13.440] iteration 169 : loss : 0.996574
+[16:18:13.442] before model 
+
+[16:18:13.572] after model 
+
+[16:18:13.813] iteration 170 : loss : 1.000000
+[16:18:13.814] before model 
+
+[16:18:13.941] after model 
+
+[16:18:14.185] iteration 171 : loss : 0.797350
+[16:18:14.186] before model 
+
+[16:18:14.312] after model 
+
+[16:18:14.561] iteration 172 : loss : 0.749726
+[16:18:14.563] before model 
+
+[16:18:14.691] after model 
+
+[16:18:14.931] iteration 173 : loss : 0.955642
+[16:18:14.932] before model 
+
+[16:18:15.059] after model 
+
+[16:18:15.299] iteration 174 : loss : 0.983134
+[16:18:15.300] before model 
+
+[16:18:15.426] after model 
+
+[16:18:15.668] iteration 175 : loss : 0.886042
+[16:18:15.670] before model 
+
+[16:18:15.805] after model 
+
+[16:18:16.051] iteration 176 : loss : 0.975675
+[16:18:16.052] before model 
+
+[16:18:16.178] after model 
+
+[16:18:16.419] iteration 177 : loss : 0.680993
+[16:18:16.420] before model 
+
+[16:18:16.547] after model 
+
+[16:18:16.787] iteration 178 : loss : 0.990642
+[16:18:16.788] before model 
+
+[16:18:16.920] after model 
+
+[16:18:17.173] iteration 179 : loss : 0.861507
+[16:18:17.174] before model 
+
+[16:18:17.302] after model 
+
+[16:18:17.543] iteration 180 : loss : 0.939193
+[16:18:17.544] before model 
+
+[16:18:17.671] after model 
+
+[16:18:17.911] iteration 181 : loss : 0.954218
+[16:18:17.912] before model 
+
+[16:18:18.038] after model 
+
+[16:18:18.291] iteration 182 : loss : 0.909188
+[16:18:18.293] before model 
+
+[16:18:18.427] after model 
+
+[16:18:18.674] iteration 183 : loss : 0.967829
+[16:18:18.675] before model 
+
+[16:18:18.801] after model 
+
+[16:18:19.042] iteration 184 : loss : 0.929322
+[16:18:19.043] before model 
+
+[16:18:19.170] after model 
+
+[16:18:19.410] iteration 185 : loss : 0.950932
+[16:18:19.412] before model 
+
+[16:18:19.538] after model 
+
+[16:18:19.778] iteration 186 : loss : 0.802746
+[16:18:19.780] before model 
+
+[16:18:19.906] after model 
+
+[16:18:20.146] iteration 187 : loss : 1.000000
+[16:18:20.148] before model 
+
+[16:18:20.274] after model 
+
+[16:18:20.514] iteration 188 : loss : 0.929090
+[16:18:20.515] before model 
+
+[16:18:20.642] after model 
+
+[16:18:20.882] iteration 189 : loss : 0.988245
+[16:18:20.883] before model 
+
+[16:18:21.009] after model 
+
+[16:18:21.249] iteration 190 : loss : 0.998052
+[16:18:21.251] before model 
+
+[16:18:21.378] after model 
+
+[16:18:21.634] iteration 191 : loss : 0.838700
+[16:18:21.635] before model 
+
+[16:18:21.769] after model 
+
+[16:18:22.011] iteration 192 : loss : 1.000000
+[16:18:22.012] before model 
+
+[16:18:22.139] after model 
+
+[16:18:22.387] iteration 193 : loss : 0.460520
+[16:18:22.389] before model 
+
+[16:18:22.515] after model 
+
+[16:18:22.755] iteration 194 : loss : 0.950577
+[16:18:22.757] before model 
+
+[16:18:22.883] after model 
+
+[16:18:23.124] iteration 195 : loss : 0.995917
+[16:18:23.125] before model 
+
+[16:18:23.261] after model 
+
+[16:18:23.501] iteration 196 : loss : 0.684626
+[16:18:23.502] before model 
+
+[16:18:23.629] after model 
+
+[16:18:23.876] iteration 197 : loss : 1.000000
+[16:18:23.878] before model 
+
+[16:18:24.008] after model 
+
+[16:18:24.248] iteration 198 : loss : 1.000000
+[16:18:24.249] before model 
+
+[16:18:24.376] after model 
+
+[16:18:24.616] iteration 199 : loss : 0.994237
+[16:18:24.618] before model 
+
+[16:18:24.744] after model 
+
+[16:18:24.987] iteration 200 : loss : 0.987793
+[16:18:24.988] before model 
+
+[16:18:25.116] after model 
+
+[16:18:25.363] iteration 201 : loss : 0.945830
+[16:18:25.365] before model 
+
+[16:18:25.500] after model 
+
+[16:18:25.753] iteration 202 : loss : 0.918807
+[16:18:25.755] before model 
+
+[16:18:25.882] after model 
+
+[16:18:26.123] iteration 203 : loss : 0.915241
+[16:18:26.124] before model 
+
+[16:18:26.250] after model 
+
+[16:18:26.491] iteration 204 : loss : 0.898249
+[16:18:26.492] before model 
+
+[16:18:26.620] after model 
+
+[16:18:26.870] iteration 205 : loss : 1.000000
+[16:18:26.871] before model 
+
+[16:18:27.007] after model 
+
+[16:18:27.263] iteration 206 : loss : 0.906342
+[16:18:27.265] before model 
+
+[16:18:27.392] after model 
+
+[16:18:27.633] iteration 207 : loss : 0.942051
+[16:18:27.634] before model 
+
+[16:18:27.761] after model 
+
+[16:18:28.001] iteration 208 : loss : 0.776207
+[16:18:28.003] before model 
+
+[16:18:28.129] after model 
+
+[16:18:28.380] iteration 209 : loss : 1.000000
+[16:18:28.382] before model 
+
+[16:18:28.517] after model 
+
+[16:18:28.763] iteration 210 : loss : 1.000000
+[16:18:28.765] before model 
+
+[16:18:28.892] after model 
+
+[16:18:29.132] iteration 211 : loss : 0.968922
+[16:18:29.134] before model 
+
+[16:18:29.260] after model 
+
+[16:18:29.500] iteration 212 : loss : 0.750673
+[16:18:29.502] before model 
+
+[16:18:29.628] after model 
+
+[16:18:29.868] iteration 213 : loss : 0.972296
+[16:18:29.869] before model 
+
+[16:18:29.996] after model 
+
+[16:18:30.236] iteration 214 : loss : 1.000000
+[16:18:30.237] before model 
+
+[16:18:30.364] after model 
+
+[16:18:30.604] iteration 215 : loss : 0.984262
+[16:18:30.605] before model 
+
+[16:18:30.732] after model 
+
+[16:18:30.972] iteration 216 : loss : 0.987771
+[16:18:30.973] before model 
+
+[16:18:31.100] after model 
+
+[16:18:31.340] iteration 217 : loss : 0.936209
+[16:18:31.342] before model 
+
+[16:18:31.468] after model 
+
+[16:18:31.707] iteration 218 : loss : 0.943424
+[16:18:31.709] before model 
+
+[16:18:31.836] after model 
+
+[16:18:32.075] iteration 219 : loss : 1.000000
+[16:18:32.077] before model 
+
+[16:18:32.204] after model 
+
+[16:18:32.444] iteration 220 : loss : 0.975684
+[16:18:32.445] before model 
+
+[16:18:32.572] after model 
+
+[16:18:32.811] iteration 221 : loss : 0.742322
+[16:18:32.813] before model 
+
+[16:18:32.939] after model 
+
+[16:18:33.179] iteration 222 : loss : 1.000000
+[16:18:33.181] before model 
+
+[16:18:33.307] after model 
+
+[16:18:33.547] iteration 223 : loss : 0.591277
+[16:18:33.548] before model 
+
+[16:18:33.675] after model 
+
+[16:18:33.915] iteration 224 : loss : 0.996564
+[16:18:33.916] before model 
+
+[16:18:34.043] after model 
+
+[16:18:34.283] iteration 225 : loss : 0.624641
+[16:18:34.285] before model 
+
+[16:18:34.411] after model 
+
+[16:18:34.651] iteration 226 : loss : 0.977095
+[16:18:34.652] before model 
+
+[16:18:34.779] after model 
+
+[16:18:35.019] iteration 227 : loss : 0.975798
+[16:18:35.020] before model 
+
+[16:18:35.146] after model 
+
+[16:18:35.386] iteration 228 : loss : 0.963590
+[16:18:35.388] before model 
+
+[16:18:35.515] after model 
+
+[16:18:35.755] iteration 229 : loss : 0.983787
+[16:18:35.756] before model 
+
+[16:18:35.882] after model 
+
+[16:18:36.122] iteration 230 : loss : 0.959916
+[16:18:36.124] before model 
+
+[16:18:36.251] after model 
+
+[16:18:36.490] iteration 231 : loss : 0.986850
+[16:18:36.492] before model 
+
+[16:18:36.618] after model 
+
+[16:18:36.862] iteration 232 : loss : 0.965515
+[16:18:36.864] before model 
+
+[16:18:36.998] after model 
+
+[16:18:37.252] iteration 233 : loss : 0.758181
+[16:18:37.254] before model 
+
+[16:18:37.380] after model 
+
+[16:18:37.620] iteration 234 : loss : 0.924229
+[16:18:37.622] before model 
+
+[16:18:37.748] after model 
+
+[16:18:37.988] iteration 235 : loss : 0.940097
+[16:18:37.990] before model 
+
+[16:18:38.116] after model 
+
+[16:18:38.368] iteration 236 : loss : 0.922164
+[16:18:38.369] before model 
+
+[16:18:38.504] after model 
+
+[16:18:38.749] iteration 237 : loss : 0.953889
+[16:18:38.751] before model 
+
+[16:18:38.877] after model 
+
+[16:18:39.118] iteration 238 : loss : 0.978547
+[16:18:39.119] before model 
+
+[16:18:39.245] after model 
+
+[16:18:39.491] iteration 239 : loss : 0.612849
+[16:18:39.492] before model 
+
+[16:18:39.628] after model 
+
+[16:18:39.880] iteration 240 : loss : 0.901826
+[16:18:39.882] before model 
+
+[16:18:40.015] after model 
+
+[16:18:40.259] iteration 241 : loss : 0.980184
+[16:18:40.261] before model 
+
+[16:18:40.390] after model 
+
+[16:18:40.630] iteration 242 : loss : 0.995283
+[16:18:40.631] before model 
+
+[16:18:40.758] after model 
+
+[16:18:41.008] iteration 243 : loss : 0.770914
+[16:18:41.010] before model 
+
+[16:18:41.146] after model 
+
+[16:18:41.394] iteration 244 : loss : 0.969174
+[16:18:41.396] before model 
+
+[16:18:41.523] after model 
+
+[16:18:41.763] iteration 245 : loss : 0.967912
+[16:18:41.765] before model 
+
+[16:18:41.892] after model 
+
+[16:18:42.132] iteration 246 : loss : 0.998038
+[16:18:42.134] before model 
+
+[16:18:42.261] after model 
+
+[16:18:42.511] iteration 247 : loss : 0.949547
+[16:18:42.512] before model 
+
+[16:18:42.646] after model 
+
+[16:18:42.898] iteration 248 : loss : 0.954669
+[16:18:42.899] before model 
+
+[16:18:43.032] after model 
+
+[16:18:43.284] iteration 249 : loss : 1.000000
+[16:18:43.285] before model 
+
+[16:18:43.417] after model 
+
+[16:18:43.664] iteration 250 : loss : 0.972960
+[16:18:43.666] before model 
+
+[16:18:43.806] after model 
+
+[16:18:44.056] iteration 251 : loss : 0.985437
+[16:18:44.057] before model 
+
+[16:18:44.189] after model 
+
+[16:18:44.438] iteration 252 : loss : 0.976533
+[16:18:44.440] before model 
+
+[16:18:44.573] after model 
+
+[16:18:44.821] iteration 253 : loss : 0.939132
+[16:18:44.822] before model 
+
+[16:18:44.953] after model 
+
+[16:18:45.200] iteration 254 : loss : 0.996026
+[16:18:45.201] before model 
+
+[16:18:45.332] after model 
+
+[16:18:45.580] iteration 255 : loss : 0.882539
+[16:18:45.582] before model 
+
+[16:18:45.714] after model 
+
+[16:18:45.964] iteration 256 : loss : 0.997601
+[16:18:45.966] before model 
+
+[16:18:46.099] after model 
+
+[16:18:46.347] iteration 257 : loss : 0.950856
+[16:18:46.348] before model 
+
+[16:18:46.478] after model 
+
+[16:18:46.726] iteration 258 : loss : 0.819624
+[16:18:46.727] before model 
+
+[16:18:46.857] after model 
+
+[16:18:47.106] iteration 259 : loss : 0.780138
+[16:18:47.108] before model 
+
+[16:18:47.238] after model 
+
+[16:18:47.486] iteration 260 : loss : 0.737390
+[16:18:47.488] before model 
+
+[16:18:47.618] after model 
+
+[16:18:47.865] iteration 261 : loss : 1.000000
+[16:18:47.867] before model 
+
+[16:18:47.998] after model 
+
+[16:18:48.244] iteration 262 : loss : 1.000000
+[16:18:48.246] before model 
+
+[16:18:48.376] after model 
+
+[16:18:48.622] iteration 263 : loss : 0.989755
+[16:18:48.624] before model 
+
+[16:18:48.755] after model 
+
+[16:18:49.003] iteration 264 : loss : 0.982011
+[16:18:49.005] before model 
+
+[16:18:49.135] after model 
+
+[16:18:49.383] iteration 265 : loss : 0.995659
+[16:18:49.385] before model 
+
+[16:18:49.516] after model 
+
+[16:18:49.763] iteration 266 : loss : 0.773343
+[16:18:49.765] before model 
+
+[16:18:49.899] after model 
+
+[16:18:50.146] iteration 267 : loss : 1.000000
+[16:18:50.148] before model 
+
+[16:18:50.278] after model 
+
+[16:18:50.526] iteration 268 : loss : 0.850944
+[16:18:50.528] before model 
+
+[16:18:50.660] after model 
+
+[16:18:50.908] iteration 269 : loss : 0.992076
+[16:18:50.910] before model 
+
+[16:18:51.040] after model 
+
+[16:18:51.289] iteration 270 : loss : 0.827858
+[16:18:51.290] before model 
+
+[16:18:51.420] after model 
+
+[16:18:51.668] iteration 271 : loss : 0.658819
+[16:18:51.670] before model 
+
+[16:18:51.809] after model 
+
+[16:18:52.066] iteration 272 : loss : 0.518834
+[16:18:52.067] before model 
+
+[16:18:52.203] after model 
+
+[16:18:52.463] iteration 273 : loss : 0.648413
+[16:18:52.465] before model 
+
+[16:18:52.600] after model 
+
+[16:18:52.857] iteration 274 : loss : 1.000000
+[16:18:52.858] before model 
+
+[16:18:52.992] after model 
+
+[16:18:53.236] iteration 275 : loss : 0.920674
+[16:18:53.238] before model 
+
+[16:18:53.364] after model 
+
+[16:18:53.604] iteration 276 : loss : 0.998999
+[16:18:53.605] before model 
+
+[16:18:53.732] after model 
+
+[16:18:53.971] iteration 277 : loss : 0.755936
+[16:18:53.973] before model 
+
+[16:18:54.099] after model 
+
+[16:18:54.343] iteration 278 : loss : 0.904156
+[16:18:54.344] before model 
+
+[16:18:54.471] after model 
+
+[16:18:54.713] iteration 279 : loss : 0.947882
+[16:18:54.715] before model 
+
+[16:18:54.842] after model 
+
+[16:18:55.093] iteration 280 : loss : 1.000000
+[16:18:55.095] before model 
+
+[16:18:55.227] after model 
+
+[16:18:55.477] iteration 281 : loss : 0.863147
+[16:18:55.479] before model 
+
+[16:18:55.605] after model 
+
+[16:18:55.845] iteration 282 : loss : 0.539393
+[16:18:55.847] before model 
+
+[16:18:55.974] after model 
+
+[16:18:56.215] iteration 283 : loss : 0.629635
+[16:18:56.216] before model 
+
+[16:18:56.343] after model 
+
+[16:18:56.582] iteration 284 : loss : 0.986351
+[16:18:56.584] before model 
+
+[16:18:56.711] after model 
+
+[16:18:56.951] iteration 285 : loss : 0.867652
+[16:18:56.952] before model 
+
+[16:18:57.078] after model 
+
+[16:18:57.318] iteration 286 : loss : 1.000000
+[16:18:57.320] before model 
+
+[16:18:57.447] after model 
+
+[16:18:57.687] iteration 287 : loss : 0.973704
+[16:18:57.689] before model 
+
+[16:18:57.815] after model 
+
+[16:18:58.055] iteration 288 : loss : 0.864603
+[16:18:58.056] before model 
+
+[16:18:58.183] after model 
+
+[16:18:58.429] iteration 289 : loss : 0.998381
+[16:18:58.431] before model 
+
+[16:18:58.562] after model 
+
+[16:18:58.802] iteration 290 : loss : 1.000000
+[16:18:58.803] before model 
+
+[16:18:58.930] after model 
+
+[16:18:59.169] iteration 291 : loss : 1.000000
+[16:18:59.171] before model 
+
+[16:18:59.297] after model 
+
+[16:18:59.537] iteration 292 : loss : 1.000000
+[16:18:59.539] before model 
+
+[16:18:59.665] after model 
+
+[16:18:59.906] iteration 293 : loss : 1.000000
+[16:18:59.907] before model 
+
+[16:19:00.034] after model 
+
+[16:19:00.278] iteration 294 : loss : 0.968224
+[16:19:00.280] before model 
+
+[16:19:00.416] after model 
+
+[16:19:00.674] iteration 295 : loss : 0.942955
+[16:19:00.675] before model 
+
+[16:19:00.807] after model 
+
+[16:19:01.047] iteration 296 : loss : 0.793570
+[16:19:01.049] before model 
+
+[16:19:01.176] after model 
+
+[16:19:01.416] iteration 297 : loss : 0.523717
+[16:19:01.417] before model 
+
+[16:19:01.545] after model 
+
+[16:19:01.785] iteration 298 : loss : 1.000000
+[16:19:01.786] before model 
+
+[16:19:01.913] after model 
+
+[16:19:02.153] iteration 299 : loss : 0.646593
+[16:19:02.155] before model 
+
+[16:19:02.281] after model 
+
+[16:19:02.521] iteration 300 : loss : 1.000000
+[16:19:02.522] before model 
+
+[16:19:02.649] after model 
+
+[16:19:02.889] iteration 301 : loss : 0.989483
+[16:19:02.891] before model 
+
+[16:19:03.017] after model 
+
+[16:19:03.257] iteration 302 : loss : 0.973871
+[16:19:03.259] before model 
+
+[16:19:03.385] after model 
+
+[16:19:03.625] iteration 303 : loss : 0.949389
+[16:19:03.627] before model 
+
+[16:19:03.753] after model 
+
+[16:19:03.993] iteration 304 : loss : 0.981064
+[16:19:03.995] before model 
+
+[16:19:04.121] after model 
+
+[16:19:04.361] iteration 305 : loss : 0.976748
+[16:19:04.362] before model 
+
+[16:19:04.489] after model 
+
+[16:19:04.729] iteration 306 : loss : 1.000000
+[16:19:04.731] before model 
+
+[16:19:04.857] after model 
+
+[16:19:05.101] iteration 307 : loss : 0.996266
+[16:19:05.102] before model 
+
+[16:19:05.232] after model 
+
+[16:19:05.479] iteration 308 : loss : 0.800694
+[16:19:05.481] before model 
+
+[16:19:05.607] after model 
+
+[16:19:05.852] iteration 309 : loss : 0.964897
+[16:19:05.854] before model 
+
+[16:19:05.991] after model 
+
+[16:19:06.248] iteration 310 : loss : 0.552527
+[16:19:06.250] before model 
+
+[16:19:06.381] after model 
+
+[16:19:06.630] iteration 311 : loss : 0.882427
+[16:19:06.632] before model 
+
+[16:19:06.765] after model 
+
+[16:19:07.014] iteration 312 : loss : 0.965664
+[16:19:07.016] before model 
+
+[16:19:07.144] after model 
+
+[16:19:07.388] iteration 313 : loss : 0.625901
+[16:19:07.389] before model 
+
+[16:19:07.516] after model 
+
+[16:19:07.761] iteration 314 : loss : 0.923713
+[16:19:07.763] before model 
+
+[16:19:07.890] after model 
+
+[16:19:08.134] iteration 315 : loss : 0.976387
+[16:19:08.136] before model 
+
+[16:19:08.265] after model 
+
+[16:19:08.509] iteration 316 : loss : 0.865664
+[16:19:08.510] before model 
+
+[16:19:08.637] after model 
+
+[16:19:08.885] iteration 317 : loss : 1.000000
+[16:19:08.887] before model 
+
+[16:19:09.021] after model 
+
+[16:19:09.262] iteration 318 : loss : 1.000000
+[16:19:09.263] before model 
+
+[16:19:09.397] after model 
+
+[16:19:09.639] iteration 319 : loss : 0.991617
+[16:19:09.641] before model 
+
+[16:19:09.768] after model 
+
+[16:19:10.008] iteration 320 : loss : 0.968717
+[16:19:10.010] before model 
+
+[16:19:10.136] after model 
+
+[16:19:10.376] iteration 321 : loss : 1.000000
+[16:19:10.377] before model 
+
+[16:19:10.503] after model 
+
+[16:19:10.745] iteration 322 : loss : 0.895074
+[16:19:10.747] before model 
+
+[16:19:10.875] after model 
+
+[16:19:11.130] iteration 323 : loss : 0.695053
+[16:19:11.132] before model 
+
+[16:19:11.259] after model 
+
+[16:19:11.499] iteration 324 : loss : 1.000000
+[16:19:11.501] before model 
+
+[16:19:11.637] after model 
+
+[16:19:11.891] iteration 325 : loss : 0.992137
+[16:19:11.893] before model 
+
+[16:19:12.028] after model 
+
+[16:19:12.288] iteration 326 : loss : 0.715927
+[16:19:12.289] before model 
+
+[16:19:12.427] after model 
+
+[16:19:12.687] iteration 327 : loss : 0.939017
+[16:19:12.689] before model 
+
+[16:19:12.820] after model 
+
+[16:19:13.061] iteration 328 : loss : 0.656444
+[16:19:13.062] before model 
+
+[16:19:13.189] after model 
+
+[16:19:13.431] iteration 329 : loss : 0.885574
+[16:19:13.432] before model 
+
+[16:19:13.559] after model 
+
+[16:19:13.799] iteration 330 : loss : 0.691990
+[16:19:13.800] before model 
+
+[16:19:13.927] after model 
+
+[16:19:14.167] iteration 331 : loss : 0.914271
+[16:19:14.169] before model 
+
+[16:19:14.295] after model 
+
+[16:19:14.535] iteration 332 : loss : 0.888268
+[16:19:14.536] before model 
+
+[16:19:14.663] after model 
+
+[16:19:14.902] iteration 333 : loss : 0.994037
+[16:19:14.904] before model 
+
+[16:19:15.030] after model 
+
+[16:19:15.270] iteration 334 : loss : 0.942643
+[16:19:15.271] before model 
+
+[16:19:15.406] after model 
+
+[16:19:15.666] iteration 335 : loss : 1.000000
+[16:19:15.668] before model 
+
+[16:19:15.803] after model 
+
+[16:19:16.045] iteration 336 : loss : 0.968123
+[16:19:16.046] before model 
+
+[16:19:16.173] after model 
+
+[16:19:16.413] iteration 337 : loss : 0.935301
+[16:19:16.415] before model 
+
+[16:19:16.541] after model 
+
+[16:19:16.781] iteration 338 : loss : 1.000000
+[16:19:16.783] before model 
+
+[16:19:16.910] after model 
+
+[16:19:17.150] iteration 339 : loss : 1.000000
+[16:19:17.151] before model 
+
+[16:19:17.278] after model 
+
+[16:19:17.518] iteration 340 : loss : 0.720829
+[16:19:17.520] before model 
+
+[16:19:17.646] after model 
+
+[16:19:17.891] iteration 341 : loss : 1.000000
+[16:19:17.893] before model 
+
+[16:19:18.028] after model 
+
+[16:19:18.287] iteration 342 : loss : 0.962598
+[16:19:18.288] before model 
+
+[16:19:18.423] after model 
+
+[16:19:18.677] iteration 343 : loss : 0.783087
+[16:19:18.679] before model 
+
+[16:19:18.806] after model 
+
+[16:19:19.046] iteration 344 : loss : 0.644516
+[16:19:19.048] before model 
+
+[16:19:19.183] after model 
+
+[16:19:19.431] iteration 345 : loss : 1.000000
+[16:19:19.433] before model 
+
+[16:19:19.566] after model 
+
+[16:19:19.817] iteration 346 : loss : 0.956855
+[16:19:19.819] before model 
+
+[16:19:19.945] after model 
+
+[16:19:20.192] iteration 347 : loss : 0.983473
+[16:19:20.194] before model 
+
+[16:19:20.329] after model 
+
+[16:19:20.582] iteration 348 : loss : 0.959427
+[16:19:20.584] before model 
+
+[16:19:20.710] after model 
+
+[16:19:20.951] iteration 349 : loss : 0.980362
+[16:19:20.952] before model 
+
+[16:19:21.079] after model 
+
+[16:19:21.319] iteration 350 : loss : 0.963446
+[16:19:21.320] before model 
+
+[16:19:21.446] after model 
+
+[16:19:21.686] iteration 351 : loss : 0.989858
+[16:19:21.688] before model 
+
+[16:19:21.814] after model 
+
+[16:19:22.054] iteration 352 : loss : 0.991880
+[16:19:22.055] before model 
+
+[16:19:22.182] after model 
+
+[16:19:22.422] iteration 353 : loss : 0.997778
+[16:19:22.423] before model 
+
+[16:19:22.550] after model 
+
+[16:19:22.790] iteration 354 : loss : 0.837255
+[16:19:22.791] before model 
+
+[16:19:22.918] after model 
+
+[16:19:23.158] iteration 355 : loss : 0.813027
+[16:19:23.160] before model 
+
+[16:19:23.286] after model 
+
+[16:19:23.526] iteration 356 : loss : 0.747295
+[16:19:23.528] before model 
+
+[16:19:23.655] after model 
+
+[16:19:23.894] iteration 357 : loss : 0.897702
+[16:19:23.896] before model 
+
+[16:19:24.023] after model 
+
+[16:19:24.263] iteration 358 : loss : 0.964960
+[16:19:24.264] before model 
+
+[16:19:24.391] after model 
+
+[16:19:24.631] iteration 359 : loss : 0.906614
+[16:19:24.633] before model 
+
+[16:19:24.761] after model 
+
+[16:19:25.003] iteration 360 : loss : 0.977603
+[16:19:25.004] before model 
+
+[16:19:25.141] after model 
+
+[16:19:25.393] iteration 361 : loss : 0.939610
+[16:19:25.394] before model 
+
+[16:19:25.521] after model 
+
+[16:19:25.761] iteration 362 : loss : 0.820863
+[16:19:25.762] before model 
+
+[16:19:25.889] after model 
+
+[16:19:26.133] iteration 363 : loss : 1.000000
+[16:19:26.135] before model 
+
+[16:19:26.262] after model 
+
+[16:19:26.502] iteration 364 : loss : 1.000000
+[16:19:26.503] before model 
+
+[16:19:26.637] after model 
+
+[16:19:26.890] iteration 365 : loss : 0.951176
+[16:19:26.892] before model 
+
+[16:19:27.019] after model 
+
+[16:19:27.259] iteration 366 : loss : 0.713135
+[16:19:27.260] before model 
+
+[16:19:27.387] after model 
+
+[16:19:27.632] iteration 367 : loss : 0.930372
+[16:19:27.633] before model 
+
+[16:19:27.767] after model 
+
+[16:19:28.020] iteration 368 : loss : 0.926201
+[16:19:28.022] before model 
+
+[16:19:28.148] after model 
+
+[16:19:28.389] iteration 369 : loss : 0.952998
+[16:19:28.390] before model 
+
+[16:19:28.527] after model 
+
+[16:19:28.766] iteration 370 : loss : 0.967276
+[16:19:28.768] before model 
+
+[16:19:28.895] after model 
+
+[16:19:29.135] iteration 371 : loss : 0.972282
+[16:19:29.136] before model 
+
+[16:19:29.263] after model 
+
+[16:19:29.510] iteration 372 : loss : 0.936222
+[16:19:29.512] before model 
+
+[16:19:29.646] after model 
+
+[16:19:29.898] iteration 373 : loss : 0.911664
+[16:19:29.899] before model 
+
+[16:19:30.026] after model 
+
+[16:19:30.266] iteration 374 : loss : 0.870128
+[16:19:30.268] before model 
+
+[16:19:30.394] after model 
+
+[16:19:30.634] iteration 375 : loss : 0.991988
+[16:19:30.636] before model 
+
+[16:19:30.762] after model 
+
+[16:19:31.005] iteration 376 : loss : 0.908021
+[16:19:31.007] before model 
+
+[16:19:31.143] after model 
+
+[16:19:31.391] iteration 377 : loss : 0.896078
+[16:19:31.393] before model 
+
+[16:19:31.519] after model 
+
+[16:19:31.759] iteration 378 : loss : 1.000000
+[16:19:31.761] before model 
+
+[16:19:31.887] after model 
+
+[16:19:32.127] iteration 379 : loss : 1.000000
+[16:19:32.128] before model 
+
+[16:19:32.261] after model 
+
+[16:19:32.517] iteration 380 : loss : 0.995087
+[16:19:32.518] before model 
+
+[16:19:32.653] after model 
+
+[16:19:32.909] iteration 381 : loss : 0.862863
+[16:19:32.910] before model 
+
+[16:19:33.044] after model 
+
+[16:19:33.290] iteration 382 : loss : 0.921030
+[16:19:33.292] before model 
+
+[16:19:33.423] after model 
+
+[16:19:33.672] iteration 383 : loss : 0.750358
+[16:19:33.674] before model 
+
+[16:19:33.810] after model 
+
+[16:19:34.053] iteration 384 : loss : 0.908942
+[16:19:34.055] before model 
+
+[16:19:34.181] after model 
+
+[16:19:34.421] iteration 385 : loss : 0.986039
+[16:19:34.422] before model 
+
+[16:19:34.548] after model 
+
+[16:19:34.788] iteration 386 : loss : 0.667771
+[16:19:34.790] before model 
+
+[16:19:34.917] after model 
+
+[16:19:35.157] iteration 387 : loss : 0.992900
+[16:19:35.158] before model 
+
+[16:19:35.284] after model 
+
+[16:19:35.525] iteration 388 : loss : 0.987208
+[16:19:35.526] before model 
+
+[16:19:35.653] after model 
+
+[16:19:35.893] iteration 389 : loss : 1.000000
+[16:19:35.894] before model 
+
+[16:19:36.021] after model 
+
+[16:19:36.261] iteration 390 : loss : 1.000000
+[16:19:36.262] before model 
+
+[16:19:36.389] after model 
+
+[16:19:36.629] iteration 391 : loss : 0.948487
+[16:19:36.630] before model 
+
+[16:19:36.757] after model 
+
+[16:19:36.997] iteration 392 : loss : 0.960986
+[16:19:36.998] before model 
+
+[16:19:37.125] after model 
+
+[16:19:37.369] iteration 393 : loss : 0.971461
+[16:19:37.371] before model 
+
+[16:19:37.505] after model 
+
+[16:19:37.758] iteration 394 : loss : 0.829620
+[16:19:37.759] before model 
+
+[16:19:37.886] after model 
+
+[16:19:38.126] iteration 395 : loss : 0.914082
+[16:19:38.128] before model 
+
+[16:19:38.254] after model 
+
+[16:19:38.495] iteration 396 : loss : 1.000000
+[16:19:38.496] before model 
+
+[16:19:38.623] after model 
+
+[16:19:38.863] iteration 397 : loss : 0.996356
+[16:19:38.864] before model 
+
+[16:19:38.991] after model 
+
+[16:19:39.231] iteration 398 : loss : 0.818191
+[16:19:39.232] before model 
+
+[16:19:39.359] after model 
+
+[16:19:39.599] iteration 399 : loss : 0.954694
+[16:19:39.601] before model 
+
+[16:19:39.727] after model 
+
+[16:19:39.967] iteration 400 : loss : 0.977428
+[16:19:39.969] before model 
+
+[16:19:40.104] after model 
+
+[16:19:40.344] iteration 401 : loss : 0.888838
+[16:19:40.346] before model 
+
+[16:19:40.472] after model 
+
+[16:19:40.712] iteration 402 : loss : 0.826210
+[16:19:40.714] before model 
+
+[16:19:40.840] after model 
+
+[16:19:41.080] iteration 403 : loss : 0.812664
+[16:19:41.081] before model 
+
+[16:19:41.207] after model 
+
+[16:19:41.447] iteration 404 : loss : 0.945751
+[16:19:41.449] before model 
+
+[16:19:41.575] after model 
+
+[16:19:41.816] iteration 405 : loss : 0.970853
+[16:19:41.817] before model 
+
+[16:19:41.943] after model 
+
+[16:19:42.183] iteration 406 : loss : 0.643697
+[16:19:42.185] before model 
+
+[16:19:42.311] after model 
+
+[16:19:42.555] iteration 407 : loss : 1.000000
+[16:19:42.557] before model 
+
+[16:19:42.691] after model 
+
+[16:19:42.947] iteration 408 : loss : 0.875137
+[16:19:42.949] before model 
+
+[16:19:43.075] after model 
+
+[16:19:43.316] iteration 409 : loss : 1.000000
+[16:19:43.318] before model 
+
+[16:19:43.444] after model 
+
+[16:19:43.684] iteration 410 : loss : 0.837138
+[16:19:43.686] before model 
+
+[16:19:43.815] after model 
+
+[16:19:44.057] iteration 411 : loss : 0.923397
+[16:19:44.059] before model 
+
+[16:19:44.185] after model 
+
+[16:19:44.428] iteration 412 : loss : 0.600206
+[16:19:44.430] before model 
+
+[16:19:44.564] after model 
+
+[16:19:44.814] iteration 413 : loss : 0.995949
+[16:19:44.815] before model 
+
+[16:19:44.942] after model 
+
+[16:19:45.182] iteration 414 : loss : 0.991063
+[16:19:45.184] before model 
+
+[16:19:45.319] after model 
+
+[16:19:45.559] iteration 415 : loss : 0.976445
+[16:19:45.560] before model 
+
+[16:19:45.686] after model 
+
+[16:19:45.929] iteration 416 : loss : 1.000000
+[16:19:45.930] before model 
+
+[16:19:46.057] after model 
+
+[16:19:46.302] iteration 417 : loss : 0.993629
+[16:19:46.303] before model 
+
+[16:19:46.429] after model 
+
+[16:19:46.671] iteration 418 : loss : 0.573370
+[16:19:46.672] before model 
+
+[16:19:46.799] after model 
+
+[16:19:47.040] iteration 419 : loss : 0.980788
+[16:19:47.042] before model 
+
+[16:19:47.170] after model 
+
+[16:19:47.416] iteration 420 : loss : 0.815563
+[16:19:47.418] before model 
+
+[16:19:47.544] after model 
+
+[16:19:47.785] iteration 421 : loss : 0.816982
+[16:19:47.787] before model 
+
+[16:19:47.917] after model 
+
+[16:19:48.166] iteration 422 : loss : 0.870963
+[16:19:48.168] before model 
+
+[16:19:48.297] after model 
+
+[16:19:48.540] iteration 423 : loss : 0.712241
+[16:19:48.542] before model 
+
+[16:19:48.668] after model 
+
+[16:19:48.908] iteration 424 : loss : 0.980533
+[16:19:48.910] before model 
+
+[16:19:49.036] after model 
+
+[16:19:49.277] iteration 425 : loss : 0.914054
+[16:19:49.278] before model 
+
+[16:19:49.404] after model 
+
+[16:19:49.645] iteration 426 : loss : 0.674725
+[16:19:49.647] before model 
+
+[16:19:49.774] after model 
+
+[16:19:50.015] iteration 427 : loss : 0.952616
+[16:19:50.017] before model 
+
+[16:19:50.143] after model 
+
+[16:19:50.390] iteration 428 : loss : 1.000000
+[16:19:50.392] before model 
+
+[16:19:50.529] after model 
+
+[16:19:50.783] iteration 429 : loss : 0.956432
+[16:19:50.784] before model 
+
+[16:19:50.915] after model 
+
+[16:19:51.157] iteration 430 : loss : 0.988934
+[16:19:51.158] before model 
+
+[16:19:51.291] after model 
+
+[16:19:51.541] iteration 431 : loss : 0.973411
+[16:19:51.542] before model 
+
+[16:19:51.669] after model 
+
+[16:19:51.909] iteration 432 : loss : 0.999172
+[16:19:51.911] before model 
+
+[16:19:52.037] after model 
+
+[16:19:52.278] iteration 433 : loss : 0.930573
+[16:19:52.279] before model 
+
+[16:19:52.408] after model 
+
+[16:19:52.661] iteration 434 : loss : 0.816920
+[16:19:52.662] before model 
+
+[16:19:52.791] after model 
+
+[16:19:53.041] iteration 435 : loss : 0.738963
+[16:19:53.043] before model 
+
+[16:19:53.179] after model 
+
+[16:19:53.422] iteration 436 : loss : 0.820141
+[16:19:53.423] before model 
+
+[16:19:53.549] after model 
+
+[16:19:53.801] iteration 437 : loss : 0.848550
+[16:19:53.802] before model 
+
+[16:19:53.929] after model 
+
+[16:19:54.169] iteration 438 : loss : 0.655551
+[16:19:54.170] before model 
+
+[16:19:54.297] after model 
+
+[16:19:54.537] iteration 439 : loss : 0.967503
+[16:19:54.539] before model 
+
+[16:19:54.665] after model 
+
+[16:19:54.905] iteration 440 : loss : 0.726799
+[16:19:54.906] before model 
+
+[16:19:55.033] after model 
+
+[16:19:55.273] iteration 441 : loss : 0.930968
+[16:19:55.275] before model 
+
+[16:19:55.409] after model 
+
+[16:19:55.668] iteration 442 : loss : 0.926265
+[16:19:55.670] before model 
+
+[16:19:55.806] after model 
+
+[16:19:56.060] iteration 443 : loss : 0.976661
+[16:19:56.062] before model 
+
+[16:19:56.201] after model 
+
+[16:19:56.462] iteration 444 : loss : 0.964990
+[16:19:56.463] before model 
+
+[16:19:56.598] after model 
+
+[16:19:56.841] iteration 445 : loss : 0.887196
+[16:19:56.843] before model 
+
+[16:19:56.972] after model 
+
+[16:19:57.212] iteration 446 : loss : 0.970492
+[16:19:57.214] before model 
+
+[16:19:57.349] after model 
+
+[16:19:57.605] iteration 447 : loss : 0.955280
+[16:19:57.607] before model 
+
+[16:19:57.735] after model 
+
+[16:19:57.976] iteration 448 : loss : 0.593495
+[16:19:57.977] before model 
+
+[16:19:58.104] after model 
+
+[16:19:58.359] iteration 449 : loss : 0.978236
+[16:19:58.361] before model 
+
+[16:19:58.497] after model 
+
+[16:19:58.743] iteration 450 : loss : 1.000000
+[16:19:58.745] before model 
+
+[16:19:58.873] after model 
+
+[16:19:59.114] iteration 451 : loss : 0.909357
+[16:19:59.116] before model 
+
+[16:19:59.243] after model 
+
+[16:19:59.498] iteration 452 : loss : 0.950353
+[16:19:59.499] before model 
+
+[16:19:59.626] after model 
+
+[16:19:59.866] iteration 453 : loss : 0.930267
+[16:19:59.868] before model 
+
+[16:19:59.994] after model 
+
+[16:20:00.235] iteration 454 : loss : 0.944588
+[16:20:00.236] before model 
+
+[16:20:00.362] after model 
+
+[16:20:00.602] iteration 455 : loss : 0.865304
+[16:20:00.604] before model 
+
+[16:20:00.730] after model 
+
+[16:20:00.989] iteration 456 : loss : 0.979089
+[16:20:00.991] before model 
+
+[16:20:01.117] after model 
+
+[16:20:01.359] iteration 457 : loss : 0.884942
+[16:20:01.361] before model 
+
+[16:20:01.496] after model 
+
+[16:20:01.742] iteration 458 : loss : 0.929551
+[16:20:01.743] before model 
+
+[16:20:01.870] after model 
+
+[16:20:02.110] iteration 459 : loss : 0.885063
+[16:20:02.112] before model 
+
+[16:20:02.238] after model 
+
+[16:20:02.478] iteration 460 : loss : 1.000000
+[16:20:02.479] before model 
+
+[16:20:02.606] after model 
+
+[16:20:02.846] iteration 461 : loss : 0.892102
+[16:20:02.847] before model 
+
+[16:20:02.974] after model 
+
+[16:20:03.214] iteration 462 : loss : 0.989103
+[16:20:03.216] before model 
+
+[16:20:03.342] after model 
+
+[16:20:03.582] iteration 463 : loss : 0.753988
+[16:20:03.584] before model 
+
+[16:20:03.710] after model 
+
+[16:20:03.950] iteration 464 : loss : 0.959823
+[16:20:03.952] before model 
+
+[16:20:04.078] after model 
+
+[16:20:04.324] iteration 465 : loss : 0.990355
+[16:20:04.326] before model 
+
+[16:20:04.460] after model 
+
+[16:20:04.713] iteration 466 : loss : 0.993823
+[16:20:04.715] before model 
+
+[16:20:04.841] after model 
+
+[16:20:05.083] iteration 467 : loss : 0.978893
+[16:20:05.084] before model 
+
+[16:20:05.211] after model 
+
+[16:20:05.450] iteration 468 : loss : 0.827823
+[16:20:05.452] before model 
+
+[16:20:05.578] after model 
+
+[16:20:05.818] iteration 469 : loss : 0.885570
+[16:20:05.820] before model 
+
+[16:20:05.946] after model 
+
+[16:20:06.200] iteration 470 : loss : 0.776738
+[16:20:06.202] before model 
+
+[16:20:06.337] after model 
+
+[16:20:06.584] iteration 471 : loss : 0.992552
+[16:20:06.585] before model 
+
+[16:20:06.722] after model 
+
+[16:20:06.963] iteration 472 : loss : 0.996082
+[16:20:06.965] before model 
+
+[16:20:07.091] after model 
+
+[16:20:07.331] iteration 473 : loss : 0.852419
+[16:20:07.333] before model 
+
+[16:20:07.459] after model 
+
+[16:20:07.700] iteration 474 : loss : 0.970732
+[16:20:07.702] before model 
+
+[16:20:07.838] after model 
+
+[16:20:08.093] iteration 475 : loss : 0.989074
+[16:20:08.095] before model 
+
+[16:20:08.224] after model 
+
+[16:20:08.465] iteration 476 : loss : 0.918446
+[16:20:08.466] before model 
+
+[16:20:08.592] after model 
+
+[16:20:08.833] iteration 477 : loss : 1.000000
+[16:20:08.834] before model 
+
+[16:20:08.969] after model 
+
+[16:20:09.225] iteration 478 : loss : 0.808177
+[16:20:09.227] before model 
+
+[16:20:09.357] after model 
+
+[16:20:09.598] iteration 479 : loss : 0.850528
+[16:20:09.600] before model 
+
+[16:20:09.726] after model 
+
+[16:20:09.967] iteration 480 : loss : 1.000000
+[16:20:09.969] before model 
+
+[16:20:10.096] after model 
+
+[16:20:10.336] iteration 481 : loss : 0.987305
+[16:20:10.338] before model 
+
+[16:20:10.464] after model 
+
+[16:20:10.704] iteration 482 : loss : 0.883699
+[16:20:10.706] before model 
+
+[16:20:10.834] after model 
+
+[16:20:11.076] iteration 483 : loss : 0.967411
+[16:20:11.078] before model 
+
+[16:20:11.205] after model 
+
+[16:20:11.445] iteration 484 : loss : 0.869593
+[16:20:11.447] before model 
+
+[16:20:11.573] after model 
+
+[16:20:11.813] iteration 485 : loss : 0.738758
+[16:20:11.815] before model 
+
+[16:20:11.943] after model 
+
+[16:20:12.185] iteration 486 : loss : 0.997719
+[16:20:12.187] before model 
+
+[16:20:12.313] after model 
+
+[16:20:12.554] iteration 487 : loss : 0.991786
+[16:20:12.555] before model 
+
+[16:20:12.682] after model 
+
+[16:20:12.922] iteration 488 : loss : 0.626792
+[16:20:12.924] before model 
+
+[16:20:13.051] after model 
+
+[16:20:13.291] iteration 489 : loss : 0.947738
+[16:20:13.293] before model 
+
+[16:20:13.421] after model 
+
+[16:20:13.670] iteration 490 : loss : 0.810781
+[16:20:13.672] before model 
+
+[16:20:13.805] after model 
+
+[16:20:14.046] iteration 491 : loss : 0.900723
+[16:20:14.048] before model 
+
+[16:20:14.175] after model 
+
+[16:20:14.416] iteration 492 : loss : 0.652313
+[16:20:14.418] before model 
+
+[16:20:14.551] after model 
+
+[16:20:14.803] iteration 493 : loss : 1.000000
+[16:20:14.805] before model 
+
+[16:20:14.935] after model 
+
+[16:20:15.175] iteration 494 : loss : 1.000000
+[16:20:15.177] before model 
+
+[16:20:15.304] after model 
+
+[16:20:15.556] iteration 495 : loss : 0.972544
+[16:20:15.557] before model 
+
+[16:20:15.692] after model 
+
+[16:20:15.943] iteration 496 : loss : 0.781980
+[16:20:15.945] before model 
+
+[16:20:16.073] after model 
+
+[16:20:16.314] iteration 497 : loss : 0.981139
+[16:20:16.316] before model 
+
+[16:20:16.443] after model 
+
+[16:20:16.683] iteration 498 : loss : 0.829478
+[16:20:16.685] before model 
+
+[16:20:16.811] after model 
+
+[16:20:17.053] iteration 499 : loss : 0.987053
+[16:20:17.054] before model 
+
+[16:20:17.181] after model 
+
+[16:20:17.421] iteration 500 : loss : 0.949820
+[16:20:17.423] before model 
+
+[16:20:17.549] after model 
+
+[16:20:17.790] iteration 501 : loss : 1.000000
+[16:20:17.792] before model 
+
+[16:20:17.919] after model 
+
+[16:20:18.161] iteration 502 : loss : 0.969399
+[16:20:18.163] before model 
+
+[16:20:18.295] after model 
+
+[16:20:18.534] iteration 503 : loss : 1.000000
+[16:20:18.536] before model 
+
+[16:20:18.662] after model 
+
+[16:20:18.902] iteration 504 : loss : 1.000000
+[16:20:18.904] before model 
+
+[16:20:19.030] after model 
+
+[16:20:19.270] iteration 505 : loss : 0.923201
+[16:20:19.272] before model 
+
+[16:20:19.400] after model 
+
+[16:20:19.640] iteration 506 : loss : 0.963958
+[16:20:19.641] before model 
+
+[16:20:19.768] after model 
+
+[16:20:20.019] iteration 507 : loss : 0.904206
+[16:20:20.021] before model 
+
+[16:20:20.156] after model 
+
+[16:20:20.405] iteration 508 : loss : 1.000000
+[16:20:20.407] before model 
+
+[16:20:20.533] after model 
+
+[16:20:20.774] iteration 509 : loss : 0.994755
+[16:20:20.775] before model 
+
+[16:20:20.901] after model 
+
+[16:20:21.145] iteration 510 : loss : 1.000000
+[16:20:21.146] before model 
+
+[16:20:21.274] after model 
+
+[16:20:21.514] iteration 511 : loss : 0.795044
+[16:20:21.515] before model 
+
+[16:20:21.642] after model 
+
+[16:20:21.899] iteration 512 : loss : 0.677355
+[16:20:21.900] before model 
+
+[16:20:22.027] after model 
+
+[16:20:22.267] iteration 513 : loss : 0.729571
+[16:20:22.268] before model 
+
+[16:20:22.403] after model 
+
+[16:20:22.647] iteration 514 : loss : 0.576594
+[16:20:22.648] before model 
+
+[16:20:22.784] after model 
+
+[16:20:23.031] iteration 515 : loss : 0.987359
+[16:20:23.033] before model 
+
+[16:20:23.160] after model 
+
+[16:20:23.402] iteration 516 : loss : 0.918236
+[16:20:23.404] before model 
+
+[16:20:23.532] after model 
+
+[16:20:23.772] iteration 517 : loss : 0.947051
+[16:20:23.774] before model 
+
+[16:20:23.900] after model 
+
+[16:20:24.140] iteration 518 : loss : 0.869202
+[16:20:24.142] before model 
+
+[16:20:24.269] after model 
+
+[16:20:24.509] iteration 519 : loss : 1.000000
+[16:20:24.510] before model 
+
+[16:20:24.639] after model 
+
+[16:20:24.882] iteration 520 : loss : 1.000000
+[16:20:24.884] before model 
+
+[16:20:25.012] after model 
+
+[16:20:25.268] iteration 521 : loss : 0.870747
+[16:20:25.269] before model 
+
+[16:20:25.405] after model 
+
+[16:20:25.651] iteration 522 : loss : 0.970311
+[16:20:25.652] before model 
+
+[16:20:25.779] after model 
+
+[16:20:26.019] iteration 523 : loss : 0.946249
+[16:20:26.020] before model 
+
+[16:20:26.147] after model 
+
+[16:20:26.387] iteration 524 : loss : 1.000000
+[16:20:26.389] before model 
+
+[16:20:26.515] after model 
+
+[16:20:26.757] iteration 525 : loss : 0.903751
+[16:20:26.758] before model 
+
+[16:20:26.887] after model 
+
+[16:20:27.128] iteration 526 : loss : 0.962727
+[16:20:27.130] before model 
+
+[16:20:27.257] after model 
+
+[16:20:27.499] iteration 527 : loss : 0.991155
+[16:20:27.501] before model 
+
+[16:20:27.638] after model 
+
+[16:20:27.881] iteration 528 : loss : 0.999027
+[16:20:27.882] before model 
+
+[16:20:28.009] after model 
+
+[16:20:28.249] iteration 529 : loss : 0.716952
+[16:20:28.250] before model 
+
+[16:20:28.377] after model 
+
+[16:20:28.617] iteration 530 : loss : 0.891946
+[16:20:28.619] before model 
+
+[16:20:28.745] after model 
+
+[16:20:28.986] iteration 531 : loss : 0.951928
+[16:20:28.987] before model 
+
+[16:20:29.114] after model 
+
+[16:20:29.354] iteration 532 : loss : 0.974882
+[16:20:29.356] before model 
+
+[16:20:29.482] after model 
+
+[16:20:29.722] iteration 533 : loss : 0.875010
+[16:20:29.724] before model 
+
+[16:20:29.850] after model 
+
+[16:20:30.091] iteration 534 : loss : 0.605815
+[16:20:30.092] before model 
+
+[16:20:30.220] after model 
+
+[16:20:30.459] iteration 535 : loss : 0.996276
+[16:20:30.461] before model 
+
+[16:20:30.587] after model 
+
+[16:20:30.829] iteration 536 : loss : 0.656526
+[16:20:30.831] before model 
+
+[16:20:30.958] after model 
+
+[16:20:31.198] iteration 537 : loss : 0.992115
+[16:20:31.200] before model 
+
+[16:20:31.326] after model 
+
+[16:20:31.566] iteration 538 : loss : 0.964651
+[16:20:31.568] before model 
+
+[16:20:31.694] after model 
+
+[16:20:31.936] iteration 539 : loss : 0.892465
+[16:20:31.938] before model 
+
+[16:20:32.064] after model 
+
+[16:20:32.309] iteration 540 : loss : 0.548768
+[16:20:32.311] before model 
+
+[16:20:32.447] after model 
+
+[16:20:32.701] iteration 541 : loss : 1.000000
+[16:20:32.703] before model 
+
+[16:20:32.843] after model 
+
+[16:20:33.083] iteration 542 : loss : 0.992735
+[16:20:33.084] before model 
+
+[16:20:33.212] after model 
+
+[16:20:33.462] iteration 543 : loss : 0.989743
+[16:20:33.464] before model 
+
+[16:20:33.599] after model 
+
+[16:20:33.850] iteration 544 : loss : 0.948283
+[16:20:33.851] before model 
+
+[16:20:33.977] after model 
+
+[16:20:34.217] iteration 545 : loss : 0.985833
+[16:20:34.219] before model 
+
+[16:20:34.345] after model 
+
+[16:20:34.586] iteration 546 : loss : 0.959789
+[16:20:34.588] before model 
+
+[16:20:34.715] after model 
+
+[16:20:34.956] iteration 547 : loss : 1.000000
+[16:20:34.958] before model 
+
+[16:20:35.086] after model 
+
+[16:20:35.340] iteration 548 : loss : 0.844978
+[16:20:35.342] before model 
+
+[16:20:35.476] after model 
+
+[16:20:35.724] iteration 549 : loss : 0.985149
+[16:20:35.726] before model 
+
+[16:20:35.854] after model 
+
+[16:20:36.095] iteration 550 : loss : 0.671342
+[16:20:36.097] before model 
+
+[16:20:36.223] after model 
+
+[16:20:36.468] iteration 551 : loss : 0.950843
+[16:20:36.469] before model 
+
+[16:20:36.605] after model 
+
+[16:20:36.861] iteration 552 : loss : 0.962167
+[16:20:36.863] before model 
+
+[16:20:36.999] after model 
+
+[16:20:37.252] iteration 553 : loss : 0.759727
+[16:20:37.254] before model 
+
+[16:20:37.386] after model 
+
+[16:20:37.634] iteration 554 : loss : 0.995066
+[16:20:37.636] before model 
+
+[16:20:37.766] after model 
+
+[16:20:38.021] iteration 555 : loss : 0.693371
+[16:20:38.023] before model 
+
+[16:20:38.161] after model 
+
+[16:20:38.421] iteration 556 : loss : 0.972977
+[16:20:38.423] before model 
+
+[16:20:38.560] after model 
+
+[16:20:38.805] iteration 557 : loss : 0.978230
+[16:20:38.806] before model 
+
+[16:20:38.937] after model 
+
+[16:20:39.179] iteration 558 : loss : 0.964377
+[16:20:39.181] before model 
+
+[16:20:39.307] after model 
+
+[16:20:39.560] iteration 559 : loss : 0.916941
+[16:20:39.562] before model 
+
+[16:20:39.688] after model 
+
+[16:20:39.942] iteration 560 : loss : 0.736224
+[16:20:39.944] before model 
+
+[16:20:40.071] after model 
+
+[16:20:40.311] iteration 561 : loss : 0.994675
+[16:20:40.312] before model 
+
+[16:20:40.439] after model 
+
+[16:20:40.680] iteration 562 : loss : 1.000000
+[16:20:40.681] before model 
+
+[16:20:40.812] after model 
+
+[16:20:41.057] iteration 563 : loss : 0.907687
+[16:20:41.059] before model 
+
+[16:20:41.185] after model 
+
+[16:20:41.426] iteration 564 : loss : 0.998710
+[16:20:41.428] before model 
+
+[16:20:41.555] after model 
+
+[16:20:41.797] iteration 565 : loss : 0.803070
+[16:20:41.798] before model 
+
+[16:20:41.926] after model 
+
+[16:20:42.166] iteration 566 : loss : 0.670848
+[16:20:42.168] before model 
+
+[16:20:42.297] after model 
+
+[16:20:42.543] iteration 567 : loss : 0.883488
+[16:20:42.544] before model 
+
+[16:20:42.670] after model 
+
+[16:20:42.911] iteration 568 : loss : 0.704615
+[16:20:42.912] before model 
+
+[16:20:43.039] after model 
+
+[16:20:43.279] iteration 569 : loss : 0.831745
+[16:20:43.281] before model 
+
+[16:20:43.407] after model 
+
+[16:20:43.653] iteration 570 : loss : 0.812984
+[16:20:43.655] before model 
+
+[16:20:43.784] after model 
+
+[16:20:44.026] iteration 571 : loss : 0.958857
+[16:20:44.028] before model 
+
+[16:20:44.154] after model 
+
+[16:20:44.408] iteration 572 : loss : 0.844757
+[16:20:44.409] before model 
+
+[16:20:44.542] after model 
+
+[16:20:44.788] iteration 573 : loss : 0.986819
+[16:20:44.790] before model 
+
+[16:20:44.924] after model 
+
+[16:20:45.177] iteration 574 : loss : 1.000000
+[16:20:45.179] before model 
+
+[16:20:45.311] after model 
+
+[16:20:45.568] iteration 575 : loss : 1.000000
+[16:20:45.570] before model 
+
+[16:20:45.705] after model 
+
+[16:20:45.946] iteration 576 : loss : 0.970710
+[16:20:45.948] before model 
+
+[16:20:46.075] after model 
+
+[16:20:46.316] iteration 577 : loss : 0.651707
+[16:20:46.318] before model 
+
+[16:20:46.444] after model 
+
+[16:20:46.686] iteration 578 : loss : 1.000000
+[16:20:46.688] before model 
+
+[16:20:46.814] after model 
+
+[16:20:47.054] iteration 579 : loss : 0.673855
+[16:20:47.056] before model 
+
+[16:20:47.183] after model 
+
+[16:20:47.422] iteration 580 : loss : 0.932108
+[16:20:47.424] before model 
+
+[16:20:47.550] after model 
+
+[16:20:47.790] iteration 581 : loss : 0.911731
+[16:20:47.792] before model 
+
+[16:20:47.920] after model 
+
+[16:20:48.163] iteration 582 : loss : 0.588485
+[16:20:48.165] before model 
+
+[16:20:48.300] after model 
+
+[16:20:48.557] iteration 583 : loss : 0.912275
+[16:20:48.559] before model 
+
+[16:20:48.695] after model 
+
+[16:20:48.937] iteration 584 : loss : 0.610043
+[16:20:48.939] before model 
+
+[16:20:49.068] after model 
+
+[16:20:49.308] iteration 585 : loss : 0.740999
+[16:20:49.309] before model 
+
+[16:20:49.436] after model 
+
+[16:20:49.676] iteration 586 : loss : 1.000000
+[16:20:49.677] before model 
+
+[16:20:49.803] after model 
+
+[16:20:50.047] iteration 587 : loss : 0.996138
+[16:20:50.048] before model 
+
+[16:20:50.176] after model 
+
+[16:20:50.417] iteration 588 : loss : 1.000000
+[16:20:50.419] before model 
+
+[16:20:50.545] after model 
+
+[16:20:50.785] iteration 589 : loss : 0.714991
+[16:20:50.787] before model 
+
+[16:20:50.913] after model 
+
+[16:20:51.155] iteration 590 : loss : 0.915616
+[16:20:51.157] before model 
+
+[16:20:51.283] after model 
+
+[16:20:51.526] iteration 591 : loss : 0.919210
+[16:20:51.527] before model 
+
+[16:20:51.655] after model 
+
+[16:20:51.898] iteration 592 : loss : 0.750036
+[16:20:51.900] before model 
+
+[16:20:52.027] after model 
+
+[16:20:52.267] iteration 593 : loss : 0.687805
+[16:20:52.268] before model 
+
+[16:20:52.394] after model 
+
+[16:20:52.635] iteration 594 : loss : 0.988691
+[16:20:52.637] before model 
+
+[16:20:52.763] after model 
+
+[16:20:53.002] iteration 595 : loss : 0.931996
+[16:20:53.004] before model 
+
+[16:20:53.131] after model 
+
+[16:20:53.371] iteration 596 : loss : 0.948328
+[16:20:53.372] before model 
+
+[16:20:53.499] after model 
+
+[16:20:53.739] iteration 597 : loss : 0.694763
+[16:20:53.740] before model 
+
+[16:20:53.868] after model 
+
+[16:20:54.107] iteration 598 : loss : 0.658783
+[16:20:54.109] before model 
+
+[16:20:54.236] after model 
+
+[16:20:54.476] iteration 599 : loss : 1.000000
+[16:20:54.477] before model 
+
+[16:20:54.603] after model 
+
+[16:20:54.843] iteration 600 : loss : 0.804115
+[16:20:54.845] before model 
+
+[16:20:54.976] after model 
+
+[16:20:55.232] iteration 601 : loss : 0.932681
+[16:20:55.233] before model 
+
+[16:20:55.368] after model 
+
+[16:20:55.608] iteration 602 : loss : 0.955969
+[16:20:55.609] before model 
+
+[16:20:55.736] after model 
+
+[16:20:55.976] iteration 603 : loss : 0.997554
+[16:20:55.978] before model 
+
+[16:20:56.104] after model 
+
+[16:20:56.345] iteration 604 : loss : 1.000000
+[16:20:56.347] before model 
+
+[16:20:56.473] after model 
+
+[16:20:56.713] iteration 605 : loss : 1.000000
+[16:20:56.715] before model 
+
+[16:20:56.841] after model 
+
+[16:20:57.081] iteration 606 : loss : 1.000000
+[16:20:57.083] before model 
+
+[16:20:57.209] after model 
+
+[16:20:57.452] iteration 607 : loss : 0.990410
+[16:20:57.453] before model 
+
+[16:20:57.580] after model 
+
+[16:20:57.821] iteration 608 : loss : 0.623572
+[16:20:57.822] before model 
+
+[16:20:57.951] after model 
+
+[16:20:58.191] iteration 609 : loss : 0.987313
+[16:20:58.193] before model 
+
+[16:20:58.319] after model 
+
+[16:20:58.560] iteration 610 : loss : 0.965874
+[16:20:58.562] before model 
+
+[16:20:58.688] after model 
+
+[16:20:58.929] iteration 611 : loss : 0.934286
+[16:20:58.930] before model 
+
+[16:20:59.057] after model 
+
+[16:20:59.298] iteration 612 : loss : 0.987524
+[16:20:59.300] before model 
+
+[16:20:59.426] after model 
+
+[16:20:59.682] iteration 613 : loss : 1.000000
+[16:20:59.684] before model 
+
+[16:20:59.815] after model 
+
+[16:21:00.055] iteration 614 : loss : 0.922680
+[16:21:00.057] before model 
+
+[16:21:00.182] after model 
+
+[16:21:00.424] iteration 615 : loss : 0.858865
+[16:21:00.425] before model 
+
+[16:21:00.552] after model 
+
+[16:21:00.792] iteration 616 : loss : 0.957446
+[16:21:00.794] before model 
+
+[16:21:00.929] after model 
+
+[16:21:01.171] iteration 617 : loss : 0.903459
+[16:21:01.173] before model 
+
+[16:21:01.299] after model 
+
+[16:21:01.541] iteration 618 : loss : 0.960097
+[16:21:01.543] before model 
+
+[16:21:01.675] after model 
+
+[16:21:01.922] iteration 619 : loss : 0.942576
+[16:21:01.924] before model 
+
+[16:21:02.054] after model 
+
+[16:21:02.310] iteration 620 : loss : 0.983539
+[16:21:02.312] before model 
+
+[16:21:02.447] after model 
+
+[16:21:02.704] iteration 621 : loss : 0.986267
+[16:21:02.706] before model 
+
+[16:21:02.835] after model 
+
+[16:21:03.076] iteration 622 : loss : 0.844955
+[16:21:03.078] before model 
+
+[16:21:03.204] after model 
+
+[16:21:03.449] iteration 623 : loss : 0.929851
+[16:21:03.450] before model 
+
+[16:21:03.577] after model 
+
+[16:21:03.822] iteration 624 : loss : 1.000000
+[16:21:03.824] before model 
+
+[16:21:03.958] after model 
+
+[16:21:04.198] iteration 625 : loss : 1.000000
+[16:21:04.200] before model 
+
+[16:21:04.326] after model 
+
+[16:21:04.568] iteration 626 : loss : 0.928387
+[16:21:04.570] before model 
+
+[16:21:04.696] after model 
+
+[16:21:04.950] iteration 627 : loss : 0.927931
+[16:21:04.952] before model 
+
+[16:21:05.079] after model 
+
+[16:21:05.324] iteration 628 : loss : 0.985562
+[16:21:05.325] before model 
+
+[16:21:05.463] after model 
+
+[16:21:05.720] iteration 629 : loss : 0.711341
+[16:21:05.722] before model 
+
+[16:21:05.848] after model 
+
+[16:21:06.088] iteration 630 : loss : 0.754152
+[16:21:06.090] before model 
+
+[16:21:06.216] after model 
+
+[16:21:06.456] iteration 631 : loss : 0.964866
+[16:21:06.458] before model 
+
+[16:21:06.594] after model 
+
+[16:21:06.850] iteration 632 : loss : 0.951188
+[16:21:06.852] before model 
+
+[16:21:06.988] after model 
+
+[16:21:07.246] iteration 633 : loss : 0.642092
+[16:21:07.248] before model 
+
+[16:21:07.375] after model 
+
+[16:21:07.617] iteration 634 : loss : 0.945383
+[16:21:07.618] before model 
+
+[16:21:07.745] after model 
+
+[16:21:07.988] iteration 635 : loss : 0.890171
+[16:21:07.989] before model 
+
+[16:21:08.116] after model 
+
+[16:21:08.357] iteration 636 : loss : 0.987837
+[16:21:08.359] before model 
+
+[16:21:08.485] after model 
+
+[16:21:08.725] iteration 637 : loss : 0.896438
+[16:21:08.727] before model 
+
+[16:21:08.853] after model 
+
+[16:21:09.095] iteration 638 : loss : 0.971686
+[16:21:09.096] before model 
+
+[16:21:09.224] after model 
+
+[16:21:09.466] iteration 639 : loss : 0.605622
+[16:21:09.468] before model 
+
+[16:21:09.596] after model 
+
+[16:21:09.839] iteration 640 : loss : 0.911682
+[16:21:09.841] before model 
+
+[16:21:09.968] after model 
+
+[16:21:10.220] iteration 641 : loss : 0.951861
+[16:21:10.221] before model 
+
+[16:21:10.349] after model 
+
+[16:21:10.590] iteration 642 : loss : 0.916005
+[16:21:10.591] before model 
+
+[16:21:10.718] after model 
+
+[16:21:10.960] iteration 643 : loss : 0.588814
+[16:21:10.961] before model 
+
+[16:21:11.087] after model 
+
+[16:21:11.328] iteration 644 : loss : 1.000000
+[16:21:11.329] before model 
+
+[16:21:11.466] after model 
+
+[16:21:11.715] iteration 645 : loss : 0.882862
+[16:21:11.717] before model 
+
+[16:21:11.848] after model 
+
+[16:21:12.103] iteration 646 : loss : 0.780491
+[16:21:12.104] before model 
+
+[16:21:12.231] after model 
+
+[16:21:12.472] iteration 647 : loss : 0.906225
+[16:21:12.474] before model 
+
+[16:21:12.601] after model 
+
+[16:21:12.841] iteration 648 : loss : 0.853830
+[16:21:12.843] before model 
+
+[16:21:12.970] after model 
+
+[16:21:13.213] iteration 649 : loss : 0.782730
+[16:21:13.214] before model 
+
+[16:21:13.340] after model 
+
+[16:21:13.581] iteration 650 : loss : 0.533221
+[16:21:13.582] before model 
+
+[16:21:13.708] after model 
+
+[16:21:13.956] iteration 651 : loss : 0.755852
+[16:21:13.958] before model 
+
+[16:21:14.093] after model 
+
+[16:21:14.349] iteration 652 : loss : 0.709926
+[16:21:14.350] before model 
+
+[16:21:14.484] after model 
+
+[16:21:14.727] iteration 653 : loss : 0.995476
+[16:21:14.728] before model 
+
+[16:21:14.855] after model 
+
+[16:21:15.096] iteration 654 : loss : 0.979277
+[16:21:15.097] before model 
+
+[16:21:15.233] after model 
+
+[16:21:15.489] iteration 655 : loss : 0.923679
+[16:21:15.491] before model 
+
+[16:21:15.621] after model 
+
+[16:21:15.862] iteration 656 : loss : 0.903614
+[16:21:15.863] before model 
+
+[16:21:15.990] after model 
+
+[16:21:16.230] iteration 657 : loss : 0.870800
+[16:21:16.232] before model 
+
+[16:21:16.358] after model 
+
+[16:21:16.599] iteration 658 : loss : 1.000000
+[16:21:16.601] before model 
+
+[16:21:16.727] after model 
+
+[16:21:16.969] iteration 659 : loss : 0.817320
+[16:21:16.971] before model 
+
+[16:21:17.097] after model 
+
+[16:21:17.337] iteration 660 : loss : 0.975455
+[16:21:17.339] before model 
+
+[16:21:17.466] after model 
+
+[16:21:17.706] iteration 661 : loss : 0.994864
+[16:21:17.708] before model 
+
+[16:21:17.835] after model 
+
+[16:21:18.075] iteration 662 : loss : 0.934821
+[16:21:18.077] before model 
+
+[16:21:18.205] after model 
+
+[16:21:18.446] iteration 663 : loss : 0.964101
+[16:21:18.447] before model 
+
+[16:21:18.574] after model 
+
+[16:21:18.815] iteration 664 : loss : 0.956812
+[16:21:18.816] before model 
+
+[16:21:18.943] after model 
+
+[16:21:19.183] iteration 665 : loss : 0.900315
+[16:21:19.185] before model 
+
+[16:21:19.312] after model 
+
+[16:21:19.553] iteration 666 : loss : 0.966238
+[16:21:19.554] before model 
+
+[16:21:19.682] after model 
+
+[16:21:19.922] iteration 667 : loss : 0.797305
+[16:21:19.924] before model 
+
+[16:21:20.050] after model 
+
+[16:21:20.291] iteration 668 : loss : 0.986227
+[16:21:20.292] before model 
+
+[16:21:20.419] after model 
+
+[16:21:20.660] iteration 669 : loss : 0.977873
+[16:21:20.662] before model 
+
+[16:21:20.789] after model 
+
+[16:21:21.030] iteration 670 : loss : 1.000000
+[16:21:21.032] before model 
+
+[16:21:21.158] after model 
+
+[16:21:21.399] iteration 671 : loss : 0.930421
+[16:21:21.400] before model 
+
+[16:21:21.527] after model 
+
+[16:21:21.768] iteration 672 : loss : 0.962712
+[16:21:21.770] before model 
+
+[16:21:21.896] after model 
+
+[16:21:22.136] iteration 673 : loss : 0.998388
+[16:21:22.138] before model 
+
+[16:21:22.265] after model 
+
+[16:21:22.505] iteration 674 : loss : 0.912161
+[16:21:22.507] before model 
+
+[16:21:22.633] after model 
+
+[16:21:22.874] iteration 675 : loss : 1.000000
+[16:21:22.876] before model 
+
+[16:21:23.003] after model 
+
+[16:21:23.243] iteration 676 : loss : 0.984541
+[16:21:23.245] before model 
+
+[16:21:23.371] after model 
+
+[16:21:23.612] iteration 677 : loss : 0.897711
+[16:21:23.614] before model 
+
+[16:21:23.741] after model 
+
+[16:21:23.981] iteration 678 : loss : 0.937089
+[16:21:23.982] before model 
+
+[16:21:24.109] after model 
+
+[16:21:24.350] iteration 679 : loss : 1.000000
+[16:21:24.352] before model 
+
+[16:21:24.479] after model 
+
+[16:21:24.719] iteration 680 : loss : 0.846847
+[16:21:24.721] before model 
+
+[16:21:24.848] after model 
+
+[16:21:25.088] iteration 681 : loss : 0.739160
+[16:21:25.090] before model 
+
+[16:21:25.216] after model 
+
+[16:21:25.458] iteration 682 : loss : 0.921277
+[16:21:25.460] before model 
+
+[16:21:25.595] after model 
+
+[16:21:25.836] iteration 683 : loss : 0.921513
+[16:21:25.837] before model 
+
+[16:21:25.964] after model 
+
+[16:21:26.204] iteration 684 : loss : 0.927587
+[16:21:26.206] before model 
+
+[16:21:26.332] after model 
+
+[16:21:26.573] iteration 685 : loss : 0.969822
+[16:21:26.575] before model 
+
+[16:21:26.701] after model 
+
+[16:21:26.942] iteration 686 : loss : 1.000000
+[16:21:26.944] before model 
+
+[16:21:27.071] after model 
+
+[16:21:27.311] iteration 687 : loss : 0.973407
+[16:21:27.312] before model 
+
+[16:21:27.439] after model 
+
+[16:21:27.679] iteration 688 : loss : 0.972534
+[16:21:27.681] before model 
+
+[16:21:27.808] after model 
+
+[16:21:28.049] iteration 689 : loss : 0.946816
+[16:21:28.051] before model 
+
+[16:21:28.177] after model 
+
+[16:21:28.418] iteration 690 : loss : 0.928832
+[16:21:28.448] 172 test iterations per epoch

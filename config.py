@@ -20,7 +20,7 @@ _C.BASE = ['']
 # -----------------------------------------------------------------------------
 _C.DATA = CN()
 
-_C.DATA.BATCH_SIZE = 4
+_C.DATA.BATCH_SIZE = 2
 _C.DATA.DATA_PATH = './dataset'
 _C.DATA.IMG_SIZE = 1024
 _C.DATA.PIN_MEMORY = True
@@ -142,34 +142,42 @@ def _update_config_from_file(config, cfg_file):
     config.freeze()
 
 
-def update_config(config, args):
+def update_config(config, bool_test, bool_train, args):
     _update_config_from_file(config, args.cfg)
+    if bool_test and bool_train:
+        raise ValueError(f"test and train flags are rised incorectly (Both true)!")
+    if not bool_test and not bool_train:
+        raise ValueError(f"test and train flags are rised incorectly (Both false)!")
     # merge from specific arguments
+    config.defrost()
+
     if args.output_dir:
         config.OUTPUT_DIR = args.output_dir
     if args.seed:
         config.SEED = args.seed
     if args.use_checkpoint:
         config.TRAIN.USE_CHECKPOINT = True
-    if args.sig_threshold_train:
-        config.TRAIN.SIG_THRESHOLD = args.sig_threshold_train
-    if args.sig_threshold_test:
-        config.TEST.SIG_THRESHOLD = args.sig_threshold_test
-    if args.max_epochs:
-        config.TRAIN.MAX_EPOCHS = args.max_epochs
-    if args.is_savenii:
-        config.TEST.IS_SAVENII = True
     if args.deterministic:
         config.DETERMINISTIC = True
 
+    if bool_train:
+        if args.sig_threshold:
+            config.TRAIN.SIG_THRESHOLD = args.sig_threshold
+
+    if bool_test:
+        if args.sig_threshold:
+            config.TEST.SIG_THRESHOLD = args.sig_threshold
+        if args.is_savenii:
+            config.TEST.IS_SAVENII = True
+    
     config.freeze()
 
 
-def get_config(args):
+def get_config(args,bool_train, bool_test):
     """Get a yacs CfgNode object with default values."""
     # Return a clone so that the defaults will not be altered
     # This is for the "local variable" use pattern
     config = _C.clone()
     if args != None:
-        update_config(config, args)
+        update_config(config, bool_train, bool_test, args)
     return config

@@ -1,0 +1,4 @@
+[16:12:11.745] The length of train set is: 1380
+[16:12:11.749] 345 iterations per epoch. 690 max iterations 
+[16:12:12.058] before model 
+

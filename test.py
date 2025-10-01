@@ -16,12 +16,11 @@ from config import get_config
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--output_dir', type=str, help='output dir')   
-    parser.add_argument('--max_epochs', type=int, help='maximum epoch number to train')
     parser.add_argument('--is_savenii', action="store_true", help='whether to save results during inference')
     parser.add_argument('--deterministic', action="store_true", help='whether use deterministic training')
     parser.add_argument('--seed', type=int, help='random seed')
     parser.add_argument('--use_checkpoint', action='store_true', help="whether to use gradient checkpointing to save memory")
-    parser.add_argument('--sig_threshold_test', type = float,  help = 'treshold that decides if a pixel is an artefact or not')
+    parser.add_argument('--sig_threshold', type = float,  help = 'treshold that decides if a pixel is an artefact or not')
     parser.add_argument('--split', type = str, default = 'test',required= True, choices=['test', 'val'], help = 'test or val')
     parser.add_argument('--timestamp', type = str, required= True,  help = 'The timestamp from the trainset')
 
@@ -29,7 +28,7 @@ def main():
 
     output_dir = os.path.join(config.OUTPUT_DIR, args.timestamp, args.split)
     
-    config = get_config(args)
+    config = get_config(args, False, True)
 
 
     if not config.DETERMINISTIC:
