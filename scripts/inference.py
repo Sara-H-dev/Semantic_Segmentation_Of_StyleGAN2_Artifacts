@@ -7,7 +7,8 @@ import torch.nn as nn
 import SimpleITK as sitk
 import imageio
 from torch.utils.data import DataLoader
-from dataset.dataset import SegArtifact_dataset
+from torchvision import transforms
+from dataset.dataset import SegArtifact_dataset, RandomGenerator
 from tqdm import tqdm
 
 def inference(model, 
@@ -24,7 +25,8 @@ def inference(model,
     db_test = SegArtifact_dataset(
             base_dir = dataset_path, 
             split = split, 
-            list_dir = list_dir)
+            list_dir = list_dir,
+            transform = transforms.Compose([RandomGenerator(output_size=[img_size, img_size], random_flip_flag = False)]))
     
     testloader = DataLoader(
             db_test, 

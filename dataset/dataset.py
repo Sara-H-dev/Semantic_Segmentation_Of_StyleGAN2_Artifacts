@@ -4,6 +4,7 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset
 from PIL import Image
+from torchvision import transforms
 
 # flips the image and label
 def random_flip(image, label):
@@ -14,8 +15,9 @@ def random_flip(image, label):
 
 
 class RandomGenerator(object):
-    def __init__(self, output_size):
+    def __init__(self, output_size, random_flip_flag = False):
         self.output_size = output_size
+        self.random_flip_flag = random_flip_flag
 
     def __call__(self, sample):
         image, label = sample['image'], sample['label']
@@ -24,8 +26,9 @@ class RandomGenerator(object):
         image = np.array(image, dtype=np.float32)   # [H,W,3]
         label = np.array(label, dtype=np.uint8)    # [H,W]
 
-        if random.random() > 0.5:
-            image, label = random_flip(image, label)
+        if self.random_flip_flag:
+            if random.random() > 0.5:
+                image, label = random_flip(image, label)
 
         H, W = image.shape[:2]
         
@@ -93,5 +96,6 @@ class SegArtifact_dataset(Dataset):
         sample = {'image': image, 'label': label}
         if self.transform:
             sample = self.transform(sample)
+    
         sample['case_name'] = self.sample_list[idx].strip('\n')
         return sample

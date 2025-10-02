@@ -66,7 +66,7 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
                                     list_dir = config.LIST_DIR, 
                                     split = "train",
                                     transform = transforms.Compose(
-                                        [RandomGenerator(output_size=[img_size, img_size])]))
+                                        [RandomGenerator(output_size=[img_size, img_size], random_flip_flag = True)]))
     
     logging.info("The length of train set is: {}".format(len(db_train)))
 
@@ -121,6 +121,7 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
     writer = SummaryWriter(log_save_path + '/log')
 
     iter_num = 0
+    print(f"lenght trainloader {len(trainloader)}", file=sys.stderr)
     max_iterations = max_epoch * len(trainloader)  # max_epoch = max_iterations // len(trainloader) + 1
     logging.info("{} iterations per epoch. {} max iterations ".format(len(trainloader), max_iterations))
     best_performance = 0.0
@@ -130,7 +131,7 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
     stage1_unfreeze = max_epoch * config.MODEL.STAGE1_UNFREEZE_PERIODE
     stage0_unfreeze = max_epoch * config.MODEL.STAGE0_UNFREEZE_PERIODE
     # creates progress bar
-    iterator = tqdm(range(max_epoch), ncols=70,  dynamic_ncols=True)
+    iterator = tqdm(range(max_epoch), ncols=70)
 
     bool_s3_unfreezed = False
     bool_s2_unfreezed = False
@@ -163,16 +164,14 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
         # -------------------------------------------
 
         # get the batches (image & label) from the DataLoader
-        for i_batch, sampled_batch in enumerate(trainloader):
+    
+        for i_batch, sampled_batch in tqdm(enumerate(trainloader), total=len(trainloader)):
             is_last_epoch = (epoch_num >= max_epoch - 1)
             is_last_batch = (i_batch == len(trainloader) - 1)
 
             image_batch, label_batch = sampled_batch['image'].to(device), sampled_batch['label'].to(device)
             case_names  = sampled_batch['case_name']
-
-            logging.info("before model \n")
             outputs = model(image_batch)
-            logging.info("after model \n")
             
             # loss
             loss = tversky_loss(outputs, label_batch)
@@ -196,9 +195,17 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
 
         # -------- VALIDATION (aftre every Epoch-Train) --------
         model.eval()
-        mean_metrics= inference(model,logging, log_save_path, device, config.DATA.DATA_PATH, 
-            "val", config.LIST_DIR, img_size, config.TRAIN.SIG_THRESHOLD)
-        
+        mean_metrics= inference(
+            model =model,
+            logging= logging,
+            test_save_path = log_save_path,
+            device= device,
+            dataset_path = config.DATA.DATA_PATH, 
+            split = "val", 
+            list_dir = config.LIST_DIR,
+            img_size = img_size,
+            sig_threshold = config.TRAIN.SIG_THRESHOLD)
+
         mean_dice, mean_IoU, mean_recall, mean_precision, mean_f1_score, mean_soft_dice, mean_soft_IoU = mean_metrics
         write_to_writer(writer, mean_metrics, epoch_num)
         
