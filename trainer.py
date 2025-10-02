@@ -131,7 +131,7 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
     stage1_unfreeze = max_epoch * config.MODEL.STAGE1_UNFREEZE_PERIODE
     stage0_unfreeze = max_epoch * config.MODEL.STAGE0_UNFREEZE_PERIODE
     # creates progress bar
-    iterator = tqdm(range(max_epoch), ncols=70)
+    
 
     bool_s3_unfreezed = False
     bool_s2_unfreezed = False
@@ -142,7 +142,7 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
     since_best = 0 # counter that counts the number of epochs during which the soft_dice has not improved
     mean_metrics = np.zeros(7, dtype=np.float64)
 
-    for epoch_num in iterator:
+    for epoch_num in tqdm(range(max_epoch)):
         model.train()
     
         # -------- UNFREEZING THE ENCODER --------
@@ -177,7 +177,7 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
             loss = tversky_loss(outputs, label_batch)
 
             # backprop + optimizer
-            optimizer.zero_grad()
+            optimizer.zero_grad(set_to_none=True)
             loss.backward()
             optimizer.step()
 
@@ -251,7 +251,6 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
                             'soft_dice': mean_soft_dice}, 
                             save_mode_path)
             logging.info("save model to {}".format(save_mode_path))
-            iterator.close()
             break
 
         # update learning rate / 

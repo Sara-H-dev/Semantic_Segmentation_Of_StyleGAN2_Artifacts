@@ -3,3 +3,4 @@ dataset/fake_images
 dataset/real_images
 dataset/fake_labels
 dataset/real_labels
+model_out

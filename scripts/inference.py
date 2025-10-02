@@ -146,6 +146,7 @@ def calculate_metrics_binary(pred, gt):
     # makes sure the arrays are binary
     pred = (pred > 0)
     gt   = (gt   > 0)
+    smooth = 1e-6
 
     if pred.sum() > 0 and gt.sum()>0:
         # Dice-Koeffizient
@@ -157,7 +158,7 @@ def calculate_metrics_binary(pred, gt):
         # intersection over union (IoU)
         IoU = metric.binary.jc(pred, gt)
         # F1-score
-        f1 = 2 * (precision * recall) / (precision + recall)
+        f1 = 2 * (precision * recall) / (precision + recall + smooth)
 
         return dice, IoU, recall, precision, f1
 
