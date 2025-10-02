@@ -5,6 +5,9 @@ import os
 import random
 import sys
 import numpy as np
+import csv
+import pandas as pd
+import matplotlib.pyplot as plt
 
 import torch
 import torch.nn as nn
@@ -30,6 +33,9 @@ def make_worker_init_fn(base_seed: int):
 
 def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
     from dataset.dataset import SegArtifact_dataset, RandomGenerator
+
+    warmup_epochs = config.TRAIN.WARMUP_EPOCHS
+    max_epoch = config.TRAIN.MAX_EPOCHS
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -79,6 +85,15 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
     if n_gpu > 1:
         model = nn.DataParallel(model)
 
+    """calculate linear learning rate increase:"""
+    min_lr = 1e-7
+    max_lr = 0.3
+    num_batches = len(trainloader)
+    mult = (max_lr / min_lr) ** (1 / (num_batches * max_epoch))
+    print(f"multiplyer: {mult}", file=sys.stderr)
+
+    """calculate linear learning rate increase:"""
+
     def core(m):  
         return m.module if isinstance(m, nn.DataParallel) else m 
     
@@ -100,8 +115,6 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
         amsgrad = False         # optional, selten genutzt
     )
 
-    warmup_epochs = config.TRAIN.WARMUP_EPOCHS
-    max_epoch = config.TRAIN.MAX_EPOCHS
 
     # Cosine Decay with linear warmup
     """
@@ -142,13 +155,20 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
     since_best = 0 # counter that counts the number of epochs during which the soft_dice has not improved
     mean_metrics = np.zeros(7, dtype=np.float64)
 
+    new_lr = min_lr
+
+    lr_range_test_file = os.path.join(log_save_path, "lr_range_test.csv")
+    csv_file = open(lr_range_test_file, "w", newline="")
+    csv_writer = csv.writer(csv_file)
+    csv_writer.writerow(["step", "lr", "loss"])
+
     for epoch_num in tqdm(range(max_epoch)):
         model.train()
     
         # -------- UNFREEZING THE ENCODER --------
         if freeze_encoder:
             # unfreeze form the deepest encoder level to the highests
-            if epoch_num > 1 :
+            if epoch_num > 9:
                 if (epoch_num >= stage3_unfreeze) and (bool_s3_unfreezed == False):
                     core(model).unfreeze_encoder(3)
                     bool_s3_unfreezed = True
@@ -162,10 +182,13 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
                     core(model).unfreeze_encoder(0)
                     bool_s0_unfreezed = True
         # -------------------------------------------
-
-        # get the batches (image & label) from the DataLoader
     
         for i_batch, sampled_batch in tqdm(enumerate(trainloader), total=len(trainloader)):
+            step = epoch_num*num_batches + i_batch
+            # learning rate range test
+            for param_group in optimizer.param_groups:
+                param_group['lr'] = new_lr
+
             is_last_epoch = (epoch_num >= max_epoch - 1)
             is_last_batch = (i_batch == len(trainloader) - 1)
 
@@ -181,6 +204,9 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
             loss.backward()
             optimizer.step()
 
+            lr = optimizer.param_groups[0]['lr']
+            csv_writer.writerow([step, lr, loss.item()])
+
             iter_num = iter_num + 1
             writer.add_scalar('info/total_loss', loss.item(), iter_num)
             logging.info('iteration %d : loss : %f' % (iter_num, loss.item()))
@@ -192,6 +218,11 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
                 with torch.no_grad():
                     create_bin_heat_mask(outputs, case_names, pred_dir, image_batch)
                 model.train()
+
+            # add value to learning rate
+            new_lr *= mult
+
+            
 
         # -------- VALIDATION (aftre every Epoch-Train) --------
         model.eval()
@@ -253,13 +284,24 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
             logging.info("save model to {}".format(save_mode_path))
             break
 
-        # update learning rate / 
+        # update learning rate /
+
         """
         lr_scheduler.step(epoch_num + 1)
         logging.info("epoch:", epoch_num + 1,  " learning rate:", lr_scheduler.get_last_lr())
         """
-
+    csv_file.close()
     writer.close()
+
+    csv_reader = pd.read_csv(lr_range_test_file)
+    plt.plot(np.log10(csv_reader["lr"]), csv_reader["loss"])
+    plt.xlabel("log10(Learning Rate)")
+    plt.ylabel("Loss")
+    plt.title("Learning Rate Range Test")
+    plt.grid(True)
+    plt.savefig(os.path.join(log_save_path, "lr_range_test.png"), dpi=300) 
+    plt.show()
+
     return "Training Finished!"
 
 def create_bin_heat_mask(outputs, case_names, pred_dir, image_batch):
