@@ -20,6 +20,7 @@ from timm.scheduler.cosine_lr import CosineLRScheduler
 
 from tqdm import tqdm
 from loss.TverskyLoss import TverskyLoss_binary
+from loss.SymmetricUnifiedFocalLoss import SymmetricUnifiedFocalLoss
 from scripts.map_generator import overlay, save_color_heatmap
 from scripts.inference import inference
 
@@ -103,7 +104,9 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
     # training modus
     model.train()
 
-    tversky_loss = TverskyLoss_binary(config.TRAIN.TVERSKY_LOSS_ALPHA, config.TRAIN.TVERSKY_LOSS_BETA)
+    # tversky_loss = TverskyLoss_binary(config.TRAIN.TVERSKY_LOSS_ALPHA, config.TRAIN.TVERSKY_LOSS_BETA)
+    uf_loss = SymmetricUnifiedFocalLoss(weight = config.TRAIN.UF_LOSS_WEIGTH, delta = config.TRAIN.UF_LOSS_DELTA, gamma=config.TRAIN.UF_LOSS_GAMMA)
+
 
     # AdamW Optimizer
     optimizer = optim.AdamW(
@@ -197,7 +200,8 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
             outputs = model(image_batch)
             
             # loss
-            loss = tversky_loss(outputs, label_batch)
+            #loss = tversky_loss(outputs, label_batch)
+            loss = uf_loss(outputs, label_batch)
 
             # backprop + optimizer
             optimizer.zero_grad(set_to_none=True)

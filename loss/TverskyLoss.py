@@ -43,6 +43,8 @@ class TverskyLoss_binary(nn.Module):
         FP = ((1.0 - y_gtruth) * y_pred).sum(dim=1)
         FN = (y_gtruth * (1.0 - y_pred)).sum(dim=1)
 
+        TI = ((TP + smooth) / (TP + self.alpha * FP + self.beta * FN + smooth))
+
         tversky = 1.0 - ((TP + smooth) / (TP + self.alpha * FP + self.beta * FN + smooth))
         # mean other all pictures
         # = one value
