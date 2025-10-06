@@ -35,21 +35,21 @@ class SymmetricUnifiedFocalLoss(nn.Module):
         # Flatten per Sample
         # to dimension (B, N)
         # B = Batchsize, N = number of pixel per picture
-        logits_pred   = logits_pred.view(logits_pred.size(0), -1)
-        y_gtruth = y_gtruth.view(y_gtruth.size(0), -1)
+        logits_pred   = logits_pred.flatten(1)
+        y_gtruth = y_gtruth.flatten(1)
 
         # Logits -> propability
         y_pred = torch.sigmoid(logits_pred)
 
-        if real_img == False:
-            sym_focal_tversky_loss = symmetric_focal_tversky_loss(delta=self.delta, gamma=self.gamma, y_true = y_gtruth, y_pred = y_pred)
+        #if real_img == False:
+        sym_focal_tversky_loss = symmetric_focal_tversky_loss(delta=self.delta, gamma=self.gamma, y_true = y_gtruth, y_pred = y_pred)
         sym_focal_loss = symmetric_focal_loss(delta=self.delta, gamma=self.gamma, y_true = y_gtruth, pred_logits = logits_pred)
 
         if self.weight is not None:
-            if real_img == True:
-                return sym_focal_loss
-            else:
-                return (self.weight * sym_focal_loss) + ((1 - self.weight) * sym_focal_tversky_loss)  
+            #if real_img == True:
+            #    return sym_focal_loss
+            #else:
+            return (self.weight * sym_focal_loss) + ((1 - self.weight) * sym_focal_tversky_loss)  
         else:
             raise ValueError("weight is none")
         

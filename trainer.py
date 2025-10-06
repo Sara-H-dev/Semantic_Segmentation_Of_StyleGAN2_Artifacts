@@ -20,7 +20,7 @@ from timm.scheduler.cosine_lr import CosineLRScheduler
 
 from tqdm import tqdm
 from loss.TverskyLoss import TverskyLoss_binary
-from loss.SymmetricUnifiedFocalLoss import SymmetricUnifiedFocalLoss
+from loss.SymmetricUnifiedFocalLoss_2 import SymmetricUnifiedFocalLoss
 from scripts.map_generator import overlay, save_color_heatmap
 from scripts.inference import inference
 
@@ -298,7 +298,11 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
     writer.close()
 
     csv_reader = pd.read_csv(lr_range_test_file)
-    plt.plot(np.log10(csv_reader["lr"]), csv_reader["loss"])
+    csv_reader["smoothed_loss"] = csv_reader["loss"].ewm(span=20, adjust=False).mean()
+    csv_reader["log_lr"] = np.log10(csv_reader["lr"])
+    plt.figure(figsize=(8, 6))
+    plt.plot(csv_reader["log_lr"], csv_reader["smoothed_loss"], label="Smoothed Loss", linewidth=2)
+    plt.plot(csv_reader["log_lr"], csv_reader["loss"], color='lightblue', alpha=0.3, label="Raw Loss")
     plt.xlabel("log10(Learning Rate)")
     plt.ylabel("Loss")
     plt.title("Learning Rate Range Test")
