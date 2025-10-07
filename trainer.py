@@ -8,6 +8,7 @@ import numpy as np
 import csv
 import pandas as pd
 import matplotlib.pyplot as plt
+import math
 
 import torch
 import torch.nn as nn
@@ -38,6 +39,7 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
 
     warmup_epochs = config.TRAIN.WARMUP_EPOCHS
     max_epoch = config.TRAIN.MAX_EPOCHS
+    accumulation_steps = config.TRAIN.ACCUMULATION_STEPS
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -87,14 +89,14 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
     if n_gpu > 1:
         model = nn.DataParallel(model)
 
-    """calculate linear learning rate increase:"""
+    """calculate log learning rate increase:"""
     min_lr = 1e-7
-    max_lr = 0.3
+    max_lr = 0.9
     num_batches = len(trainloader)
-    mult = (max_lr / min_lr) ** (1 / (num_batches * max_epoch))
-    print(f"multiplyer: {mult}", file=sys.stderr)
+    steps_per_epoch = (num_batches + accumulation_steps - 1) // accumulation_steps
+    num_updates_total = steps_per_epoch * max_epoch
+    mult = (max_lr / min_lr) ** (1 / max(1, num_updates_total - 1))
 
-    """calculate linear learning rate increase:"""
 
     def core(m):  
         return m.module if isinstance(m, nn.DataParallel) else m 
@@ -147,8 +149,6 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
     stage2_unfreeze = max_epoch * config.MODEL.STAGE2_UNFREEZE_PERIODE
     stage1_unfreeze = max_epoch * config.MODEL.STAGE1_UNFREEZE_PERIODE
     stage0_unfreeze = max_epoch * config.MODEL.STAGE0_UNFREEZE_PERIODE
-    # creates progress bar
-    
 
     bool_s3_unfreezed = False
     bool_s2_unfreezed = False
@@ -165,6 +165,7 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
     csv_file = open(lr_range_test_file, "w", newline="")
     csv_writer = csv.writer(csv_file)
     csv_writer.writerow(["step", "lr", "loss"])
+    opt_step = 0
 
     for epoch_num in tqdm(range(max_epoch)):
         model.train()
@@ -186,37 +187,47 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
                     core(model).unfreeze_encoder(0)
                     bool_s0_unfreezed = True
         # -------------------------------------------
+        optimizer.zero_grad(set_to_none=True)
     
         for i_batch, sampled_batch in tqdm(enumerate(trainloader), total=len(trainloader)):
             step = epoch_num*num_batches + i_batch
-            # learning rate range test
-            for param_group in optimizer.param_groups:
-                param_group['lr'] = new_lr
-
+            
             is_last_epoch = (epoch_num >= max_epoch - 1)
             is_last_batch = (i_batch == len(trainloader) - 1)
 
-            image_batch, label_batch = sampled_batch['image'].to(device), sampled_batch['label'].to(device)
+            image_batch = sampled_batch['image'].to(device)
+            label_batch = sampled_batch['label'].to(device)
             case_names  = sampled_batch['case_name']
+
             outputs = model(image_batch)
             
             # loss
             #loss = tversky_loss(outputs, label_batch)
-            loss = dynamic_loss(outputs, label_batch)
             #loss = uf_loss(outputs, label_batch)
+            loss = dynamic_loss(outputs, label_batch)
+            acc_loss = loss / accumulation_steps
+            acc_loss.backward()
 
-            # backprop + optimizer
-            optimizer.zero_grad(set_to_none=True)
-            loss.backward()
-            optimizer.step()
+            if (i_batch + 1) % accumulation_steps == 0:
+                # learning rate range test
+                for param_group in optimizer.param_groups:
+                    param_group['lr'] = new_lr
 
-            lr = optimizer.param_groups[0]['lr']
-            csv_writer.writerow([step, lr, loss.item()])
+                optimizer.step()
+                opt_step += 1
+                optimizer.zero_grad(set_to_none=True)
+
+                lr = optimizer.param_groups[0]['lr']
+                csv_writer.writerow([step, lr, loss.item()])
+                writer.add_scalar('info/total_loss', loss.item(), iter_num)
+                
+                # add value to learning rate
+                new_lr *= mult
 
             iter_num = iter_num + 1
-            writer.add_scalar('info/total_loss', loss.item(), iter_num)
             logging.info('iteration %d : loss : %f' % (iter_num, loss.item()))
 
+            """
             # In the last epoch, bit masks and heat masks are created for the last batch.
             if is_last_epoch and is_last_batch:
                 logging.info("Last epoch, last batch")
@@ -224,11 +235,21 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
                 with torch.no_grad():
                     create_bin_heat_mask(outputs, case_names, pred_dir, image_batch)
                 model.train()
+            """
 
+        last_incomplete = (len(trainloader) % accumulation_steps) != 0
+        if last_incomplete:
+            for pg in optimizer.param_groups:
+                pg['lr'] = new_lr
+            optimizer.step()
+            opt_step += 1
+            optimizer.zero_grad(set_to_none=True)  
+            lr = optimizer.param_groups[0]['lr']
+            csv_writer.writerow([step, lr, loss.item()])
+            writer.add_scalar('info/total_loss', loss.item(), iter_num)
+            
             # add value to learning rate
             new_lr *= mult
-
-            
 
         # -------- VALIDATION (aftre every Epoch-Train) --------
         model.eval()
@@ -300,6 +321,8 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
         """
     csv_file.close()
     writer.close()
+
+    print(f"optimizer steps: {opt_step}", file=sys.stderr)
 
     csv_reader = pd.read_csv(lr_range_test_file)
     csv_reader["smoothed_loss"] = csv_reader["loss"].ewm(span=20, adjust=False).mean()

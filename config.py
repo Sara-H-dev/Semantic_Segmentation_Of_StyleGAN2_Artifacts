@@ -77,15 +77,15 @@ _C.MODEL.SWIN.FINAL_UPSAMPLE= "expand_first"
 # -----------------------------------------------------------------------------
 
 _C.TRAIN = CN()
-_C.TRAIN.START_EPOCH = 0
 _C.TRAIN.MAX_EPOCHS = 300
+_C.TRAIN.START_EPOCH = 0
 _C.TRAIN.WARMUP_EPOCHS = 20
 _C.TRAIN.WEIGHT_DECAY = 0.05
 _C.TRAIN.BASE_LR = 5e-4
 _C.TRAIN.WARMUP_LR = 5e-7
 _C.TRAIN.MIN_LR = 5e-6
 
-_C.TRAIN.ACCUMULATION_STEPS = 0 # Gradient accumulation steps # could be overwritten by command line argument
+_C.TRAIN.ACCUMULATION_STEPS = 8 # Gradient accumulation steps # could be overwritten by command line argument
 _C.TRAIN.USE_CHECKPOINT = False # Whether to use gradient checkpointing to save memory
 
 # Tversky Loss
@@ -145,6 +145,8 @@ def _update_config_from_file(config, cfg_file):
                 )
         print('=> merge config from {}'.format(cfg_file), file=sys.stderr)
         config.merge_from_file(cfg_file)
+    else:
+        raise ValueError("config file not found")
     config.freeze()
 
 
@@ -185,5 +187,7 @@ def get_config(args,bool_train, bool_test):
     # This is for the "local variable" use pattern
     config = _C.clone()
     if args != None:
-        update_config(config, bool_train, bool_test, args)
+        update_config(config, bool_test, bool_train, args)
+    else:
+        raise ValueError("no argumens given")
     return config
