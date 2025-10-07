@@ -249,15 +249,16 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
         if mean_soft_dice > best_val_dice:
             best_val_dice = mean_soft_dice
             since_best = 0
-            best_path = os.path.join(log_save_path, 'best_model.pth')
-            torch.save({
-                'epoch': epoch_num,
-                'model': core(model).state_dict(),
-                'optimizer': optimizer.state_dict(),
-                'iter_num': iter_num,
-                'best_val_dice': best_val_dice
-            }, best_path)
-            logging.info(f"Saved new BEST checkpoint to {best_path} (val_dice={best_val_dice:.5f})")
+            if config.SAVE_BEST_RUN:
+                best_path = os.path.join(log_save_path, 'best_model.pth')
+                torch.save({
+                    'epoch': epoch_num,
+                    'model': core(model).state_dict(),
+                    'optimizer': optimizer.state_dict(),
+                    'iter_num': iter_num,
+                    'best_val_dice': best_val_dice
+                }, best_path)
+                logging.info(f"Saved new BEST checkpoint to {best_path} (val_dice={best_val_dice:.5f})")
         else:
             since_best += 1
             if since_best >= config.TRAIN.EARLY_STOPPING_PATIENCE:
@@ -268,27 +269,28 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
         # saves all 50 epochs
         save_interval = 50 
 
-        if epoch_num > int(max_epoch / 2) and (epoch_num + 1) % save_interval == 0:
-            save_mode_path = os.path.join(log_save_path, 'epoch_' + str(epoch_num) + '.pth')
-            torch.save({    'epoch': epoch_num,
-                            'model': core(model).state_dict(),
-                            'optimizer': optimizer.state_dict(),
-                            'iter_num': iter_num,
-                            'soft_dice': mean_soft_dice}
-                            , save_mode_path,)
-            logging.info("save model to {}".format(save_mode_path))
+        if config.SAVE_BEST_RUN:
+            if epoch_num > int(max_epoch / 2) and (epoch_num + 1) % save_interval == 0:
+                save_mode_path = os.path.join(log_save_path, 'epoch_' + str(epoch_num) + '.pth')
+                torch.save({    'epoch': epoch_num,
+                                'model': core(model).state_dict(),
+                                'optimizer': optimizer.state_dict(),
+                                'iter_num': iter_num,
+                                'soft_dice': mean_soft_dice}
+                                , save_mode_path,)
+                logging.info("save model to {}".format(save_mode_path))
 
-        # saves the last run
-        if epoch_num >= max_epoch - 1:
-            save_mode_path = os.path.join(log_save_path, 'epoch_' + str(epoch_num) + '.pth')
-            torch.save({    'epoch': epoch_num,
-                            'model':  core(model).state_dict(),
-                            'optimizer': optimizer.state_dict(),
-                            'iter_num': iter_num,
-                            'soft_dice': mean_soft_dice}, 
-                            save_mode_path)
-            logging.info("save model to {}".format(save_mode_path))
-            break
+            # saves the last run
+            if epoch_num >= max_epoch - 1:
+                save_mode_path = os.path.join(log_save_path, 'epoch_' + str(epoch_num) + '.pth')
+                torch.save({    'epoch': epoch_num,
+                                'model':  core(model).state_dict(),
+                                'optimizer': optimizer.state_dict(),
+                                'iter_num': iter_num,
+                                'soft_dice': mean_soft_dice}, 
+                                save_mode_path)
+                logging.info("save model to {}".format(save_mode_path))
+                break
 
         # update learning rate /
 

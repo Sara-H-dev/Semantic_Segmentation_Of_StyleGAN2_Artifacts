@@ -128,6 +128,7 @@ _C.OUTPUT_DIR = './model_out'
 _C.LIST_DIR ='./lists'
 _C.SEED = 1234 # Fixed random seed
 _C.DETERMINISTIC = True
+_C.SAVE_BEST_RUN = False
 #_C.LOCAL_RANK = 0 #only if more than one gpu
 # -----------------------------------------------------------------------------
 

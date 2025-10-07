@@ -79,3 +79,4 @@ OUTPUT_DIR : './model_out'
 LIST_DIR : './lists'
 SEED: 1234
 DETERMINISTIC : true
+SAVE_BEST_RUN : false
