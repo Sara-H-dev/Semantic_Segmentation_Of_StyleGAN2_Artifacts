@@ -11,6 +11,7 @@ from network.MSUNet import MSUNet
 from trainer import trainer
 from config import get_config
 from datetime import datetime
+import shutil
 
 def main():
     parser = argparse.ArgumentParser()
@@ -36,6 +37,11 @@ def main():
     base_lr = config.TRAIN.BASE_LR
     img_size = config.DATA.IMG_SIZE
     num_classes = config.MODEL.NUM_CLASSES
+    
+    os.makedirs(output_dir, exist_ok=True)
+    # copy the yaml to model_out
+    config_path = args.cfg
+    shutil.copy(config_path, os.path.join(output_dir, "config_used.yaml"))
 
     # checks if the training should be deterministic or not
     if not config.DETERMINISTIC:

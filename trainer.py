@@ -21,6 +21,7 @@ from timm.scheduler.cosine_lr import CosineLRScheduler
 from tqdm import tqdm
 from loss.TverskyLoss import TverskyLoss_binary
 from loss.SymmetricUnifiedFocalLoss_2 import SymmetricUnifiedFocalLoss
+from loss.DynamicLoss import DynamicLoss
 from scripts.map_generator import overlay, save_color_heatmap
 from scripts.inference import inference
 
@@ -106,7 +107,7 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
 
     # tversky_loss = TverskyLoss_binary(config.TRAIN.TVERSKY_LOSS_ALPHA, config.TRAIN.TVERSKY_LOSS_BETA)
     uf_loss = SymmetricUnifiedFocalLoss(weight = config.TRAIN.UF_LOSS_WEIGTH, delta = config.TRAIN.UF_LOSS_DELTA, gamma=config.TRAIN.UF_LOSS_GAMMA)
-
+    dynamic_loss = DynamicLoss(alpha=config.TRAIN.TVERSKY_LOSS_ALPHA, beta=config.TRAIN.TVERSKY_LOSS_BETA)
 
     # AdamW Optimizer
     optimizer = optim.AdamW(
@@ -201,7 +202,8 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
             
             # loss
             #loss = tversky_loss(outputs, label_batch)
-            loss = uf_loss(outputs, label_batch)
+            loss = dynamic_loss(outputs, label_batch)
+            #loss = uf_loss(outputs, label_batch)
 
             # backprop + optimizer
             optimizer.zero_grad(set_to_none=True)
@@ -305,6 +307,7 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
     plt.plot(csv_reader["log_lr"], csv_reader["loss"], color='lightblue', alpha=0.3, label="Raw Loss")
     plt.xlabel("log10(Learning Rate)")
     plt.ylabel("Loss")
+    plt.ylim(0, 2) 
     plt.title("Learning Rate Range Test")
     plt.grid(True)
     plt.savefig(os.path.join(log_save_path, "lr_range_test.png"), dpi=300) 
