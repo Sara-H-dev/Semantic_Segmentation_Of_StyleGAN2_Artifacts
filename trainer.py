@@ -99,13 +99,13 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
         return m.module if isinstance(m, nn.DataParallel) else m 
     
     # freez encoder if wanted
-    #core(model).freeze_encoder(freeze_encoder)
+    core(model).freeze_encoder(freeze_encoder)
     
     # training modus
     model.train()
 
     # tversky_loss = TverskyLoss_binary(config.TRAIN.TVERSKY_LOSS_ALPHA, config.TRAIN.TVERSKY_LOSS_BETA)
-    uf_loss = SymmetricUnifiedFocalLoss(weight = config.TRAIN.UF_LOSS_WEIGTH, delta = config.TRAIN.UF_LOSS_DELTA, gamma=config.TRAIN.UF_LOSS_GAMMA)
+    # uf_loss = SymmetricUnifiedFocalLoss(weight = config.TRAIN.UF_LOSS_WEIGTH, delta = config.TRAIN.UF_LOSS_DELTA, gamma=config.TRAIN.UF_LOSS_GAMMA)
     dynamic_loss = DynamicLoss(alpha=config.TRAIN.TVERSKY_LOSS_ALPHA, beta=config.TRAIN.TVERSKY_LOSS_BETA)
 
     # AdamW Optimizer
@@ -185,6 +185,8 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
                 shuffle = False, 
                 num_workers = 1,
                 pin_memory = torch.cuda.is_available())
+    
+    some_thing_happend = False # Flag that ensures that when a layer is opened, the optimizer is adjusted accordingly.
 
     for epoch_num in tqdm(range(max_epoch)):
         model.train()
@@ -192,29 +194,38 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
         # -------- UNFREEZING THE ENCODER --------
         if freeze_encoder:
             # unfreeze form the deepest encoder level to the highests
-            if epoch_num > 9:
-                if (epoch_num >= stage3_unfreeze) and (bool_s3_unfreezed == False):
-                    core(model).unfreeze_encoder(3)
-                    bool_s3_unfreezed = True
-                if (epoch_num >= stage2_unfreeze) and (bool_s2_unfreezed == False):
-                    core(model).unfreeze_encoder(2)
-                    bool_s2_unfreezed = True
-                if (epoch_num >= stage1_unfreeze) and (bool_s1_unfreezed == False):
-                    core(model).unfreeze_encoder(1)
-                    bool_s1_unfreezed = True
-                if (epoch_num >= stage0_unfreeze) and (bool_s0_unfreezed == False):
-                    core(model).unfreeze_encoder(0)
-                    bool_s0_unfreezed = True
+            if (epoch_num >= stage3_unfreeze) and (bool_s3_unfreezed == False):
+                core(model).unfreeze_encoder(3)
+                bool_s3_unfreezed = True
+                some_thing_happend = True
+            if (epoch_num >= stage2_unfreeze) and (bool_s2_unfreezed == False):
+                core(model).unfreeze_encoder(2)
+                bool_s2_unfreezed = True
+                some_thing_happend = True
+            if (epoch_num >= stage1_unfreeze) and (bool_s1_unfreezed == False):
+                core(model).unfreeze_encoder(1)
+                bool_s1_unfreezed = True
+                some_thing_happend = True
+            if (epoch_num >= stage0_unfreeze) and (bool_s0_unfreezed == False):
+                core(model).unfreeze_encoder(0)
+                bool_s0_unfreezed = True
+                some_thing_happend = True
 
-            new_params = [
-                p for p in model.parameters()
-                if p.requires_grad and not any(p in g['params'] for g in optimizer.param_groups)
-                ]
-            if new_params:
-                print(f"Adding {len(new_params)} new parameters to optimizer", file=sys.stderr)
-                optimizer.add_param_group({'params': new_params})
+            if some_thing_happend == True:
+                some_thing_happend = False
+                new_params = [
+                    p for p in model.parameters()
+                    if p.requires_grad and not any(p in g['params'] for g in optimizer.param_groups)
+                    ]
+                if new_params:
+                    print(f"Adding {len(new_params)} new parameters to optimizer", file=sys.stderr)
+                    optimizer.add_param_group({'params': new_params})
+                else:
+                    raise ValueError(f"No new parameter added to optimizer, that's baaad")
+        
         # -------------------------------------------
         optimizer.zero_grad(set_to_none=True)
+        opt_step = 0
     
         for i_batch, sampled_batch in tqdm(enumerate(trainloader), total=len(trainloader)):
             step = epoch_num*num_batches + i_batch
@@ -245,6 +256,7 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
                 val_loss = validation_loss(
                     model = model,
                     device = device,
+                    val_loader=valloader,
                     dynamic_loss = dynamic_loss,
                     bool_break = True, # true if you don't want to go through all validation batches, but want to cancel beforehand
                     n_batches = 20, # Only important if bool_break is true. Number of batches to be validated
@@ -346,18 +358,21 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
     print(f"optimizer steps: {opt_step}", file=sys.stderr)
 
     csv_reader = pd.read_csv(lr_range_test_file)
-    csv_reader["smoothed_loss"] = csv_reader["loss"].ewm(span=20, adjust=False).mean()
+    csv_reader["smoothed_train_loss"] = csv_reader["train_loss"].ewm(span=20, adjust=False).mean()
+    csv_reader["smoothed_val_loss"] = csv_reader["val_loss"].ewm(span=20, adjust=False).mean()
     plt.figure(figsize=(8, 6))
-    plt.plot(csv_reader["lr"], csv_reader["smoothed_loss"], label="Smoothed Loss", linewidth=2)
-    plt.plot(csv_reader["lr"], csv_reader["loss"], color='lightblue', alpha=0.3, label="Raw Loss")
+    plt.plot(csv_reader["lr"], csv_reader["smoothed_train_loss"], label="Smoothed Train Loss", linewidth=2)
+    plt.plot(csv_reader["lr"], csv_reader["train_loss"], color='lightblue', alpha=0.3, label="Raw Train Loss")
+    plt.plot(csv_reader["lr"], csv_reader["smoothed_val_loss"], color='red', label="Smoothed Validation Loss", linewidth=2)
+    plt.plot(csv_reader["lr"], csv_reader["val_loss"], color='lightred', alpha=0.3, label="Raw Validation Loss")
     plt.xscale('log')
     plt.xlabel("Learning Rate")
     plt.ylabel("Loss")
     plt.ylim(0, 2) 
     plt.legend(loc="best")
-    plt.title("Learning Rate Range Test")
+    plt.title("Learning Rate Range Test For Weight Decay Search")
     plt.grid(True)
-    plt.savefig(os.path.join(log_save_path, "lr_range_test.png"), dpi=300) 
+    plt.savefig(os.path.join(log_save_path, "weight_decay_test.png"), dpi=300) 
     plt.show()
 
     return "Training Finished!"
