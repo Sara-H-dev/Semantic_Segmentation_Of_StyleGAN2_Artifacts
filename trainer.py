@@ -90,19 +90,21 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
         model = nn.DataParallel(model)
 
     """calculate log learning rate increase:"""
-    min_lr = 1e-7
+    min_lr = 1e-8
     max_lr = 0.9
     num_batches = len(trainloader)
-    steps_per_epoch = (num_batches + accumulation_steps - 1) // accumulation_steps
-    num_updates_total = steps_per_epoch * max_epoch
-    mult = (max_lr / min_lr) ** (1 / max(1, num_updates_total - 1))
+    mult = (max_lr / min_lr) ** (1 / (num_batches * max_epoch))
 
 
     def core(m):  
         return m.module if isinstance(m, nn.DataParallel) else m 
     
     # freez encoder if wanted
-    core(model).freeze_encoder(freeze_encoder)
+    #core(model).freeze_encoder(freeze_encoder)
+
+    #test code
+    #core(model).unfreeze_encoder(3)
+    #core(model).unfreeze_encoder(2)
     
     # training modus
     model.train()
@@ -167,6 +169,8 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
     csv_writer.writerow(["step", "lr", "loss"])
     opt_step = 0
 
+    scaler = torch.cuda.amp.GradScaler()
+
     for epoch_num in tqdm(range(max_epoch)):
         model.train()
     
@@ -186,11 +190,22 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
                 if (epoch_num >= stage0_unfreeze) and (bool_s0_unfreezed == False):
                     core(model).unfreeze_encoder(0)
                     bool_s0_unfreezed = True
+
+            new_params = [
+                p for p in model.parameters()
+                if p.requires_grad and not any(p in g['params'] for g in optimizer.param_groups)
+                ]
+            if new_params:
+                print(f"Adding {len(new_params)} new parameters to optimizer", file=sys.stderr)
+                optimizer.add_param_group({'params': new_params})
         # -------------------------------------------
         optimizer.zero_grad(set_to_none=True)
     
         for i_batch, sampled_batch in tqdm(enumerate(trainloader), total=len(trainloader)):
             step = epoch_num*num_batches + i_batch
+            # learning rate range test
+            for param_group in optimizer.param_groups:
+                param_group['lr'] = new_lr
             
             is_last_epoch = (epoch_num >= max_epoch - 1)
             is_last_batch = (i_batch == len(trainloader) - 1)
@@ -198,33 +213,23 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
             image_batch = sampled_batch['image'].to(device)
             label_batch = sampled_batch['label'].to(device)
             case_names  = sampled_batch['case_name']
-
-            outputs = model(image_batch)
+            with torch.amp.autocast('cuda', dtype=torch.float16):
+                outputs = model(image_batch)
             
-            # loss
-            #loss = tversky_loss(outputs, label_batch)
-            #loss = uf_loss(outputs, label_batch)
-            loss = dynamic_loss(outputs, label_batch)
-            acc_loss = loss / accumulation_steps
-            acc_loss.backward()
-
-            if (i_batch + 1) % accumulation_steps == 0:
-                # learning rate range test
-                for param_group in optimizer.param_groups:
-                    param_group['lr'] = new_lr
-
-                optimizer.step()
-                opt_step += 1
+                # loss
+                #loss = tversky_loss(outputs, label_batch)
+                #loss = uf_loss(outputs, label_batch)
+                loss = dynamic_loss(outputs, label_batch)
+            
                 optimizer.zero_grad(set_to_none=True)
-
-                lr = optimizer.param_groups[0]['lr']
-                csv_writer.writerow([step, lr, loss.item()])
-                writer.add_scalar('info/total_loss', loss.item(), iter_num)
-                
-                # add value to learning rate
-                new_lr *= mult
+                scaler.scale(loss).backward()
+                scaler.step(optimizer)
+                scaler.update()
+            lr = optimizer.param_groups[0]['lr']
+            csv_writer.writerow([step, lr, loss.item()])
 
             iter_num = iter_num + 1
+            writer.add_scalar('info/total_loss', loss.item(), iter_num)
             logging.info('iteration %d : loss : %f' % (iter_num, loss.item()))
 
             """
@@ -236,18 +241,6 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
                     create_bin_heat_mask(outputs, case_names, pred_dir, image_batch)
                 model.train()
             """
-
-        last_incomplete = (len(trainloader) % accumulation_steps) != 0
-        if last_incomplete:
-            for pg in optimizer.param_groups:
-                pg['lr'] = new_lr
-            optimizer.step()
-            opt_step += 1
-            optimizer.zero_grad(set_to_none=True)  
-            lr = optimizer.param_groups[0]['lr']
-            csv_writer.writerow([step, lr, loss.item()])
-            writer.add_scalar('info/total_loss', loss.item(), iter_num)
-            
             # add value to learning rate
             new_lr *= mult
 
@@ -326,13 +319,14 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
 
     csv_reader = pd.read_csv(lr_range_test_file)
     csv_reader["smoothed_loss"] = csv_reader["loss"].ewm(span=20, adjust=False).mean()
-    csv_reader["log_lr"] = np.log10(csv_reader["lr"])
     plt.figure(figsize=(8, 6))
-    plt.plot(csv_reader["log_lr"], csv_reader["smoothed_loss"], label="Smoothed Loss", linewidth=2)
-    plt.plot(csv_reader["log_lr"], csv_reader["loss"], color='lightblue', alpha=0.3, label="Raw Loss")
-    plt.xlabel("log10(Learning Rate)")
+    plt.plot(csv_reader["lr"], csv_reader["smoothed_loss"], label="Smoothed Loss", linewidth=2)
+    plt.plot(csv_reader["lr"], csv_reader["loss"], color='lightblue', alpha=0.3, label="Raw Loss")
+    plt.xscale('log')
+    plt.xlabel("Learning Rate")
     plt.ylabel("Loss")
     plt.ylim(0, 2) 
+    plt.legend(loc="best")
     plt.title("Learning Rate Range Test")
     plt.grid(True)
     plt.savefig(os.path.join(log_save_path, "lr_range_test.png"), dpi=300) 

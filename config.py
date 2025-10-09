@@ -85,7 +85,7 @@ _C.TRAIN.BASE_LR = 5e-4
 _C.TRAIN.WARMUP_LR = 5e-7
 _C.TRAIN.MIN_LR = 5e-6
 
-_C.TRAIN.ACCUMULATION_STEPS = 8 # Gradient accumulation steps # could be overwritten by command line argument
+_C.TRAIN.ACCUMULATION_STEPS = 1 # Gradient accumulation steps # could be overwritten by command line argument
 _C.TRAIN.USE_CHECKPOINT = False # Whether to use gradient checkpointing to save memory
 
 # Tversky Loss

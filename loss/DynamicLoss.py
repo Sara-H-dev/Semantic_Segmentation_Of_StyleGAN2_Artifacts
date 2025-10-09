@@ -10,7 +10,15 @@ class BCEWithLogitsLoss(torch.nn.Module):
         self.bce = nn.BCEWithLogitsLoss()
 
     def forward(self, outputs, targets):
-        return self.bce(outputs, targets)
+        loss = self.bce(outputs, targets)
+        a = 0
+
+        if torch.isnan(loss):
+            if not torch.isfinite(loss):
+                a = 1
+            else:
+                raise ValueError("BCE loss is nan but not infinite")
+        return loss
     
 class TverskyLoss(torch.nn.Module):
     def __init__(self, alpha=0.7, beta=0.3):
@@ -28,7 +36,12 @@ class TverskyLoss(torch.nn.Module):
         tversky_index = (true_pos + smooth) / (
             true_pos + self.alpha * false_pos + self.beta * false_neg + smooth
         )
-        return 1 - tversky_index
+
+        loss = 1 - tversky_index
+
+        if loss > 1:
+            return ValueError(f"Tversky Loss is higher than 1, it is {loss}")
+        return loss
     
 class FocalTverskyLoss(torch.nn.Module):
     def __init__(self, alpha=0.7, beta=0.3, gamma=1.1):
@@ -75,12 +88,15 @@ class DynamicLoss(torch.nn.Module):
             output_i = output[i]
             target_i = target[i]
 
+            loss_i = self.bce_loss(output_i, target_i)
+
             #loss_i = self.tversky_loss(output_i, target_i)
+            """
             if torch.sum(target_i) == 0: # Empty ROI
                 loss_i = self.bce_loss(output_i, target_i)
             else:
                 loss_i = 0.5 * self.bce_loss(output_i, target_i) + 0.5 * self.tversky_loss(output_i, target_i) #+ self.focal_tversky_loss(output_i, target_i)
-            """
+           
             # prob_i = torch.sigmoid(output_i)
             sum_area = target_i.sum() / target_i.numel()
 
