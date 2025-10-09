@@ -11,29 +11,54 @@ from torchvision import transforms
 from dataset.dataset import SegArtifact_dataset, RandomGenerator
 from tqdm import tqdm
 
+def validation_loss(model,
+                    device,
+                    val_loader,
+                    dynamic_loss,
+                    bool_break = False, # true if you don't want to go through all validation batches, but want to cancel beforehand
+                    n_batches = 0, # Only important if bool_break is true. Number of batches to be validated
+                    dataset_path = None,
+                    list_dir = './lists',
+                    img_size = 1024,
+                    ):
+    
+    val_losses = []
+    model.eval()
+    with torch.inference_mode():
+        for i_batch, sampled_batch in tqdm(enumerate(val_loader), total=len(val_loader)):
+            if bool_break:
+                if i_batch >= n_batches:
+                    break
+            
+            image = sampled_batch["image"].to(device, non_blocking=True)
+            label = sampled_batch["label"].to(device, non_blocking=True)
+
+            # dimensions are checked
+            assert image.ndim == 4
+            assert label.ndim in (3, 4)
+
+            # forward:
+            out_logits = model(image)
+            loss = dynamic_loss(out_logits, label)
+
+            val_losses.append(loss.item())
+    
+    model.train()
+    return sum(val_losses) / len(val_losses)
+
+
 def inference(model, 
               logging,
+              testloader,
               test_save_path=None, 
               device = None, 
-              dataset_path = None, 
               split = "test", 
-              list_dir = './lists',
               img_size = 1024,
               sig_threshold = 0.5,
+              # bool_break = False, # true if you don't want to go through all validation batches, but want to cancel beforehand
+              # n_batches = 0, # Only important if bool_break is true. Number of batches to be validated
+              # bool_csv = False
               ):
-
-    db_test = SegArtifact_dataset(
-            base_dir = dataset_path, 
-            split = split, 
-            list_dir = list_dir,
-            transform = transforms.Compose([RandomGenerator(output_size=[img_size, img_size], random_flip_flag = False)]))
-    
-    testloader = DataLoader(
-            db_test, 
-            batch_size = 1, 
-            shuffle = False, 
-            num_workers = 1,
-            pin_memory = torch.cuda.is_available())
     
     logging.info("{} test iterations per epoch".format(len(testloader)))
     model.eval()
@@ -42,6 +67,10 @@ def inference(model,
     metrics_sum = np.zeros(7, dtype=np.float64)  # [dice, IoU, recall, precision, f1, soft_dice, soft_IoU]
     with torch.inference_mode():
         for i_batch, sampled_batch in tqdm(enumerate(testloader), total=len(testloader)):
+            #if bool_break:
+            #    if i_batch > n_batches:
+            #        break
+
             image = sampled_batch["image"].to(device, non_blocking=True)
             label = sampled_batch["label"].to(device, non_blocking=True)
             case_name =  sampled_batch['case_name'][0]

@@ -24,7 +24,7 @@ from loss.TverskyLoss import TverskyLoss_binary
 from loss.SymmetricUnifiedFocalLoss_2 import SymmetricUnifiedFocalLoss
 from loss.DynamicLoss import DynamicLoss
 from scripts.map_generator import overlay, save_color_heatmap
-from scripts.inference import inference
+from scripts.inference import inference, validation_loss
 
 def make_worker_init_fn(base_seed: int):
     def _init(worker_id: int):
@@ -90,21 +90,16 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
         model = nn.DataParallel(model)
 
     """calculate log learning rate increase:"""
-    min_lr = 1e-8
-    max_lr = 0.9
+    min_lr = 1e-6
+    max_lr = 1e-5
     num_batches = len(trainloader)
     mult = (max_lr / min_lr) ** (1 / (num_batches * max_epoch))
-
 
     def core(m):  
         return m.module if isinstance(m, nn.DataParallel) else m 
     
     # freez encoder if wanted
     #core(model).freeze_encoder(freeze_encoder)
-
-    #test code
-    #core(model).unfreeze_encoder(3)
-    #core(model).unfreeze_encoder(2)
     
     # training modus
     model.train()
@@ -166,10 +161,30 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
     lr_range_test_file = os.path.join(log_save_path, "lr_range_test.csv")
     csv_file = open(lr_range_test_file, "w", newline="")
     csv_writer = csv.writer(csv_file)
-    csv_writer.writerow(["step", "lr", "loss"])
-    opt_step = 0
+    csv_writer.writerow(["step", "lr", "train_loss", "val_loss"])
 
     scaler = torch.cuda.amp.GradScaler()
+
+    # Dataloader for Validation set
+    db_test = SegArtifact_dataset(
+        base_dir = config.DATA.DATA_PATH, 
+        split = "val", 
+        list_dir = config.LIST_DIR,
+        transform = transforms.Compose([RandomGenerator(output_size=[img_size, img_size], random_flip_flag = False)]),)
+    
+    val_loss_loader = DataLoader(
+                db_test, 
+                batch_size = 1, 
+                shuffle = True, 
+                num_workers = 1,
+                pin_memory = torch.cuda.is_available())
+    
+    valloader = DataLoader(
+                db_test, 
+                batch_size = 1, 
+                shuffle = False, 
+                num_workers = 1,
+                pin_memory = torch.cuda.is_available())
 
     for epoch_num in tqdm(range(max_epoch)):
         model.train()
@@ -225,8 +240,22 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
                 scaler.scale(loss).backward()
                 scaler.step(optimizer)
                 scaler.update()
+                
+            if opt_step % 10 == 0:                
+                val_loss = validation_loss(
+                    model = model,
+                    device = device,
+                    dynamic_loss = dynamic_loss,
+                    bool_break = True, # true if you don't want to go through all validation batches, but want to cancel beforehand
+                    n_batches = 20, # Only important if bool_break is true. Number of batches to be validated
+                    dataset_path = config.DATA.DATA_PATH,
+                    list_dir = config.LIST_DIR,
+                    img_size = img_size
+                    )
+                
+            opt_step += 1
             lr = optimizer.param_groups[0]['lr']
-            csv_writer.writerow([step, lr, loss.item()])
+            csv_writer.writerow([step, lr, loss.item(), val_loss])
 
             iter_num = iter_num + 1
             writer.add_scalar('info/total_loss', loss.item(), iter_num)
@@ -247,13 +276,12 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
         # -------- VALIDATION (aftre every Epoch-Train) --------
         model.eval()
         mean_metrics= inference(
-            model =model,
-            logging= logging,
+            model = model,
+            logging = logging,
+            testloader = valloader,
             test_save_path = log_save_path,
             device= device,
-            dataset_path = config.DATA.DATA_PATH, 
             split = "val", 
-            list_dir = config.LIST_DIR,
             img_size = img_size,
             sig_threshold = config.TRAIN.SIG_THRESHOLD)
 
