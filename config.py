@@ -167,6 +167,8 @@ def update_config(config, bool_test, bool_train, args):
         config.TRAIN.USE_CHECKPOINT = True
     if args.deterministic:
         config.DETERMINISTIC = True
+    if args.weight_decay:
+        config.TRAIN.WEIGHT_DECAY = args.weight_decay
 
     if bool_train:
         if args.sig_threshold:

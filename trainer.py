@@ -213,10 +213,9 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
 
             if some_thing_happend == True:
                 some_thing_happend = False
-                new_params = [
-                    p for p in model.parameters()
-                    if p.requires_grad and not any(p in g['params'] for g in optimizer.param_groups)
-                    ]
+                existing_ids = {id(q) for g in optimizer.param_groups for q in g['params']}
+                new_params = [p for p in model.parameters()
+                            if p.requires_grad and id(p) not in existing_ids]
                 if new_params:
                     print(f"Adding {len(new_params)} new parameters to optimizer", file=sys.stderr)
                     optimizer.add_param_group({'params': new_params})
@@ -256,7 +255,7 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
                 val_loss = validation_loss(
                     model = model,
                     device = device,
-                    val_loader=valloader,
+                    val_loader=val_loss_loader,
                     dynamic_loss = dynamic_loss,
                     bool_break = True, # true if you don't want to go through all validation batches, but want to cancel beforehand
                     n_batches = 20, # Only important if bool_break is true. Number of batches to be validated
@@ -271,7 +270,7 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
 
             iter_num = iter_num + 1
             writer.add_scalar('info/total_loss', loss.item(), iter_num)
-            logging.info('iteration %d : loss : %f' % (iter_num, loss.item()))
+            #logging.info('iteration %d : loss : %f' % (iter_num, loss.item()))
 
             """
             # In the last epoch, bit masks and heat masks are created for the last batch.
@@ -286,6 +285,7 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
             new_lr *= mult
 
         # -------- VALIDATION (aftre every Epoch-Train) --------
+        """
         model.eval()
         mean_metrics= inference(
             model = model,
@@ -318,12 +318,14 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
             if since_best >= config.TRAIN.EARLY_STOPPING_PATIENCE:
                 logging.info(f"Early stopping at epoch {epoch_num} (no val improvement for {config.TRAIN.EARLY_STOPPING_PATIENCE} epochs).")
                 break
+        """
         # --------------------------------------------------------
         
         # saves all 50 epochs
         save_interval = 50 
 
         if config.SAVE_BEST_RUN:
+            """
             if epoch_num > int(max_epoch / 2) and (epoch_num + 1) % save_interval == 0:
                 save_mode_path = os.path.join(log_save_path, 'epoch_' + str(epoch_num) + '.pth')
                 torch.save({    'epoch': epoch_num,
@@ -333,6 +335,7 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
                                 'soft_dice': mean_soft_dice}
                                 , save_mode_path,)
                 logging.info("save model to {}".format(save_mode_path))
+            """
 
             # saves the last run
             if epoch_num >= max_epoch - 1:
@@ -364,7 +367,7 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
     plt.plot(csv_reader["lr"], csv_reader["smoothed_train_loss"], label="Smoothed Train Loss", linewidth=2)
     plt.plot(csv_reader["lr"], csv_reader["train_loss"], color='lightblue', alpha=0.3, label="Raw Train Loss")
     plt.plot(csv_reader["lr"], csv_reader["smoothed_val_loss"], color='red', label="Smoothed Validation Loss", linewidth=2)
-    plt.plot(csv_reader["lr"], csv_reader["val_loss"], color='lightred', alpha=0.3, label="Raw Validation Loss")
+    plt.plot(csv_reader["lr"], csv_reader["val_loss"], color='salmon', alpha=0.3, label="Raw Validation Loss")
     plt.xscale('log')
     plt.xlabel("Learning Rate")
     plt.ylabel("Loss")

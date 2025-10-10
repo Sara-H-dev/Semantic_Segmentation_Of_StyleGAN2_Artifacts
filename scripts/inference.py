@@ -25,7 +25,7 @@ def validation_loss(model,
     val_losses = []
     model.eval()
     with torch.inference_mode():
-        for i_batch, sampled_batch in tqdm(enumerate(val_loader), total=len(val_loader)):
+        for i_batch, sampled_batch in enumerate(val_loader):
             if bool_break:
                 if i_batch >= n_batches:
                     break
