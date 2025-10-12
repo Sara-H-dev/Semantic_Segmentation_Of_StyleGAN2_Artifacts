@@ -39,7 +39,6 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
 
     warmup_epochs = config.TRAIN.WARMUP_EPOCHS
     max_epoch = config.TRAIN.MAX_EPOCHS
-    accumulation_steps = config.TRAIN.ACCUMULATION_STEPS
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -91,7 +90,7 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
 
     """calculate log learning rate increase:"""
     min_lr = 1e-6
-    max_lr = 1e-5
+    max_lr = 1e-2 #1e-5
     num_batches = len(trainloader)
     mult = (max_lr / min_lr) ** (1 / (num_batches * max_epoch))
 
@@ -190,6 +189,8 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
 
     for epoch_num in tqdm(range(max_epoch)):
         model.train()
+        for gi, g in enumerate(optimizer.param_groups):
+            print(f"PG{gi}: lr={g['lr']:.2e} wd={g.get('weight_decay', None)}", file=sys.stderr)
     
         # -------- UNFREEZING THE ENCODER --------
         if freeze_encoder:
@@ -198,15 +199,15 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
                 core(model).unfreeze_encoder(3)
                 bool_s3_unfreezed = True
                 some_thing_happend = True
-            if (epoch_num >= stage2_unfreeze) and (bool_s2_unfreezed == False):
+            elif (epoch_num >= stage2_unfreeze) and (bool_s2_unfreezed == False):
                 core(model).unfreeze_encoder(2)
                 bool_s2_unfreezed = True
                 some_thing_happend = True
-            if (epoch_num >= stage1_unfreeze) and (bool_s1_unfreezed == False):
+            elif (epoch_num >= stage1_unfreeze) and (bool_s1_unfreezed == False):
                 core(model).unfreeze_encoder(1)
                 bool_s1_unfreezed = True
                 some_thing_happend = True
-            if (epoch_num >= stage0_unfreeze) and (bool_s0_unfreezed == False):
+            elif (epoch_num >= stage0_unfreeze) and (bool_s0_unfreezed == False):
                 core(model).unfreeze_encoder(0)
                 bool_s0_unfreezed = True
                 some_thing_happend = True
@@ -218,7 +219,17 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
                             if p.requires_grad and id(p) not in existing_ids]
                 if new_params:
                     print(f"Adding {len(new_params)} new parameters to optimizer", file=sys.stderr)
-                    optimizer.add_param_group({'params': new_params})
+                    base = optimizer.defaults  # enthält u.a. weight_decay, betas, eps
+                    wd   = base.get('weight_decay', config.TRAIN.WEIGHT_DECAY)
+                    betas= base.get('betas',      config.TRAIN.OPTIMIZER.BETAS)
+                    eps  = base.get('eps',        config.TRAIN.OPTIMIZER.EPS)
+                    optimizer.add_param_group({
+                        'params': new_params,
+                        'weight_decay': wd,
+                        'betas': betas,
+                        'eps': eps,
+                        'lr': optimizer.param_groups[0]['lr'],  # konsistent starten
+                    })
                 else:
                     raise ValueError(f"No new parameter added to optimizer, that's baaad")
         

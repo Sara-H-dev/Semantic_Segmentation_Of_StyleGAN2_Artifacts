@@ -61,17 +61,6 @@ def main():
         torch.cuda.manual_seed(seed)
         torch.cuda.manual_seed_all(seed)
 
-    # Learning Rate Scalng Rule
-    """
-    ref_bs = config.TRAIN.REF_BATCH_SIZE
-    acc_steps = config.TRAIN.ACCUMULATION_STEPS or 1
-    effective_bs = batch_size * acc_steps
-    if effective_bs != ref_bs:
-        base_lr_scaled = base_lr/ (0.5 * (sqrt(ref_bs/effective_bs) +  sqrt(effective_bs/ref_bs)))
-        logging.info(f"[LR] Scaling base_lr {base_lr:.6f} -> {base_lr_scaled:.6f} ")
-        base_lr = base_lr_scaled
-    """
-
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
