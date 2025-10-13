@@ -15,14 +15,13 @@ import shutil
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--output_dir', type=str, default='./model_out/weight_decay', help='output dir') 
-    parser.add_argument('--seed', type=int, default=1234, help='random seed')
+    parser.add_argument('--output_dir', type=str, default='./model_out/first_training', help='output dir') 
     parser.add_argument('--deterministic', action='store_true', help='use deterministic training')
     parser.add_argument('--use_checkpoint', action='store_true',
                         help="whether to use gradient checkpointing to save memory")
     parser.add_argument('--sig_threshold', type = float, help = 'treshold that decides if a pixel is an artefact or not')
     parser.add_argument('--is_savenii', action="store_true", help='whether to save results during inference')
-    parser.add_argument('--weight_decay', type = float)
+    #parser.add_argument('--weight_decay', type = float)
     parser.add_argument('--cfg', type=str, required=True, metavar="FILE", help='path to config file', )
 
     args = parser.parse_args()

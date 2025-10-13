@@ -161,14 +161,12 @@ def update_config(config, bool_test, bool_train, args):
 
     if args.output_dir:
         config.OUTPUT_DIR = args.output_dir
-    if args.seed:
-        config.SEED = args.seed
     if args.use_checkpoint:
         config.TRAIN.USE_CHECKPOINT = True
     if args.deterministic:
         config.DETERMINISTIC = True
-    if args.weight_decay:
-        config.TRAIN.WEIGHT_DECAY = args.weight_decay
+    #if args.weight_decay:
+    #    config.TRAIN.WEIGHT_DECAY = args.weight_decay
 
     if bool_train:
         if args.sig_threshold:

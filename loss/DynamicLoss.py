@@ -3,7 +3,6 @@ import torch.nn.functional as F
 import torch.nn as nn
 
 
-
 class BCEWithLogitsLoss(torch.nn.Module):
     def __init__(self):
         super().__init__()
@@ -88,24 +87,13 @@ class DynamicLoss(torch.nn.Module):
             output_i = output[i]
             target_i = target[i]
 
-            loss_i = self.bce_loss(output_i, target_i)
-
             #loss_i = self.tversky_loss(output_i, target_i)
-            """
+            
             if torch.sum(target_i) == 0: # Empty ROI
                 loss_i = self.bce_loss(output_i, target_i)
             else:
                 loss_i = 0.5 * self.bce_loss(output_i, target_i) + 0.5 * self.tversky_loss(output_i, target_i) #+ self.focal_tversky_loss(output_i, target_i)
-           
-            # prob_i = torch.sigmoid(output_i)
-            sum_area = target_i.sum() / target_i.numel()
-
-            if sum_area < self.roi_thresh:  # Small ROI
-                loss_i = 0.5 * self.bce_loss(output_i, target_i) + 0.5 * self.tversky_loss(output_i, target_i)
-            else:  # Large ROI
-                loss_i = 0.5 * self.tversky_loss(output_i, target_i) + 0.5 * self.focal_tversky_loss(output_i, target_i)
-            """
-
+            
             losses.append(loss_i)
 
         return torch.mean(torch.stack(losses))

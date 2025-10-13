@@ -89,10 +89,7 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
         model = nn.DataParallel(model)
 
     """calculate log learning rate increase:"""
-    min_lr = 1e-6
-    max_lr = 1e-2  #1e-5
     num_batches = len(trainloader)
-    mult = (max_lr / min_lr) ** (1 / (num_batches * max_epoch))
 
     def core(m):  
         return m.module if isinstance(m, nn.DataParallel) else m 
@@ -120,11 +117,10 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
     )
 
     # Cosine Decay with linear warmup
-    """
+
     lr_scheduler = CosineLRScheduler(
         optimizer,
         t_initial= max_epoch - warmup_epochs,
-        t_mul = 1.,
         lr_min = config.TRAIN.MIN_LR,
         warmup_lr_init = config.TRAIN.WARMUP_LR,
         warmup_t = warmup_epochs,
@@ -132,7 +128,6 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
         t_in_epochs=  True,
         warmup_prefix = config.TRAIN.LR_SCHEDULER.WARMUP_PREFIX
     )
-    """
                                                     
     writer = SummaryWriter(log_save_path + '/log')
 
@@ -143,10 +138,10 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
     
     best_performance = 0.0
     # parameters for unfreezing the encoder:
-    stage3_unfreeze = max_epoch * config.MODEL.STAGE3_UNFREEZE_PERIODE
-    stage2_unfreeze = max_epoch * config.MODEL.STAGE2_UNFREEZE_PERIODE
-    stage1_unfreeze = max_epoch * config.MODEL.STAGE1_UNFREEZE_PERIODE
-    stage0_unfreeze = max_epoch * config.MODEL.STAGE0_UNFREEZE_PERIODE
+    stage3_unfreeze = int(max_epoch * config.MODEL.STAGE3_UNFREEZE_PERIODE)
+    stage2_unfreeze = int(max_epoch * config.MODEL.STAGE2_UNFREEZE_PERIODE)
+    stage1_unfreeze = int(max_epoch * config.MODEL.STAGE1_UNFREEZE_PERIODE)
+    stage0_unfreeze = int(max_epoch * config.MODEL.STAGE0_UNFREEZE_PERIODE)
 
     bool_s3_unfreezed = False
     bool_s2_unfreezed = False
@@ -157,12 +152,11 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
     since_best = 0 # counter that counts the number of epochs during which the soft_dice has not improved
     mean_metrics = np.zeros(7, dtype=np.float64)
 
-    new_lr = min_lr
-
     lr_range_test_file = os.path.join(log_save_path, "lr_range_test.csv")
     csv_file = open(lr_range_test_file, "w", newline="")
     csv_writer = csv.writer(csv_file)
     csv_writer.writerow(["step", "lr", "train_loss", "val_loss"])
+    val_loss = float("nan")
 
     scaler = torch.cuda.amp.GradScaler()
 
@@ -189,6 +183,8 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
     
     some_thing_happend = False # Flag that ensures that when a layer is opened, the optimizer is adjusted accordingly.
     n_layer = 5
+    last_run = False
+    opt_step = 0
 
     for epoch_num in tqdm(range(max_epoch)):
         model.train()
@@ -243,13 +239,16 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
         
         # -------------------------------------------
         optimizer.zero_grad(set_to_none=True)
-        opt_step = 0
+        
     
         for i_batch, sampled_batch in tqdm(enumerate(trainloader), total=len(trainloader)):
+            model.train()
             step = epoch_num*num_batches + i_batch
+            
+            """
             # learning rate range test
             for param_group in optimizer.param_groups:
-                param_group['lr'] = new_lr
+                param_group['lr'] = new_lr """
             
             is_last_epoch = (epoch_num >= max_epoch - 1)
             is_last_batch = (i_batch == len(trainloader) - 1)
@@ -257,6 +256,7 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
             image_batch = sampled_batch['image'].to(device)
             label_batch = sampled_batch['label'].to(device)
             case_names  = sampled_batch['case_name']
+
             with torch.amp.autocast('cuda', dtype=torch.float16):
                 outputs = model(image_batch)
             
@@ -270,7 +270,7 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
                 scaler.step(optimizer)
                 scaler.update()
                 
-            if opt_step % 10 == 0:                
+            if opt_step % 100 == 0:                
                 val_loss = validation_loss(
                     model = model,
                     device = device,
@@ -291,22 +291,11 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
             writer.add_scalar('info/total_loss', loss.item(), iter_num)
             #logging.info('iteration %d : loss : %f' % (iter_num, loss.item()))
 
-            """
-            # In the last epoch, bit masks and heat masks are created for the last batch.
-            if is_last_epoch and is_last_batch:
-                logging.info("Last epoch, last batch")
-                model.eval()
-                with torch.no_grad():
-                    create_bin_heat_mask(outputs, case_names, pred_dir, image_batch)
-                model.train()
-            """
-            # add value to learning rate
-            new_lr *= mult
 
         # -------- VALIDATION (aftre every Epoch-Train) --------
-        """
+        
         model.eval()
-        mean_metrics= inference(
+        mean_metrics, ten_output_dict = inference(
             model = model,
             logging = logging,
             testloader = valloader,
@@ -320,6 +309,7 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
         write_to_writer(writer, mean_metrics, epoch_num)
         
         if mean_soft_dice > best_val_dice:
+            save_best_output = ten_output_dict
             best_val_dice = mean_soft_dice
             since_best = 0
             if config.SAVE_BEST_RUN:
@@ -336,26 +326,12 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
             since_best += 1
             if since_best >= config.TRAIN.EARLY_STOPPING_PATIENCE:
                 logging.info(f"Early stopping at epoch {epoch_num} (no val improvement for {config.TRAIN.EARLY_STOPPING_PATIENCE} epochs).")
-                break
-        """
-        # --------------------------------------------------------
+                last_run = True
         
-        # saves all 50 epochs
-        save_interval = 50 
+        # --------------------------------------------------------
 
         if config.SAVE_BEST_RUN:
-            """
-            if epoch_num > int(max_epoch / 2) and (epoch_num + 1) % save_interval == 0:
-                save_mode_path = os.path.join(log_save_path, 'epoch_' + str(epoch_num) + '.pth')
-                torch.save({    'epoch': epoch_num,
-                                'model': core(model).state_dict(),
-                                'optimizer': optimizer.state_dict(),
-                                'iter_num': iter_num,
-                                'soft_dice': mean_soft_dice}
-                                , save_mode_path,)
-                logging.info("save model to {}".format(save_mode_path))
-            """
-
+            
             # saves the last run
             if epoch_num >= max_epoch - 1:
                 save_mode_path = os.path.join(log_save_path, 'epoch_' + str(epoch_num) + '.pth')
@@ -366,17 +342,23 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
                                 'soft_dice': mean_soft_dice}, 
                                 save_mode_path)
                 logging.info("save model to {}".format(save_mode_path))
-                break
+                last_run = True
+
 
         # update learning rate /
 
-        """
         lr_scheduler.step(epoch_num + 1)
-        logging.info("epoch:", epoch_num + 1,  " learning rate:", lr_scheduler.get_last_lr())
-        """
+        current_lrs = [g['lr'] for g in optimizer.param_groups]
+        logging.info(f"epoch {epoch_num + 1} | lrs={[f'{lr:.3e}' for lr in current_lrs]}")
+
+        if last_run == True:
+            create_bin_heat_mask_from_list(save_best_output, pred_dir)
+            break
+
     csv_file.close()
     writer.close()
 
+    """
     print(f"optimizer steps: {opt_step}", file=sys.stderr)
 
     csv_reader = pd.read_csv(lr_range_test_file)
@@ -396,9 +378,11 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
     plt.grid(True)
     plt.savefig(os.path.join(log_save_path, "weight_decay_test.png"), dpi=300) 
     plt.show()
+    """
 
     return "Training Finished!"
 
+"""
 def create_bin_heat_mask(outputs, case_names, pred_dir, image_batch):
     logits = outputs                     # (image_pre,1,H,W)
     heat   = torch.sigmoid(logits)       # (B,1,H,W) in [0,1]
@@ -418,7 +402,35 @@ def create_bin_heat_mask(outputs, case_names, pred_dir, image_batch):
             heat_hw  = heat[image_pre,0].detach().cpu(), 
             out_png  = os.path.join(pred_dir, f"{img_name}_overlay_color.png"),
             alpha    = 0.45 )       
-        # overlay(image_batch, heat, binmsk, pred_dir, image_pre, case_names)
+        #overlay(image_batch, heat, binmsk, pred_dir, image_pre, case_names)
+"""
+
+def create_bin_heat_mask_from_list(ten_output_saver, pred_dir):
+
+    for case_name, image_tensor, pred_tensor in ten_output_saver:
+
+        case_name = str(case_name)
+        image_tensor = image_tensor.detach().cpu()
+        pred_tensor  = pred_tensor.detach().cpu()
+
+        if pred_tensor.ndim == 4:
+            pred_tensor = pred_tensor[0]
+        if image_tensor.ndim == 4:
+            image_tensor = image_tensor[0]
+
+        heat   = pred_tensor.clamp(0, 1)         # in [0,1]
+        binmsk = (heat > 0.5).float()
+
+        save_image(heat, os.path.join(pred_dir, f"{case_name}_grey_heats.png"))
+        save_image(binmsk, os.path.join(pred_dir, f"{case_name}_bin_mask.png"))
+
+        save_color_heatmap(
+            img_3chw=image_tensor,
+            heat_hw=heat[0] if heat.ndim == 3 else heat,
+            out_png=os.path.join(pred_dir, f"{case_name}_overlay_color.png"),
+            alpha= 0.45 
+        )
+        #overlay(image_batch, heat, binmsk, pred_dir, image_pre, case_names)
 
 def write_to_writer(writer, mean_metrics, epoch_num):
     mean_dice, mean_IoU, mean_recall, mean_precision, mean_f1_score, mean_soft_dice, mean_soft_IoU = mean_metrics

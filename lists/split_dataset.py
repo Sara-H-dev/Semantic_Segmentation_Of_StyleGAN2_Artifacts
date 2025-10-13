@@ -27,9 +27,9 @@ def create_splits(
     output_dir: str,
     split_ratio: Tuple[float, float, float] = (0.8, 0.1, 0.1),  # (train, val, test)
     fake_ratio_in_test: float = 0.5, 
-    fake_ratio_in_val: float = 0.5, 
-    fake_ratio_in_train: float = 0.6,  # fraction of FAKE inside TRAIN
-    val_test_only_fake: bool = False,
+    fake_ratio_in_val: float = 1, 
+    fake_ratio_in_train: float = 1,  # fraction of FAKE inside TRAIN
+    val_test_only_fake: bool = True,
     use_all_leftovers_in_train: bool = True,  # add leftovers (real/fake) to TRAIN
     seed: int = 42,
 ) -> None:
@@ -193,11 +193,11 @@ if __name__ == "__main__":
         real_dir =  "../dataset/real_images",
         fake_dir = "../dataset/fake_images",
         output_dir = "./",
-        split_ratio = (0.8, 0.1, 0.1),
+        split_ratio = (0.82, 0.09, 0.09),
         fake_ratio_in_val = 0.5,
         fake_ratio_in_test = 0.5,
         fake_ratio_in_train= 0.6,
-        val_test_only_fake= False,
+        val_test_only_fake= True,
         use_all_leftovers_in_train = False,
         seed= 42,)
 

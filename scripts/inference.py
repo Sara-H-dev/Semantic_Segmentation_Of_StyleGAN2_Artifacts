@@ -63,6 +63,7 @@ def inference(model,
     logging.info("{} test iterations per epoch".format(len(testloader)))
     model.eval()
     num_cases = 0
+    ten_output_saver = []
 
     metrics_sum = np.zeros(7, dtype=np.float64)  # [dice, IoU, recall, precision, f1, soft_dice, soft_IoU]
     with torch.inference_mode():
@@ -75,7 +76,7 @@ def inference(model,
             label = sampled_batch["label"].to(device, non_blocking=True)
             case_name =  sampled_batch['case_name'][0]
 
-            metric_i = predict_and_score(image, 
+            metric_i, out_tupel = predict_and_score(image, 
                                         label, 
                                         model,  
                                         patch_size = [img_size, img_size],
@@ -83,6 +84,8 @@ def inference(model,
                                         case = case_name, 
                                         device = device,
                                         threshold = sig_threshold)
+            if(i_batch < 10):
+                ten_output_saver.append(out_tupel)
             
             # Transfer to a robust 1D vector and limit to 7 key figures
             metric_i = np.asarray(metric_i, dtype=np.float64).reshape(-1)[:7]
@@ -95,7 +98,7 @@ def inference(model,
             metrics_sum += metric_i
             num_cases += 1
             m_dice, m_iou, m_rec, m_prec, m_f1, m_soft_dice, m_soft_iou = metric_i
-
+            
             logging.info(
                 f"idx {i_batch} case {case_name} "
                 f"mean_dice {m_dice:.4f} mean_IoU {m_iou:.4f} "
@@ -112,7 +115,7 @@ def inference(model,
     logging.info(
         f"{split} performance : mean_dice %.4f mean_IoU %.4f mean_recall %.4f mean_precision %.4f mean_f1_score %.4f mean_soft_dice %.4f mean_soft_IoU %.4f",
         mean_dice, mean_IoU, mean_recall, mean_precision, mean_f1_score, mean_soft_dice, mean_soft_IoU)
-    return mean_metrics
+    return mean_metrics, ten_output_saver
 
 def predict_and_score(
         image, 
@@ -168,8 +171,9 @@ def predict_and_score(
         imageio.imwrite(os.path.join(test_save_path, f"{case}_pred.png"), pred_bin_np * 255)
         imageio.imwrite(os.path.join(test_save_path, f"{case}_gt.png"),   lab_np * 255)
     """
+    out_tupel = (case, image, pred)
 
-    return [(dice_b, iou_b, recall_b, precision_b, f1_b, soft_dice, soft_iou)]
+    return [(dice_b, iou_b, recall_b, precision_b, f1_b, soft_dice, soft_iou)], out_tupel
 
 def calculate_metrics_binary(pred, gt):
     # makes sure the arrays are binary
