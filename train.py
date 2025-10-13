@@ -32,7 +32,8 @@ def main():
     now = datetime.now()
     # format: DayMonthYear_HourMinute
     timestamp_str = now.strftime("%d%m%y_%H%M")
-    output_dir = os.path.join(config.OUTPUT_DIR, timestamp_str)
+    output_dir = os.path.join(config.OUTPUT_DIR, timestamp_str, str(config.TRAIN.WEIGHT_DECAY))
+    # output_dir = os.path.join(config.OUTPUT_DIR, timestamp_str)
     seed = config.SEED
     batch_size = config.DATA.BATCH_SIZE
     base_lr = config.TRAIN.BASE_LR

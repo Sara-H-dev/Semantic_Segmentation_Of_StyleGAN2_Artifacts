@@ -90,7 +90,7 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
 
     """calculate log learning rate increase:"""
     min_lr = 1e-6
-    max_lr = 1e-2 #1e-5
+    max_lr = 1e-2  #1e-5
     num_batches = len(trainloader)
     mult = (max_lr / min_lr) ** (1 / (num_batches * max_epoch))
 
@@ -107,7 +107,9 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
     # uf_loss = SymmetricUnifiedFocalLoss(weight = config.TRAIN.UF_LOSS_WEIGTH, delta = config.TRAIN.UF_LOSS_DELTA, gamma=config.TRAIN.UF_LOSS_GAMMA)
     dynamic_loss = DynamicLoss(alpha=config.TRAIN.TVERSKY_LOSS_ALPHA, beta=config.TRAIN.TVERSKY_LOSS_BETA)
 
+    logging.info(f"Weight_decay = {config.TRAIN.WEIGHT_DECAY}")
     # AdamW Optimizer
+    
     optimizer = optim.AdamW(
         filter(lambda p: p.requires_grad, model.parameters()),
         lr = base_lr,
@@ -116,7 +118,6 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
         weight_decay = config.TRAIN.WEIGHT_DECAY,    # L2-Regularisierung (entkoppelt!)
         amsgrad = False         # optional, selten genutzt
     )
-
 
     # Cosine Decay with linear warmup
     """
@@ -139,6 +140,7 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
     print(f"lenght trainloader {len(trainloader)}", file=sys.stderr)
     max_iterations = max_epoch * len(trainloader)  # max_epoch = max_iterations // len(trainloader) + 1
     logging.info("{} iterations per epoch. {} max iterations ".format(len(trainloader), max_iterations))
+    
     best_performance = 0.0
     # parameters for unfreezing the encoder:
     stage3_unfreeze = max_epoch * config.MODEL.STAGE3_UNFREEZE_PERIODE
@@ -186,11 +188,13 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
                 pin_memory = torch.cuda.is_available())
     
     some_thing_happend = False # Flag that ensures that when a layer is opened, the optimizer is adjusted accordingly.
+    n_layer = 5
 
     for epoch_num in tqdm(range(max_epoch)):
         model.train()
-        for gi, g in enumerate(optimizer.param_groups):
-            print(f"PG{gi}: lr={g['lr']:.2e} wd={g.get('weight_decay', None)}", file=sys.stderr)
+
+        for i, g in enumerate(optimizer.param_groups):
+            logging.info(f"Group {i}: lr={g['lr']:.3e}, wd={g.get('weight_decay', None)}")
     
         # -------- UNFREEZING THE ENCODER --------
         if freeze_encoder:
@@ -199,18 +203,22 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
                 core(model).unfreeze_encoder(3)
                 bool_s3_unfreezed = True
                 some_thing_happend = True
+                n_layer = 3
             elif (epoch_num >= stage2_unfreeze) and (bool_s2_unfreezed == False):
                 core(model).unfreeze_encoder(2)
                 bool_s2_unfreezed = True
                 some_thing_happend = True
+                n_layer = 2
             elif (epoch_num >= stage1_unfreeze) and (bool_s1_unfreezed == False):
                 core(model).unfreeze_encoder(1)
                 bool_s1_unfreezed = True
                 some_thing_happend = True
+                n_layer = 1
             elif (epoch_num >= stage0_unfreeze) and (bool_s0_unfreezed == False):
                 core(model).unfreeze_encoder(0)
                 bool_s0_unfreezed = True
                 some_thing_happend = True
+                n_layer = 0
 
             if some_thing_happend == True:
                 some_thing_happend = False
@@ -218,7 +226,7 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
                 new_params = [p for p in model.parameters()
                             if p.requires_grad and id(p) not in existing_ids]
                 if new_params:
-                    print(f"Adding {len(new_params)} new parameters to optimizer", file=sys.stderr)
+                    print(f"Adding {len(new_params)} new parameters to optimizer of layer {n_layer}", file=sys.stderr)
                     base = optimizer.defaults  # enthält u.a. weight_decay, betas, eps
                     wd   = base.get('weight_decay', config.TRAIN.WEIGHT_DECAY)
                     betas= base.get('betas',      config.TRAIN.OPTIMIZER.BETAS)
