@@ -80,3 +80,4 @@ LIST_DIR : './lists'
 SEED: 1234
 DETERMINISTIC : true
 SAVE_BEST_RUN : true
+SAVE_LAST_RUN : false
