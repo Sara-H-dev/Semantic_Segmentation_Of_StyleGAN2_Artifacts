@@ -16,7 +16,6 @@ from config import get_config
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--output_dir', type=str, help='output dir')   
-    parser.add_argument('--is_savenii', action="store_true", help='whether to save results during inference')
     parser.add_argument('--deterministic', action="store_true", help='whether use deterministic training')
     parser.add_argument('--seed', type=int, help='random seed')
     parser.add_argument('--use_checkpoint', action='store_true', help="whether to use gradient checkpointing to save memory")

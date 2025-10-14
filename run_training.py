@@ -9,6 +9,7 @@ env["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
 
 subprocess.run([
     "python3", "train.py",
+    "--output_dir", "./model_out/first_training"
     "--cfg", "./config.yaml"],
 env=env,
 check=True, # catches errors

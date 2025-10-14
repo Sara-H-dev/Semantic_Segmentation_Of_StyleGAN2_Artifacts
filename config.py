@@ -118,7 +118,6 @@ _C.TRAIN.OPTIMIZER.BETAS = (0.9, 0.999) # Optimizer Betas
 # Test settings
 # -----------------------------------------------------------------------------
 _C.TEST = CN()
-_C.TEST.IS_SAVENII = True #if test results should be stored
 _C.TEST.SIG_THRESHOLD = 0.5 # threshold for the gereration of the binary mask for the validation
 
 # -----------------------------------------------------------------------------
@@ -176,8 +175,6 @@ def update_config(config, bool_test, bool_train, args):
     if bool_test:
         if args.sig_threshold:
             config.TEST.SIG_THRESHOLD = args.sig_threshold
-        if args.is_savenii:
-            config.TEST.IS_SAVENII = True
     
     config.freeze()
 

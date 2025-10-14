@@ -245,7 +245,7 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
 
         # -------- VALIDATION ----------------
         model.eval()
-        mean_metrics, ten_output_dict = calculate_metrics(
+        mean_dice, ten_output_dict = calculate_metrics(
             model = model,
             epoch = epoch_num + 1,
             logging = logging,
@@ -257,14 +257,11 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
             sig_threshold = config.TRAIN.SIG_THRESHOLD,
             csv_epoch = csv_val_per_epoch,
             csv_batch = csv_val_per_batch)
-
-        mean_dice, mean_IoU, mean_recall, mean_precision, mean_f1_score, mean_soft_dice, mean_soft_IoU = mean_metrics
-        write_to_writer(writer, mean_metrics, epoch_num)
         
         # ------------------ save best run --------------------------------
-        if mean_soft_dice > best_val_dice:
+        if mean_dice > best_val_dice:
             save_best_output = ten_output_dict
-            best_val_dice = mean_soft_dice
+            best_val_dice = mean_dice
             since_best = 0
             if config.SAVE_BEST_RUN:
                 best_path = os.path.join(log_save_path, 'best_model.pth')
@@ -283,7 +280,7 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
             if config.SAVE_LAST_RUN: 
                 save_mode_path = os.path.join(log_save_path, 'epoch_' + str(epoch_num) + '.pth')
                 torch.save({'epoch': epoch_num, 'model':  core(model).state_dict(), 'optimizer': optimizer.state_dict(),       
-                            'iter_num': iter_num, 'soft_dice': mean_soft_dice}, save_mode_path)
+                            'iter_num': iter_num, 'dice': mean_dice}, save_mode_path)
 
         # --------------------- update learning rate ---------------------------------
         lr_scheduler.step(epoch_num + 1)
@@ -352,15 +349,4 @@ def create_bin_heat_mask_from_list(ten_output_saver, pred_dir):
             heat_hw=heat[0] if heat.ndim == 3 else heat,
             out_png=os.path.join(pred_dir, f"{case_name}_overlay_color.png"),
             alpha= 0.45 )
-        
-# ------------- log mean metrics -----------------------------
-def write_to_writer(writer, mean_metrics, epoch_num):
-    mean_dice, mean_IoU, mean_recall, mean_precision, mean_f1_score, mean_soft_dice, mean_soft_IoU = mean_metrics
-    writer.add_scalar('val/mean_soft_dice', mean_soft_dice, epoch_num)
-    writer.add_scalar('val/mean_soft_IoU',  mean_soft_IoU,  epoch_num)
-    writer.add_scalar('val/mean_dice',      mean_dice,      epoch_num)
-    writer.add_scalar('val/mean_IoU',       mean_IoU,       epoch_num)
-    writer.add_scalar('val/mean_recall',    mean_recall,    epoch_num)
-    writer.add_scalar('val/mean_precision', mean_precision, epoch_num)
-    writer.add_scalar('val/mean_f1',        mean_f1_score,  epoch_num)
 
