@@ -28,6 +28,8 @@ def validation_loss(model,
             loss = dynamic_loss(out_logits, label)
             val_losses.append(loss.item())
     model.train()
+    if len(val_losses) <= 0:
+        return float("nan")
     mean_val_loss = sum(val_losses) / len(val_losses)
     return mean_val_loss
 
@@ -36,62 +38,92 @@ def calculate_metrics(  model,
                         logging,
                         testloader,
                         dynamic_loss,
-                        csv_epoch,
-                        csv_batch,
-                        csv_confusion_epoch,
-                        csv_confusion_batch,
+                        csv_all_epoch,
+                        csv_fake_epoch,
+                        csv_real_epoch,
+                        csv_batch_real,
+                        csv_batch_fake,
                         epoch,
                         device = None, 
                         split = "test", 
                         img_size = 1024,
                         sig_threshold = 0.5,):
+    
     patch_size = (img_size, img_size)
     model.eval(); 
     num_cases = 0;  # number of validation runs
     ten_output_saver = [] # list to save ten outputs for generating heat maps for the best run
-    metric_list = []
-    confusion_list = []
+    
+    # real
+    real_conf_matrix_bin_list = []  # list of [[tp, fp],[fn, tn]]
+    accuracy_list_real = []         # [(acc, val_loss), ...]
+    real_image_counter = 0
+    # fake
+    confusion_matrix_soft_list = [] # list of [[tp, fp],[fn, tn]]
+    fake_conf_matrix_bin_list = []  # list of [[tp, fp],[fn, tn]]
+    accuracy_list_fake = []         # [(acc, val_loss), ...]
+    metric_fake_list = []           # [[acc, rec, prec, val_loss, IoU, dice, f1, soft_dice, ..], ..]
+    # all
+    accuracy_list = []              # [(acc, val_loss), ...]
+    confusion_matrix_bin_list = []  # list of [[tp, fp],[fn, tn]]
 
     with torch.inference_mode():
         # ------------- calculate the metric and predict ---------------------------------------------
         for i_batch, sampled_batch in tqdm(enumerate(testloader), total=len(testloader)):
+
             image = sampled_batch["image"].to(device, non_blocking=True)
-            label = sampled_batch["label"].to(device, non_blocking=True)
+            loss_label = sampled_batch["label"].to(device, non_blocking=True)
             case_name =  sampled_batch['case_name'][0]
-            skip_flag = False # for real image the metrics can not be calculated, so they are scippt
 
             # --------- redimension images and labels ------------------
-            assert image.ndim == 4; assert label.ndim in (3, 4); assert image.shape[0] == 1 
-            B, C, H, W = image.shape
-            image = image.to(device).float()
-            if label.ndim == 4: label = label.squeeze(1)
-            label = label.squeeze(0).to(device).long()
-            need_resize = (H, W) != tuple(patch_size); assert need_resize == False  # no resize should be necessary.
-            
-            # =========== forward: ==============================================================
-            with torch.no_grad():
-                out_logits = model(image)
-                val_loss = dynamic_loss(out_logits, label)
-                if out_logits.shape[1] != 1:
-                    raise ValueError(f"Binary task expected 1 logit channel, got {out_logits.shape[1]}")
-                pred = torch.sigmoid(out_logits) 
-                pred_bin = (pred > sig_threshold).long().squeeze(0).squeeze(0) #(H, W)
+            assert image.ndim == 4
+            assert loss_label.ndim in (3, 4)
+            assert image.shape[0] == 1 
 
-            pred_bin_np = pred_bin.cpu().numpy().astype(np.uint8)
-            lab_np  = label.cpu().numpy().astype(np.uint8)
+            B, C, H, W = image.shape
+            assert ((H, W) != tuple(patch_size)) == False 
+            image = image.to(device).float()
+
+            if loss_label.ndim == 4: 
+                label = loss_label.squeeze(1) # B, H, W
+            else: label = loss_label
+
+            # =========== forward: ==============================================================
+            out_logits = model(image)
+            if out_logits.shape[1] != 1:
+                raise ValueError(f"Binary task expected 1 logit channel, got {out_logits.shape[1]}")
+            val_loss = dynamic_loss(out_logits, loss_label)
+
+            # probabilities & binaries for metrics
+            pred = torch.sigmoid(out_logits).squeeze(0).squeeze(0)        # (H,W) float
+            pred_bin = (pred > sig_threshold)                             # (H,W) bin
+            ground_truth = (label.squeeze(0) > 0)                  # (H,W) bin
 
             # ===================== calculating the metrics ======================================
-            i_dice, i_iou, i_rec, i_prec, i_f1 = calculate_metrics_binary(pred_bin_np, lab_np)
-            i_soft_dice, i_soft_iou, true_pos, false_pos, false_neg, true_neg = calculate_metrics_soft(pred.squeeze(0).squeeze(0), label)
-            if any(math.isnan(x) for x in [i_dice, i_iou, i_rec, i_prec, i_f1]):
-                skip_flag = True
+            #real picture
+            if not ground_truth.any().item(): 
+                real_image_counter += 1
+                confusion_matrix_bin, accuracy = calculate_metrics_real(pred_bin, pred, ground_truth)
+                csv_batch_real.writerow([epoch, i_batch, accuracy, confusion_matrix_bin, float(val_loss)]) 
 
-            if skip_flag == False:
-                metric_i = np.array([
-                    i_dice, i_iou, i_rec, i_prec, i_f1, i_soft_dice, i_soft_iou, val_loss.item(),
-                    true_pos, false_pos, false_neg, true_neg ], dtype=np.float64)
-                metric_list.append(torch.tensor(metric_i, dtype=torch.float64))
-                csv_batch.writerow([epoch, i_batch, case_name,  i_dice, i_iou, i_rec, i_prec, i_f1, i_soft_dice,i_soft_iou, val_loss.item(), true_pos, false_pos, false_neg, true_neg])
+                confusion_matrix_bin_list.append(confusion_matrix_bin)
+                real_conf_matrix_bin_list.append(confusion_matrix_bin)
+                accuracy_list.append((accuracy, float(val_loss)))
+                accuracy_list_real.append((accuracy, float(val_loss)))
+            # fake picture
+            else:
+                (bin_accuracy, bin_recall,bin_precision,
+                    bin_IoU, bin_dice, bin_f1,
+                    confusion_matrix_bin, confusion_matrix_soft,
+                    i_soft_dice, i_soft_iou) = calculate_metrics_fake(pred_bin, pred, ground_truth)
+                csv_batch_fake.writerow([epoch, i_batch, bin_accuracy, bin_recall, bin_precision, float(val_loss), bin_IoU, bin_dice, bin_f1, confusion_matrix_bin, confusion_matrix_soft, i_soft_dice, i_soft_iou])
+
+                metric_fake_list.append([bin_accuracy, bin_recall, bin_precision, bin_IoU, bin_dice, bin_f1, i_soft_dice, i_soft_iou])
+                confusion_matrix_bin_list.append(confusion_matrix_bin)
+                fake_conf_matrix_bin_list.append(confusion_matrix_bin)
+                confusion_matrix_soft_list.append(confusion_matrix_soft)
+                accuracy_list.append((bin_accuracy, float(val_loss)))
+                accuracy_list_fake.append((bin_accuracy, float(val_loss)))
             
             # ------------------ out tupel ---------------
             out_tuple = (case_name, image, pred) # tupel for ploting the heat map of the best run
@@ -104,68 +136,105 @@ def calculate_metrics(  model,
         raise ValueError(f"Expected at least one {split} cases")
     
     # -------- calculating the average --------------------------
-    valid_cases = len(metric_list)
-    if valid_cases == 0:
-        raise ValueError(f"No valid {split} metrics to aggregate.")
-    metrics_all = torch.stack(metric_list, dim=0)
-    mean_metrics =  torch.nanmean(metrics_all, dim=0) # can ignor nans
-    mean_vals = mean_metrics.tolist()
-    (mean_dice, mean_IoU, mean_recall, mean_precision, mean_f1_score,
-    mean_soft_dice, mean_soft_IoU, mean_val_loss,
-    mean_true_pos, mean_false_pos, mean_false_neg, mean_true_neg) = mean_vals
+    valid_fake_cases = len(metric_fake_list)
+    if valid_fake_cases == 0:
+        raise ValueError(f"No valid fake {split} metrics to aggregate.")
     
-    csv_epoch.writerow([epoch, *mean_vals])
-    csv_confusion_epoch.writerow(epoch, true_pos, true_neg, false_pos, false_neg)
+    # real images mean metrics
+    if real_image_counter > 0:
+        mean_acc_and_loss =  np.mean(np.array(accuracy_list_real, dtype=float), axis=0)
+        mean_confusion_matrix_bin = np.mean(np.array(real_conf_matrix_bin_list, dtype=float), axis=0)
 
+        (mean_accuracy_real, mean_val_loss_real) = mean_acc_and_loss
+        csv_real_epoch.writerow([epoch, float(mean_accuracy_real), mean_confusion_matrix_bin, mean_val_loss_real])
+        logging.info(f"{split} real performance for epoch {epoch} :"
+                     f" mean_confusion_matrix_bin [[tp, fp],[fn, tn]] {mean_confusion_matrix_bin} "
+                     f" mean_accuracy {mean_accuracy_real} mean_val_loss{mean_val_loss_real}")
+
+    # fake images mean metrics
+    (mean_accuracy_fake, mean_val_loss_fake) = np.mean(np.array(accuracy_list_fake, dtype=float), axis=0)
+
+    mean_confusion_matrix_bin = np.mean(np.array(fake_conf_matrix_bin_list, dtype=float), axis=0)
+    mean_confusion_matrix_soft = np.mean(np.array(confusion_matrix_soft_list, dtype=float), axis=0)
+    
+    mean_fake_metric = np.mean(np.array(metric_fake_list, dtype=float), axis=0)
+    (mean_bin_accuracy, mean_bin_recall, mean_bin_precision, mean_bin_IoU, mean_bin_dice, mean_bin_f1, mean_i_soft_dice, mean_i_soft_iou) = mean_fake_metric
+    
+    csv_fake_epoch.writerow([epoch, float(mean_accuracy_fake), 
+                float(mean_val_loss_fake), mean_confusion_matrix_bin, 
+                mean_confusion_matrix_soft,  *[float(x) for x in mean_fake_metric]])
     logging.info(
-        f"{split} performance : mean_dice {mean_dice} mean_IoU {mean_IoU} mean_recall {mean_recall} mean_precision {mean_precision}"
-        f"mean_f1_score {mean_f1_score} mean_soft_dice {mean_soft_dice} mean_soft_IoU {mean_soft_IoU} mean_val_loss {mean_val_loss}"
-        f"mean_true_pos {mean_true_pos}  mean_false_pos {mean_false_pos}  mean_false_neg {mean_false_neg}  mean_true_neg {mean_true_neg} ")
+        f"{split} fake performance for epoch {epoch}: mean_bin_accuracy {mean_bin_accuracy} mean_bin_recall {mean_bin_recall} mean_bin_precision {mean_bin_precision} mean_bin_IoU {mean_bin_IoU}"
+        f"mean_bin_dice {mean_bin_dice} mean_bin_f1 {mean_bin_f1} mean_confusion_matrix_bin [[tp, fp],[fn, tn]] {mean_confusion_matrix_bin} mean_confusion_matrix_soft {mean_confusion_matrix_soft}"
+        f"mean_i_soft_dice {mean_i_soft_dice}  mean_i_soft_iou {mean_i_soft_iou}  mean_val_loss {mean_val_loss_fake}")
 
-    return mean_dice, ten_output_saver
+    # accuracy confusion matrix and val loss for all images
+    (mean_accuracy, mean_val_loss) = np.mean(np.array(accuracy_list, dtype=float), axis=0)
+    mean_confusion_matrix_bin = np.mean(np.array(confusion_matrix_bin_list, dtype=float), axis=0)
 
+    csv_all_epoch.writerow([epoch, float(mean_accuracy), float(mean_val_loss), mean_confusion_matrix_bin])
+    logging.info(f"{split} epoch {epoch}: mean_accuracy {mean_accuracy} "
+                 f"mean_cofusion_matrix [[tp, fp],[fn, tn]]{mean_confusion_matrix_bin} "
+                 f"mean_val_loss {mean_val_loss}")
 
-# -------------------- Calculating BINARY Metrics ---------------------------- #
-def calculate_metrics_binary(pred, ground_truth):
-    # makes sure the arrays are binary
-    pred = (pred > 0)
-    ground_truth   = (ground_truth   > 0)
-    smooth = 1e-6
+    return float(mean_accuracy), ten_output_saver
 
-    if pred.sum() == 0 and ground_truth.sum() == 0:
-        return 1, 1, 1, 1, 1
-    
-    elif ground_truth.sum() == 0 and ground_truth.sum() > 0:
-        return float("nan"), float("nan"), float("nan"), float("nan"), float("nan")
-    
-    elif ground_truth.sum() > 0 and ground_truth.sum() == 0:
-        return float("nan"), float("nan"), float("nan"), float("nan"), float("nan")
+# -------------------- Calculating REAL Metrics ---------------------------- #
+def calculate_metrics_real(pred_bin, pred, ground_truth):
+    pred_bin = pred_bin.bool()
+    ground_truth = ground_truth.bool()
+
+    # Binary Calculation
+    tp = torch.sum(pred_bin & ground_truth).item()
+    fp = torch.sum(pred_bin & (~ground_truth)).item()
+    fn = torch.sum((~pred_bin) & ground_truth).item()
+    tn = torch.sum((~pred_bin) & (~ground_truth)).item()
+
+    # accuracy
+    total = tp + tn + fp + fn
+    if total <= 0: raise ValueError(f"Real metric calculation failed because total = {total}")  
+    accuracy = (tp + tn) / total
+
+    confusion_matrix_bin = [[tp, fp],[fn, tn]]
+
+    return confusion_matrix_bin, float(accuracy)
+
+# -------------------- Calculating FAKEs Metrics ---------------------------- #
+def calculate_metrics_fake(pred_bin, pred, ground_truth):
+    smooth = 1e-8
+    ground_truth = ground_truth.bool()
+    pred_bin = pred_bin.bool()
+    gt_np   = ground_truth.cpu().numpy()
+    predb_np = pred_bin.cpu().numpy()
+
+    # =========== BINARY CALCULATION===================
 
     # Dice-Koeffizient
-    dice = metric.binary.dc(pred, ground_truth)
+    bin_dice = metric.binary.dc(predb_np, gt_np)
     # recall
-    recall = metric.binary.recall(pred, ground_truth)
+    bin_recall = metric.binary.recall(predb_np, gt_np)
     # precision
-    precision = metric.binary.precision(pred, ground_truth)
+    bin_precision = metric.binary.precision(predb_np, gt_np)
     # intersection over union (IoU)
-    IoU = metric.binary.jc(pred, ground_truth)
+    bin_IoU = metric.binary.jc(predb_np, gt_np)
     # F1-score
-    f1 = 2 * (precision * recall) / (precision + recall + smooth)
+    bin_f1 = 2 * (bin_precision * bin_recall) / (bin_precision + bin_recall + smooth)
 
-    return dice, IoU, recall, precision, f1
+    tp = torch.sum(pred_bin & ground_truth).item()
+    fp = torch.sum(pred_bin & (~ground_truth)).item()
+    fn = torch.sum((~pred_bin) & ground_truth).item()
+    tn = torch.sum((~pred_bin) & (~ground_truth)).item()
 
-# -------------------- Calculating SOFT Metrics ---------------------------- #
-def calculate_metrics_soft(pred_map, ground_truth):
-    """
-    pred_map: (H,W), in [0,1]
-    ground_truth:       (H,W), {0,1} or {0,255}
-    """
-    eps = 1e-8
-    pred = pred_map.float().view(-1)
+    confusion_matrix_bin = [[tp, fp],[fn, tn]]
+
+    # accuracy
+    total = tp + tn + fp + fn
+    if total <= 0: raise ValueError(f"Real metric calculation failed because total = {total}")  
+    bin_accuracy = (tp + tn) / total
+
+    # =========== SOFT CALCULATION===================
+    pred = pred.float().view(-1)
     gtruth = ground_truth.float().view(-1)
-
-    if gtruth.max() > 1:  # normalisiere {0,255} -> {0,1}
-        gtruth = gtruth / 255.0
 
     intersection = torch.sum(pred * gtruth)
     sum_p_2 = torch.sum(pred * pred)
@@ -178,12 +247,19 @@ def calculate_metrics_soft(pred_map, ground_truth):
     false_neg = torch.sum(gtruth * (1 - pred))
     true_neg = torch.sum((1 - pred) * (1 - gtruth))
 
-    accuracy = 
-    
+    # confusion matrix
+    confusion_matrix_soft = [
+        [float(true_pos.item()), float(false_pos.item())],
+        [float(false_neg.item()), float(true_neg.item())]
+    ]
+
     # Soft Dice 
-    i_soft_dice = (2.0 * intersection + eps) / (sum_p_2 + sum_g_2 + eps)
+    i_soft_dice = float((2.0 * intersection + smooth) / (sum_p_2 + sum_g_2 + smooth))
 
     # Soft IoU (Jaccard)
-    i_soft_iou = (intersection + eps) / (sum_p + sum_g - intersection + eps)
+    i_soft_iou = float((intersection + smooth) / (sum_p + sum_g - intersection + smooth))
 
-    return i_soft_dice.item(), i_soft_iou.item(), true_pos.item(), false_pos.item(), false_neg.item(), true_neg.item()
+    return (float(bin_accuracy), float(bin_recall), float(bin_precision),
+            float(bin_IoU), float(bin_dice), float(bin_f1),
+            confusion_matrix_bin, confusion_matrix_soft,
+            i_soft_dice, i_soft_iou)

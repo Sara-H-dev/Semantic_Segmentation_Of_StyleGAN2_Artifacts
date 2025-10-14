@@ -23,6 +23,7 @@ from tqdm import tqdm
 from loss.DynamicLoss import DynamicLoss
 from scripts.map_generator import save_color_heatmap
 from scripts.validation_functions import calculate_metrics, validation_loss
+from scripts.csv_handler import CSV_Handler
 
 def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
     from dataset.dataset import SegArtifact_dataset, RandomGenerator
@@ -57,22 +58,8 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
         datefmt='%H:%M:%S') #houres, minutes, seconds
     writer = SummaryWriter(log_save_path + '/log')
 
-    # lr_range_test
-    lr_range_test_file = os.path.join(log_save_path, "lr_range_test.csv")
-    csv_file = open(lr_range_test_file, "w", newline="")
-    csv_writer = csv.writer(csv_file)
-    csv_writer.writerow(["step", "lr", "train_loss", "val_loss"])
-    # val metric per epoch
-    val_metric_file = os.path.join(log_save_path, "val_metric_per_epoch.csv")
-    csv_val_per_epoch_file = open(val_metric_file, "w", newline="")
-    csv_val_per_epoch = csv.writer(csv_val_per_epoch_file)
-    csv_val_per_epoch.writerow(["epoch"," mean_dice","mean_IoU","mean_recall","mean_precision"," mean_f1_score"," mean_soft_dice"," mean_soft_IoU"," mean_val_loss"," mean_true_pos"," mean_false_pos"," mean_false_neg"," mean_true_neg"])
-    # val metric per epoch
-    val_metric_file = os.path.join(log_save_path, "val_metric_per_batchs.csv")
-    csv_val_per_batch_file = open(val_metric_file, "w", newline="")
-    csv_val_per_batch = csv.writer(csv_val_per_batch_file)
-    csv_val_per_batch.writerow(["epoch"," batch", "casename","dice","IoU","recall","precision","f1_score","soft_dice","soft_IoU","val_loss","true_pos","false_pos","false_neg","true_neg"])
-
+    csv_object = CSV_Handler(log_save_path)
+    csv_writer, csv_batch_fake, csv_batch_real, csv_real_epoch, csv_fake_epoch, csv_all_epoch = csv_object.return_writer()
     val_loss = float("nan")
 
     # ----------- preparation of training data ------------------------
@@ -255,8 +242,11 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
             split = "val", 
             img_size = img_size,
             sig_threshold = config.TRAIN.SIG_THRESHOLD,
-            csv_epoch = csv_val_per_epoch,
-            csv_batch = csv_val_per_batch)
+            csv_all_epoch = csv_all_epoch,
+            csv_fake_epoch = csv_fake_epoch,
+            csv_real_epoch = csv_real_epoch,
+            csv_batch_real = csv_batch_real,
+            csv_batch_fake = csv_batch_fake)
         
         # ------------------ save best run --------------------------------
         if mean_dice > best_val_dice:
@@ -292,9 +282,7 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
             create_bin_heat_mask_from_list(save_best_output, pred_dir)
             break
 
-    csv_file.close()
-    csv_val_per_batch_file.close()
-    csv_val_per_epoch_file.close()
+    csv_object.close_files()
     writer.close()
     return "Training Finished!"
 
@@ -350,3 +338,5 @@ def create_bin_heat_mask_from_list(ten_output_saver, pred_dir):
             out_png=os.path.join(pred_dir, f"{case_name}_overlay_color.png"),
             alpha= 0.45 )
 
+
+    
