@@ -162,11 +162,10 @@ def calculate_metrics(  model,
     
     csv_fake_epoch.writerow([epoch, float(mean_accuracy_fake), 
                 float(mean_val_loss_fake), mean_confusion_matrix_bin, 
-                mean_confusion_matrix_soft,  *[float(x) for x in mean_fake_metric]])
+                mean_confusion_matrix_soft,  *[float(x) for x in mean_fake_metric]])  
     logging.info(
-        f"{split} fake performance for epoch {epoch}: mean_bin_accuracy {mean_bin_accuracy} mean_bin_recall {mean_bin_recall} mean_bin_precision {mean_bin_precision} mean_bin_IoU {mean_bin_IoU}"
-        f"mean_bin_dice {mean_bin_dice} mean_bin_f1 {mean_bin_f1} mean_confusion_matrix_bin [[tp, fp],[fn, tn]] {mean_confusion_matrix_bin} mean_confusion_matrix_soft {mean_confusion_matrix_soft}"
-        f"mean_soft_dice {mean_soft_dice}  mean_soft_iou {mean_soft_iou}  mean_val_loss {mean_val_loss_fake}")
+        f"{epoch}_fake: mean_soft_dice {mean_soft_dice} mean_val_loss {mean_val_loss_fake} mean_bin_recall {mean_bin_recall} mean_bin_precision {mean_bin_precision} mean_bin_dice {mean_bin_dice}"
+)
 
     # accuracy confusion matrix and val loss for all images
     (mean_accuracy, mean_val_loss) = np.mean(np.array(accuracy_list, dtype=float), axis=0)
@@ -176,6 +175,8 @@ def calculate_metrics(  model,
     logging.info(f"{split} epoch {epoch}: mean_accuracy {mean_accuracy} "
                  f"mean_cofusion_matrix [[tp, fp],[fn, tn]]{mean_confusion_matrix_bin} "
                  f"mean_val_loss {mean_val_loss}")
+    
+    print(f"epoch{epoch} val_loss:{mean_val_loss} mean_soft_dice:{mean_soft_dice}")
 
     return mean_soft_dice, ten_output_saver
 
