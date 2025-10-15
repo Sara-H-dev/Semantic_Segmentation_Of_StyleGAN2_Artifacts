@@ -221,10 +221,8 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
                     dynamic_loss = dynamic_loss,
                     bool_break = True, # true if you don't want to go through all validation batches, but want to cancel beforehand
                     n_batches = 20, # Only important if bool_break is true. Number of batches to be validated
-                    dataset_path = config.DATA.DATA_PATH,
-                    list_dir = config.LIST_DIR,
-                    img_size = img_size
                     )
+
             # ------------------- logging --------------------------   
             csv_writer.writerow([step, lr, loss.item(), val_loss])
             iter_num = iter_num + 1;  writer.add_scalar('info/total_loss', loss.item(), iter_num)
@@ -237,7 +235,7 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
             epoch = epoch_num + 1,
             logging = logging,
             testloader = valloader,
-            test_save_path = log_save_path,
+            dynamic_loss = dynamic_loss,
             device= device,
             split = "val", 
             img_size = img_size,

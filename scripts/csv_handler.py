@@ -27,7 +27,7 @@ class CSV_Handler:
         csv_fake_epoch_file = open(val_metric_file, "w", newline="")
         csv_fake_epoch = csv.writer(csv_fake_epoch_file)
         csv_fake_epoch.writerow(["epoch","mean_accuracy","mean_val_loss_fake","mean_confusion_matrix_bin","mean_confusion_matrix_soft",
-                                "mean_bin_accuracy","mean_bin_recall","mean_bin_precision"," mean_bin_IoU","mean_bin_dice","mean_bin_f1","mean_i_soft_dice","mean_i_soft_iou"])
+                                "mean_bin_accuracy","mean_bin_recall","mean_bin_precision","mean_bin_IoU","mean_bin_dice","mean_bin_f1","mean_i_soft_dice","mean_i_soft_iou"])
         
         # val metric per batch real
         val_metric_file = os.path.join(log_save_path, "val_metric_real_batch.csv")
