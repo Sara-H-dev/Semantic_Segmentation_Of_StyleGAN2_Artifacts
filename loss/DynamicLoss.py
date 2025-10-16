@@ -26,16 +26,25 @@ class TverskyLoss(torch.nn.Module):
         self.beta = beta
 
     def forward(self, inputs, targets, smooth=1e-6):
-
         inputs = torch.sigmoid(inputs)
-        true_pos = torch.sum(inputs * targets)
-        false_pos = torch.sum((1 - targets) * inputs)
-        false_neg = torch.sum(targets * (1 - inputs))
+        targets = targets.float()
+        dims_i = inputs.ndim
+        dims_t = targets.ndim
 
-        tversky_index = (true_pos + smooth) / (
-            true_pos + self.alpha * false_pos + self.beta * false_neg + smooth
-        )
+        if (dims_i != dims_t):
+            raise ValueError(f"target dim {dims_t} is not equal to input dim {dims_i}")
+        dims = dims_i
 
+        if dims == 3:
+            inputs = inputs.squeeze(0) # H, W
+            targets = targets.squeeze(0) # H, W
+        dims = inputs.ndim
+
+        true_pos = (inputs * targets).sum(dim=(0,1))
+        false_pos = (inputs * (1 - targets)).sum(dim=(0,1))
+        false_neg = ((1 - inputs) * targets).sum(dim=(0,1))
+
+        tversky_index = (true_pos + smooth) / (true_pos + self.alpha * false_pos + self.beta * false_neg + smooth)
         loss = 1 - tversky_index
 
         if loss > 1:
@@ -87,13 +96,14 @@ class DynamicLoss(torch.nn.Module):
             output_i = output[i]
             target_i = target[i]
 
-            #loss_i = self.tversky_loss(output_i, target_i)
-            
-            if torch.sum(target_i) == 0: # Empty ROI
-                loss_i = self.bce_loss(output_i, target_i)
-            else:
-                loss_i = 0.5 * self.bce_loss(output_i, target_i) + 0.5 * self.tversky_loss(output_i, target_i) #+ self.focal_tversky_loss(output_i, target_i)
-            
+            #loss_i = self.bce_loss(output_i, target_i)
+            loss_bce_i = self.bce_loss(output_i, target_i)
+            loss_tversky_i = 0
+            if torch.sum(target_i) != 0: 
+                loss_tversky_i = self.tversky_loss(output_i, target_i)
+
+            loss_i = 0.5 * loss_bce_i + 0.5 * loss_tversky_i 
+
             losses.append(loss_i)
 
         return torch.mean(torch.stack(losses))

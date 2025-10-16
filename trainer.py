@@ -18,6 +18,7 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 from torchvision.utils import save_image
 from timm.scheduler.cosine_lr import CosineLRScheduler
+from datetime import datetime
 
 from tqdm import tqdm
 from loss.DynamicLoss import DynamicLoss
@@ -282,6 +283,9 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
 
     csv_object.close_files()
     writer.close()
+    now = datetime.now()
+    timestamp_str_after = now.strftime("%d%m%y_%H%M")
+    logging.info(f"Finised at time: {timestamp_str_after}")
     return "Training Finished!"
 
 # ---------------- plot learning range ------------------

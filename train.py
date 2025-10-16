@@ -71,7 +71,7 @@ def main():
     try:
         model.load_segface_weight(config)
     except Exception as e:
-        logging.error(f"Could not load segface weights: {e}")
+        raise ValueError(f"Could not load segface weights: {e}")
 
     # if cuda is avilable
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -80,6 +80,7 @@ def main():
     # train dictionary wiht the trianer_MS_UNet function
     trainer_dic = {'SegArtifact': trainer,}
     trainer_dic['SegArtifact'](model, output_dir, config, base_lr)
+  
     return timestamp_str
 
 if __name__ == "__main__":
