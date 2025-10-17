@@ -278,6 +278,7 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
                     # early stopping is applied
                     logging.info(f"Early stopping at epoch {epoch_num} (no val improvement for {config.TRAIN.EARLY_STOPPING_PATIENCE} epochs).")
                     last_run = True
+                    since_best = 0
                 else:
                     # in the next run the next encoder layer is unfreezed
                     unfreeze_in_next_epoch = True
