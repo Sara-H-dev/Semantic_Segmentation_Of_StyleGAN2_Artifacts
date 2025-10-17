@@ -105,6 +105,11 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
                 pin_memory = torch.cuda.is_available())
     # ------------- Loss Function --------------------------------
     dynamic_loss = DynamicLoss(alpha=config.TRAIN.TVERSKY_LOSS_ALPHA, beta=config.TRAIN.TVERSKY_LOSS_BETA)
+
+    # ---------------------- freeze encoder ------------------------------
+    def core(m):  
+        return m.module if isinstance(m, nn.DataParallel) else m   
+    core(model).freeze_encoder(freeze_encoder) # freez encoder if wanted
     
     # ------------- AdamW Optimizer ------------------------------
     optimizer = optim.AdamW(
@@ -144,43 +149,51 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
     n_layer = 5
     last_run = False
     opt_step = 0
+    unfreeze_in_next_epoch = False
 
-    # ---------------------- freeze encoder ------------------------------
-    def core(m):  
-        return m.module if isinstance(m, nn.DataParallel) else m   
-    core(model).freeze_encoder(freeze_encoder) # freez encoder if wanted
+    
 
     # ====================== Training START ==========================================
 
     for epoch_num in tqdm(range(max_epoch)):
     
         # -------- UNFREEZING THE ENCODER --------
+        print(f"freeze encoder is {freeze_encoder}")
         if freeze_encoder:
+            unfroze = []
             # unfreeze form the deepest encoder level to the highests
-            if (epoch_num >= stage3_unfreeze) and (bool_s3_unfreezed == False):
-                core(model).unfreeze_encoder(3); bool_s3_unfreezed = True; some_thing_happend = True; n_layer = 3    
-            elif (epoch_num >= stage2_unfreeze) and (bool_s2_unfreezed == False):
-                core(model).unfreeze_encoder(2); bool_s2_unfreezed = True; some_thing_happend = True; n_layer = 2
-            elif (epoch_num >= stage1_unfreeze) and (bool_s1_unfreezed == False):
-                core(model).unfreeze_encoder(1); bool_s1_unfreezed = True; some_thing_happend = True; n_layer = 1
-            elif (epoch_num >= stage0_unfreeze) and (bool_s0_unfreezed == False):
-                core(model).unfreeze_encoder(0); bool_s0_unfreezed = True; some_thing_happend = True; n_layer = 0
+            # if stage_unfreeze is triggered, or where has not been a improvment for config.TRAIN.EARLY_STOPPING_PATIENCE
+            if ((epoch_num >= stage3_unfreeze) or unfreeze_in_next_epoch == True) and (bool_s3_unfreezed == False):
+                core(model).unfreeze_encoder(3); bool_s3_unfreezed = True; n_layer = 3 ; some_thing_happend = True; unfreeze_in_next_epoch == False
+            elif ((epoch_num >= stage2_unfreeze) or unfreeze_in_next_epoch == True) and (bool_s2_unfreezed == False):
+                core(model).unfreeze_encoder(2) ; bool_s2_unfreezed = True; n_layer = 2 ; some_thing_happend = True; unfreeze_in_next_epoch == False
+            elif ((epoch_num >= stage1_unfreeze)or unfreeze_in_next_epoch == True) and (bool_s1_unfreezed == False):
+                core(model).unfreeze_encoder(1); bool_s1_unfreezed = True; n_layer = 1 ; some_thing_happend = True ; unfreeze_in_next_epoch == False
+            elif ((epoch_num >= stage0_unfreeze)or unfreeze_in_next_epoch == True) and (bool_s0_unfreezed == False):
+                core(model).unfreeze_encoder(0); bool_s0_unfreezed = True; n_layer = 0 ; some_thing_happend = True; unfreeze_in_next_epoch == False 
                 
-            if some_thing_happend == True: # --- after an unfreazing the optimizer needs to be updated
+            if some_thing_happend: # --- after an unfreazing the optimizer needs to be updated
                 some_thing_happend = False
                 existing_ids = {id(q) for g in optimizer.param_groups for q in g['params']}
-                new_params = [p for p in model.parameters()
-                            if p.requires_grad and id(p) not in existing_ids]
+                new_params = [p for p in unfroze if id(p) not in existing_ids]
+
                 if new_params:
-                    print(f"Adding {len(new_params)} new parameters to optimizer of layer {n_layer}", file=sys.stderr)
+                    
                     base = optimizer.defaults  # contains weight_decay, betas, eps
                     wd   = base.get('weight_decay', config.TRAIN.WEIGHT_DECAY)
                     betas= base.get('betas',      config.TRAIN.OPTIMIZER.BETAS)
                     eps  = base.get('eps',        config.TRAIN.OPTIMIZER.EPS)
-                    optimizer.add_param_group({ 'params': new_params,  'weight_decay': wd,
-                        'betas': betas, 'eps': eps, 'lr': optimizer.param_groups[0]['lr'], }) 
+                    lr    = optimizer.param_groups[0]['lr']
+
+                    optimizer.add_param_group({ 
+                        'params': new_params,  
+                        'weight_decay': wd,
+                        'betas': betas, 
+                        'eps': eps, 
+                        'lr': lr }) 
+                    print(f"Adding {len(new_params)} new parameters to optimizer of layer {n_layer}")
                 else:
-                    raise ValueError(f"No new parameter added to optimizer, that's baaad")
+                    raise ValueError(f"No new parameter added to optimizer  {n_layer}, that's baaad")
         
         # -------------------------------------------
         for i, g in enumerate(optimizer.param_groups):
@@ -260,8 +273,15 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
         else: # ----------- early stopping -------------------------------
             since_best += 1
             if since_best >= config.TRAIN.EARLY_STOPPING_PATIENCE:
-                logging.info(f"Early stopping at epoch {epoch_num} (no val improvement for {config.TRAIN.EARLY_STOPPING_PATIENCE} epochs).")
-                last_run = True
+                if bool_s0_unfreezed == True:
+                    # if all encoder layers are unfreezed and where is no improvmetn
+                    # early stopping is applied
+                    logging.info(f"Early stopping at epoch {epoch_num} (no val improvement for {config.TRAIN.EARLY_STOPPING_PATIENCE} epochs).")
+                    last_run = True
+                else:
+                    # in the next run the next encoder layer is unfreezed
+                    unfreeze_in_next_epoch = True
+                
         
         # -------------------- saves the last run ------------------------------------
         if epoch_num >= max_epoch - 1:

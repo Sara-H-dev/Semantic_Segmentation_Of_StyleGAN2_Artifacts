@@ -835,11 +835,20 @@ class MSUNetSys(nn.Module):
                 p.requires_grad = not freeze
 
     def unfreeze_encoder(self, num_stage: int):
+
+        # bounds check
+        n_stages = len(self.layers)
+        if not (0 <= num_stage < n_stages):
+            raise ValueError(f"num_stage={num_stage} out of range [0, {n_stages-1}]")
+
         # for unfreening diffrent stages
         for p in self.layers[num_stage].parameters():
-            p.requires_grad = True
+            if not p.requires_grad:
+                p.requires_grad_(True)
 
         if num_stage == 0:
             for p in self.patch_embed.parameters():
-                p.requires_grad = True
-    
+                if not p.requires_grad:
+                    p.requires_grad_(True)
+
+        
