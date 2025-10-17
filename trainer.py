@@ -160,7 +160,6 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
         # -------- UNFREEZING THE ENCODER --------
         print(f"freeze encoder is {freeze_encoder}")
         if freeze_encoder:
-            unfroze = []
             # unfreeze form the deepest encoder level to the highests
             # if stage_unfreeze is triggered, or where has not been a improvment for config.TRAIN.EARLY_STOPPING_PATIENCE
             if ((epoch_num >= stage3_unfreeze) or unfreeze_in_next_epoch == True) and (bool_s3_unfreezed == False):
@@ -175,7 +174,8 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
             if some_thing_happend: # --- after an unfreazing the optimizer needs to be updated
                 some_thing_happend = False
                 existing_ids = {id(q) for g in optimizer.param_groups for q in g['params']}
-                new_params = [p for p in unfroze if id(p) not in existing_ids]
+                new_params = [p for p in model.parameters()
+                    if p.requires_grad and id(p) not in existing_ids]
 
                 if new_params:
                     
