@@ -43,6 +43,7 @@ def calculate_metrics(  model,
                         csv_real_epoch,
                         csv_batch_real,
                         csv_batch_fake,
+                        mean_train_loss,
                         epoch,
                         device = None, 
                         split = "test", 
@@ -171,12 +172,12 @@ def calculate_metrics(  model,
     (mean_accuracy, mean_val_loss) = np.mean(np.array(accuracy_list, dtype=float), axis=0)
     mean_confusion_matrix_bin = np.mean(np.array(confusion_matrix_bin_list, dtype=float), axis=0)
 
-    csv_all_epoch.writerow([epoch, float(mean_accuracy), float(mean_val_loss), mean_confusion_matrix_bin])
+    csv_all_epoch.writerow([epoch, float(mean_accuracy), float(mean_val_loss), float(mean_train_loss), mean_confusion_matrix_bin])
     logging.info(f"{split} epoch {epoch}: mean_accuracy {mean_accuracy} "
                  f"mean_cofusion_matrix [[tp, fp],[fn, tn]]{mean_confusion_matrix_bin} "
                  f"mean_val_loss {mean_val_loss}")
     
-    print(f"epoch{epoch} val_loss:{mean_val_loss} mean_soft_dice:{mean_soft_dice}")
+    print(f"epoch{epoch} val_loss:{mean_val_loss} train_loss:{mean_train_loss} mean_soft_dice:{mean_soft_dice}")
 
     return mean_soft_dice, ten_output_saver
 

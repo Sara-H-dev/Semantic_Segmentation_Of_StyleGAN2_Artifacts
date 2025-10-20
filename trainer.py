@@ -149,27 +149,27 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
     n_layer = 5
     last_run = False
     opt_step = 0
-    unfreeze_in_next_epoch = False
-
     
+    unfreeze_in_next_epoch = False
+    train_loss_list = []
 
     # ====================== Training START ==========================================
 
     for epoch_num in tqdm(range(max_epoch)):
+        steps_per_epoch = 0
     
         # -------- UNFREEZING THE ENCODER --------
-        print(f"freeze encoder is {freeze_encoder}")
         if freeze_encoder:
             # unfreeze form the deepest encoder level to the highests
             # if stage_unfreeze is triggered, or where has not been a improvment for config.TRAIN.EARLY_STOPPING_PATIENCE
             if ((epoch_num >= stage3_unfreeze) or unfreeze_in_next_epoch == True) and (bool_s3_unfreezed == False):
-                core(model).unfreeze_encoder(3); bool_s3_unfreezed = True; n_layer = 3 ; some_thing_happend = True; unfreeze_in_next_epoch == False
+                core(model).unfreeze_encoder(3); bool_s3_unfreezed = True; n_layer = 3 ; some_thing_happend = True; unfreeze_in_next_epoch = False
             elif ((epoch_num >= stage2_unfreeze) or unfreeze_in_next_epoch == True) and (bool_s2_unfreezed == False):
-                core(model).unfreeze_encoder(2) ; bool_s2_unfreezed = True; n_layer = 2 ; some_thing_happend = True; unfreeze_in_next_epoch == False
+                core(model).unfreeze_encoder(2) ; bool_s2_unfreezed = True; n_layer = 2 ; some_thing_happend = True; unfreeze_in_next_epoch = False
             elif ((epoch_num >= stage1_unfreeze)or unfreeze_in_next_epoch == True) and (bool_s1_unfreezed == False):
-                core(model).unfreeze_encoder(1); bool_s1_unfreezed = True; n_layer = 1 ; some_thing_happend = True ; unfreeze_in_next_epoch == False
+                core(model).unfreeze_encoder(1); bool_s1_unfreezed = True; n_layer = 1 ; some_thing_happend = True ; unfreeze_in_next_epoch = False
             elif ((epoch_num >= stage0_unfreeze)or unfreeze_in_next_epoch == True) and (bool_s0_unfreezed == False):
-                core(model).unfreeze_encoder(0); bool_s0_unfreezed = True; n_layer = 0 ; some_thing_happend = True; unfreeze_in_next_epoch == False 
+                core(model).unfreeze_encoder(0); bool_s0_unfreezed = True; n_layer = 0 ; some_thing_happend = True; unfreeze_in_next_epoch = False 
                 
             if some_thing_happend: # --- after an unfreazing the optimizer needs to be updated
                 some_thing_happend = False
@@ -225,6 +225,7 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
                 scaler.update()
                 opt_step += 1
                 lr = optimizer.param_groups[0]['lr']
+                train_loss_list.append(loss)
             
             # ------------ calculating validation loss ---------
             if opt_step % 100 == 0:                
@@ -241,6 +242,7 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
             csv_writer.writerow([step, lr, loss.item(), val_loss])
             iter_num = iter_num + 1;  writer.add_scalar('info/total_loss', loss.item(), iter_num)
         #==================== END OF EPOCH ======================================
+        mean_train_loss = sum(train_loss_list) / len(train_loss_list)
 
         # -------- VALIDATION ----------------
         model.eval()
@@ -258,7 +260,8 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
             csv_fake_epoch = csv_fake_epoch,
             csv_real_epoch = csv_real_epoch,
             csv_batch_real = csv_batch_real,
-            csv_batch_fake = csv_batch_fake)
+            csv_batch_fake = csv_batch_fake,
+            mean_train_loss = mean_train_loss)
         
         # ------------------ save best run --------------------------------
         if mean_dice > best_val_dice:
@@ -273,15 +276,15 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
         else: # ----------- early stopping -------------------------------
             since_best += 1
             if since_best >= config.TRAIN.EARLY_STOPPING_PATIENCE:
-                if bool_s0_unfreezed == True:
+                if (bool_s0_unfreezed == True) or (freeze_encoder == False):
                     # if all encoder layers are unfreezed and where is no improvmetn
                     # early stopping is applied
                     logging.info(f"Early stopping at epoch {epoch_num} (no val improvement for {config.TRAIN.EARLY_STOPPING_PATIENCE} epochs).")
                     last_run = True
-                    since_best = 0
                 else:
                     # in the next run the next encoder layer is unfreezed
                     unfreeze_in_next_epoch = True
+                    since_best = 0
                 
         
         # -------------------- saves the last run ------------------------------------

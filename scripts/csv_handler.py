@@ -14,7 +14,7 @@ class CSV_Handler:
         val_metric_file = os.path.join(log_save_path, "val_metric_all_epoch.csv")
         csv_all_epoch_file = open(val_metric_file, "w", newline="")
         csv_all_epoch = csv.writer(csv_all_epoch_file)
-        csv_all_epoch.writerow(["epoch","mean_accuracy","mean_val_loss","mean_confusion_matrix_bin"])
+        csv_all_epoch.writerow(["epoch","mean_accuracy","mean_val_loss", "mean_train_loss","mean_confusion_matrix_bin"])
         
         # val metric per epoch for real images
         val_metric_file = os.path.join(log_save_path, "val_metric_real_epoch.csv")
