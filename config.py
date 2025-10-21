@@ -97,6 +97,7 @@ _C.TRAIN.UF_LOSS_GAMMA = 0.5
 _C.TRAIN.UF_LOSS_WEIGTH = 0.5
 
 _C.TRAIN.EARLY_STOPPING_PATIENCE = 15
+_C.TRAIN.EARLY_STOPPING_FLAG = False
 _C.TRAIN.SIG_THRESHOLD = 0.5
 
 # -----------------------------------------------------------------------------

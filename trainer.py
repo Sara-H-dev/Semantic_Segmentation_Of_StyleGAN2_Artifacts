@@ -149,14 +149,12 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
     n_layer = 5
     last_run = False
     opt_step = 0
-    
     unfreeze_in_next_epoch = False
     train_loss_list = []
 
     # ====================== Training START ==========================================
 
     for epoch_num in tqdm(range(max_epoch)):
-        steps_per_epoch = 0
     
         # -------- UNFREEZING THE ENCODER --------
         if freeze_encoder:
@@ -237,7 +235,6 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
                     bool_break = True, # true if you don't want to go through all validation batches, but want to cancel beforehand
                     n_batches = 20, # Only important if bool_break is true. Number of batches to be validated
                     )
-
             # ------------------- logging --------------------------   
             csv_writer.writerow([step, lr, loss.item(), val_loss])
             iter_num = iter_num + 1;  writer.add_scalar('info/total_loss', loss.item(), iter_num)
@@ -275,7 +272,7 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
                 logging.info(f"Saved new BEST checkpoint to {best_path} (val_dice={best_val_dice:.5f})")
         else: # ----------- early stopping -------------------------------
             since_best += 1
-            if since_best >= config.TRAIN.EARLY_STOPPING_PATIENCE:
+            if (since_best >= config.TRAIN.EARLY_STOPPING_PATIENCE) and (config.TRAIN.EARLY_STOPPING_FLAG == True):
                 if (bool_s0_unfreezed == True) or (freeze_encoder == False):
                     # if all encoder layers are unfreezed and where is no improvmetn
                     # early stopping is applied
@@ -290,6 +287,7 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
         # -------------------- saves the last run ------------------------------------
         if epoch_num >= max_epoch - 1:
             last_run = True
+            logging(f"Since best = {since_best}")
             if config.SAVE_LAST_RUN: 
                 save_mode_path = os.path.join(log_save_path, 'epoch_' + str(epoch_num) + '.pth')
                 torch.save({'epoch': epoch_num, 'model':  core(model).state_dict(), 'optimizer': optimizer.state_dict(),       

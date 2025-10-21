@@ -1,4 +1,5 @@
 network/pretrained_weights/SegFace_swin_celaba_512.pt 
+network/pretrained_weights/swin_b-68c6b09e.pth
 dataset/fake_images
 dataset/real_images
 dataset/fake_labels
