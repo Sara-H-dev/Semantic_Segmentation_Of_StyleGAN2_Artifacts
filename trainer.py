@@ -223,7 +223,7 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
                 scaler.update()
                 opt_step += 1
                 lr = optimizer.param_groups[0]['lr']
-                train_loss_list.append(loss)
+                train_loss_list.append(loss.item())
             
             # ------------ calculating validation loss ---------
             if opt_step % 100 == 0:                
