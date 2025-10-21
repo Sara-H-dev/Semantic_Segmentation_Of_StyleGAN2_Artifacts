@@ -13,8 +13,10 @@ HARDWARE:
 MODEL:
   TYPE: "swin"
   NAME: "swin_b"
+  PRETRAIN_WEIGHTS: "segface" # segface or imagenet1k
   PRETRAIN_CKPT: "./pretrained_ckpt/swin_b.pth"
   PRETRAIN_SEGFACE: "./network/pretrained_weights/SegFace_swin_celaba_512.pt"
+  PRETRAIN_IMAGENET1K: "./network/pretrained_weights/swin_b-68c6b09e.pth"
 
   NUM_CLASSES: 1
   DROP_RATE: 0.0

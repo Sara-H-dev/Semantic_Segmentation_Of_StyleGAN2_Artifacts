@@ -39,8 +39,10 @@ _C.MODEL = CN()
 
 _C.MODEL.TYPE = 'swin'
 _C.MODEL.NAME = 'swin_b'
+_C.MODEL.PRETRAIN_WEIGHTS = 'segface' # segface or imagenet1k
 _C.MODEL.PRETRAIN_CKPT = './pretrained_ckpt/swin_b.pth' # Checkpoint to resume, could be overwritten by command line argument
 _C.MODEL.PRETRAIN_SEGFACE = './network/pretrained_weights/SegFace_swin_celaba_512.pt' # path to segface weights
+_C.MODEL.PRETRAIN_IMAGENET1K = './network/pretrained_weights/swin_b-68c6b09e.pth' # path to segface weights
 
 _C.MODEL.NUM_CLASSES = 1 # Number of classes, overwritten in data preparation
 _C.MODEL.DROP_RATE = 0.0 # Dropout rate

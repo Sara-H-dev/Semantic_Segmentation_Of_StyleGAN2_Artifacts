@@ -67,11 +67,17 @@ def main():
                     img_size = img_size, 
                     num_classes = num_classes
                     )
+    
     # pretrained weights are loaded
     try:
-        model.load_segface_weight(config)
+        if config.MODEL.PRETRAIN_WEIGHTS == 'segface':
+            model.load_segface_weight(config)
+        elif config.MODEL.PRETRAIN_WEIGHTS == 'imagenet1k':
+            model.load_IMAGENET1K_weight(config)
+        else:
+            raise ValueError(f"Could not load pretrained weights")
     except Exception as e:
-        raise ValueError(f"Could not load segface weights: {e}")
+        raise ValueError(f"Could not load pretrained weights: {e}")
 
     # if cuda is avilable
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

@@ -146,6 +146,87 @@ class MSUNet(nn.Module):
         #logger.info(msg)
         logger.info("End of the pretrained copying process")
 
+    def load_IMAGENET1K_weight(self, config):
+        # cpu or cuda
+        pretrained_path = config.MODEL.PRETRAIN_IMAGENET1K
+
+        if not pretrained_path or not os.path.exists(pretrained_path):
+            logger.error(f"No IMAGENET1K pretrain found at: {pretrained_path}")
+            return
+
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+        IMAGENET1K_dict = torch.load(pretrained_path, map_location = device)
+
+        nums = list(range(18))
+        new_state_dict = {}
+        skip = False
+        features_counter = 0
+
+        for k, v in IMAGENET1K_dict.items():
+            new_k = k
+            if k.startswith("features"):
+                features_counter = 1
+                if k.startswith("features.0.0"):
+                    new_k = k.replace("features.0.0", "patch_embed.proj")
+                elif k.startswith("features.0.2."):
+                    new_k = k.replace("features.0.2", "patch_embed.norm")
+                elif k.startswith("features.1.0."):
+                    new_k = k.replace("features.1.0", "layers.0.blocks.0")
+                elif k.startswith("features.1.1."):
+                    new_k = k.replace("features.1.1", "layers.0.blocks.1")
+                elif k.startswith("features.2."):
+                    new_k = k.replace("features.2", "layers.0.downsample")
+                elif k.startswith("features.3.0."):
+                    new_k = k.replace("features.3.0", "layers.1.blocks.0")
+                elif k.startswith("features.3.1."):
+                    new_k = k.replace("features.3.1", "layers.1.blocks.1")
+                elif k.startswith("features.4."):
+                    new_k = k.replace("features.4", "layers.1.downsample")
+                elif k.startswith("features.5."):
+                    for i in nums: # 0 to 17
+                        segface_str = "features.5." + str(i)
+                        msunet_str = "layers.2.blocks." + str(i)
+                        if k.startswith(segface_str):
+                            new_k = k.replace(segface_str, msunet_str)
+                            break
+                elif k.startswith("features.6."):
+                    new_k = k.replace("features.6", "layers.2.downsample")
+                elif k.startswith("features.7.0."):
+                    new_k = k.replace("features.7.0", "layers.3.blocks.0")
+                elif k.startswith("features.7.1."):
+                    new_k = k.replace("features.7.1", "layers.3.blocks.1")
+                else:
+                    msg = f"Key {k} not found in dictionary!!"
+                    logger.error(msg)
+                    raise ValueError(msg)
+                
+
+                if new_k == k:
+                    msg = f"Key {k} not replaced!"
+                    logger.error(msg)
+                    raise ValueError(msg)           
+                new_state_dict[new_k] = v
+                
+            
+        if features_counter == 0:
+            msg = f"No new keys from backbone!!"
+            logger.error(msg)
+            raise ValueError(msg)
+
+        model_dict = self.ms_unet.state_dict()
+
+        for k in list(new_state_dict.keys()):
+                if k in model_dict:
+                    if new_state_dict[k].shape != model_dict[k].shape:
+                        msg = f"Key {k} does not match the dictionary of MSUNet!"
+                        logger.error(msg)
+                        raise ValueError(msg)
+
+        msg = self.ms_unet.load_state_dict(new_state_dict, strict=False)
+        #logger.info(msg)
+        logger.info("End of the pretrained copying process")
+
 """
     # for loading pretrained weights
     def load_from(self, config):
