@@ -12,6 +12,7 @@ from trainer import trainer
 from config import get_config
 from datetime import datetime
 import shutil
+from tensorboardX import SummaryWriter
 
 def main():
     parser = argparse.ArgumentParser()
@@ -38,6 +39,8 @@ def main():
     img_size = config.DATA.IMG_SIZE
     num_classes = config.MODEL.NUM_CLASSES
     print(f"Weight_decay = {config.TRAIN.WEIGHT_DECAY}")
+
+    
     
     os.makedirs(output_dir, exist_ok=True)
     # copy the yaml to model_out
@@ -52,6 +55,17 @@ def main():
         cudnn.benchmark = False
         cudnn.deterministic = True
         torch.use_deterministic_algorithms(True)
+
+    # ---------- logger ------------
+    for handler in logging.root.handlers[:]:
+        logging.root.removeHandler(handler)
+
+    logging.basicConfig(
+        filename = os.path.join(output_dir, "log.txt"),
+        level=logging.INFO,
+        format='[%(asctime)s.%(msecs)03d] %(message)s', 
+        datefmt='%H:%M:%S') #houres, minutes, seconds
+    writer = SummaryWriter(output_dir + '/log')
 
     random.seed(seed)
     np.random.seed(seed)
@@ -71,9 +85,9 @@ def main():
     # pretrained weights are loaded
     try:
         if config.MODEL.PRETRAIN_WEIGHTS == 'segface':
-            model.load_segface_weight(config)
+            model.load_segface_weight(config, logging)
         elif config.MODEL.PRETRAIN_WEIGHTS == 'imagenet1k':
-            model.load_IMAGENET1K_weight(config)
+            model.load_IMAGENET1K_weight(config, logging)
         else:
             raise ValueError(f"Could not load pretrained weights")
     except Exception as e:
@@ -85,7 +99,7 @@ def main():
 
     # train dictionary wiht the trianer_MS_UNet function
     trainer_dic = {'SegArtifact': trainer,}
-    trainer_dic['SegArtifact'](model, output_dir, config, base_lr)
+    trainer_dic['SegArtifact'](model, logging, writer, output_dir, config, base_lr)
   
     return timestamp_str
 

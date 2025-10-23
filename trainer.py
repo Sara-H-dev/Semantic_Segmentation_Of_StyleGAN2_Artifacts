@@ -13,7 +13,6 @@ import math
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from tensorboardX import SummaryWriter
 from torch.utils.data import DataLoader
 from torchvision import transforms
 from torchvision.utils import save_image
@@ -26,9 +25,11 @@ from scripts.map_generator import save_color_heatmap
 from scripts.validation_functions import calculate_metrics, validation_loss
 from scripts.csv_handler import CSV_Handler
 
-def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
+def trainer(model, logging, writer, log_save_path = "", config = None, base_lr = 5e-4):
+
     from dataset.dataset import SegArtifact_dataset, RandomGenerator
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
     # ----------- get from config ---------
     if config == None: 
         logging.error("Config file is not found!")
@@ -44,20 +45,11 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
         batch_size = batch_size * n_gpu   # batch_size
     #--------------------------------------
     
+    #--------------csv handling ---------------
     # folder for the final output of binary and heatmap masks
     os.makedirs(log_save_path, exist_ok=True)
     pred_dir = os.path.join(log_save_path, "final_preds")
     os.makedirs(pred_dir, exist_ok=True)
-
-    # ---------- logger and csv config ------------
-    for handler in logging.root.handlers[:]:
-        logging.root.removeHandler(handler)
-    logging.basicConfig(
-        filename = os.path.join(log_save_path, "log.txt"),
-        level=logging.INFO,
-        format='[%(asctime)s.%(msecs)03d] %(message)s', 
-        datefmt='%H:%M:%S') #houres, minutes, seconds
-    writer = SummaryWriter(log_save_path + '/log')
 
     csv_object = CSV_Handler(log_save_path)
     csv_writer, csv_batch_fake, csv_batch_real, csv_real_epoch, csv_fake_epoch, csv_all_epoch = csv_object.return_writer()
@@ -103,6 +95,7 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
                 shuffle = False, 
                 num_workers = 1,
                 pin_memory = torch.cuda.is_available())
+    
     # ------------- Loss Function --------------------------------
     dynamic_loss = DynamicLoss(alpha=config.TRAIN.TVERSKY_LOSS_ALPHA, beta=config.TRAIN.TVERSKY_LOSS_BETA)
 

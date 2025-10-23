@@ -57,12 +57,12 @@ class MSUNet(nn.Module):
         self.ms_unet.unfreeze_encoder(layer_num)
 
 
-    def load_segface_weight(self, config):
+    def load_segface_weight(self, config, logging):
         # cpu or cuda
         pretrained_path = config.MODEL.PRETRAIN_SEGFACE
 
         if not pretrained_path or not os.path.exists(pretrained_path):
-            logger.error(f"No segface pretrain found at: {pretrained_path}")
+            logging.error(f"No segface pretrain found at: {pretrained_path}")
             return
 
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -70,7 +70,7 @@ class MSUNet(nn.Module):
         segface_dict = torch.load(pretrained_path, map_location = device)
         if "state_dict_backbone" not in segface_dict:
             msg = f"'state_dict_backbone' not found in checkpoint: {pretrained_path}"
-            logger.error(msg)
+            logging.error(msg)
             raise KeyError(msg)
         
         segface_dict = segface_dict["state_dict_backbone"]
@@ -117,20 +117,20 @@ class MSUNet(nn.Module):
                     skip = True
                 else:
                     msg = f"Key {k} not found in dictionary!!"
-                    logger.error(msg)
+                    logging.error(msg)
                     raise ValueError(msg)
                 
                 if skip == False:
                     if new_k == k:
                         msg = f"Key {k} not replaced!"
-                        logger.error(msg)
+                        logging.error(msg)
                         raise ValueError(msg)           
                     new_state_dict[new_k] = v
                 
             
         if backbone_counter == 0:
             msg = f"No new keys from backbone!!"
-            logger.error(msg)
+            logging.error(msg)
             raise ValueError(msg)
 
         model_dict = self.ms_unet.state_dict()
@@ -139,19 +139,19 @@ class MSUNet(nn.Module):
                 if k in model_dict:
                     if new_state_dict[k].shape != model_dict[k].shape:
                         msg = f"Key {k} does not match the dictionary of MSUNet!"
-                        logger.error(msg)
+                        logging.error(msg)
                         raise ValueError(msg)
 
         msg = self.ms_unet.load_state_dict(new_state_dict, strict=False)
         #logger.info(msg)
-        logger.info("End of the pretrained copying process")
+        logging.info("End of the Segface pretrained copying process")
 
-    def load_IMAGENET1K_weight(self, config):
+    def load_IMAGENET1K_weight(self, config, logging):
         # cpu or cuda
         pretrained_path = config.MODEL.PRETRAIN_IMAGENET1K
 
         if not pretrained_path or not os.path.exists(pretrained_path):
-            logger.error(f"No IMAGENET1K pretrain found at: {pretrained_path}")
+            logging.error(f"No IMAGENET1K pretrain found at: {pretrained_path}")
             return
 
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -198,20 +198,20 @@ class MSUNet(nn.Module):
                     new_k = k.replace("features.7.1", "layers.3.blocks.1")
                 else:
                     msg = f"Key {k} not found in dictionary!!"
-                    logger.error(msg)
+                    logging.error(msg)
                     raise ValueError(msg)
                 
 
                 if new_k == k:
                     msg = f"Key {k} not replaced!"
-                    logger.error(msg)
+                    logging.error(msg)
                     raise ValueError(msg)           
                 new_state_dict[new_k] = v
                 
             
         if features_counter == 0:
             msg = f"No new keys from backbone!!"
-            logger.error(msg)
+            logging.error(msg)
             raise ValueError(msg)
 
         model_dict = self.ms_unet.state_dict()
@@ -225,7 +225,7 @@ class MSUNet(nn.Module):
 
         msg = self.ms_unet.load_state_dict(new_state_dict, strict=False)
         #logger.info(msg)
-        logger.info("End of the pretrained copying process")
+        logging.info("End of MAGENET1K the pretrained copying process")
 
 """
     # for loading pretrained weights
