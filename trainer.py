@@ -287,7 +287,7 @@ def trainer(model, log_save_path = "", config = None, base_lr = 5e-4):
         # -------------------- saves the last run ------------------------------------
         if epoch_num >= max_epoch - 1:
             last_run = True
-            logging(f"Since best = {since_best}")
+            logging.info(f"Since best = {since_best}")
             if config.SAVE_LAST_RUN: 
                 save_mode_path = os.path.join(log_save_path, 'epoch_' + str(epoch_num) + '.pth')
                 torch.save({'epoch': epoch_num, 'model':  core(model).state_dict(), 'optimizer': optimizer.state_dict(),       

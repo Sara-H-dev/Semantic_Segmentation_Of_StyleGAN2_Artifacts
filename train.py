@@ -20,7 +20,7 @@ def main():
     parser.add_argument('--use_checkpoint', action='store_true',
                         help="whether to use gradient checkpointing to save memory")
     parser.add_argument('--sig_threshold', type = float, help = 'treshold that decides if a pixel is an artefact or not')
-    #parser.add_argument('--weight_decay', type = float)
+    parser.add_argument('--weight_decay', type = float)
     parser.add_argument('--cfg', type=str, required=True, metavar="FILE", help='path to config file', )
 
     args = parser.parse_args()
@@ -30,7 +30,7 @@ def main():
     now = datetime.now()
     # format: DayMonthYear_HourMinute
     timestamp_str = now.strftime("%d%m%y_%H%M")
-    output_dir = os.path.join(config.OUTPUT_DIR, timestamp_str, str(config.TRAIN.WEIGHT_DECAY))
+    output_dir = os.path.join(config.OUTPUT_DIR, timestamp_str)
     # output_dir = os.path.join(config.OUTPUT_DIR, timestamp_str)
     seed = config.SEED
     batch_size = config.DATA.BATCH_SIZE

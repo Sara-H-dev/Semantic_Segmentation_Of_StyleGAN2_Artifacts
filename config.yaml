@@ -45,11 +45,11 @@ MODEL:
     FINAL_UPSAMPLE: "expand_first"
 
 TRAIN:
-  MAX_EPOCHS: 100
+  MAX_EPOCHS: 40
   START_EPOCH: 0
   WARMUP_EPOCHS: 10
   WEIGHT_DECAY: 0
-  BASE_LR: 0.00005 #5 e-4 #Peak-LR after Warm-up
+  BASE_LR: 0.00001 #5 e-4 #Peak-LR after Warm-up
   WARMUP_LR: 0.000001 #10e-6
   MIN_LR: 0.0000001 #10e-7
 

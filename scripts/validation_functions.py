@@ -105,7 +105,7 @@ def calculate_metrics(  model,
             if not ground_truth.any().item(): 
                 real_image_counter += 1
                 confusion_matrix_bin, accuracy = calculate_metrics_real(pred_bin, pred, ground_truth)
-                csv_batch_real.writerow([epoch, i_batch, accuracy, confusion_matrix_bin, float(val_loss)]) 
+                #csv_batch_real.writerow([epoch, i_batch, accuracy, confusion_matrix_bin, float(val_loss)]) 
 
                 confusion_matrix_bin_list.append(confusion_matrix_bin)
                 real_conf_matrix_bin_list.append(confusion_matrix_bin)
@@ -117,7 +117,7 @@ def calculate_metrics(  model,
                     bin_IoU, bin_dice, bin_f1,
                     confusion_matrix_bin, confusion_matrix_soft,
                     i_soft_dice, i_soft_iou) = calculate_metrics_fake(pred_bin, pred, ground_truth)
-                csv_batch_fake.writerow([epoch, i_batch, bin_accuracy, bin_recall, bin_precision, float(val_loss), bin_IoU, bin_dice, bin_f1, confusion_matrix_bin, confusion_matrix_soft, i_soft_dice, i_soft_iou])
+                #csv_batch_fake.writerow([epoch, i_batch, bin_accuracy, bin_recall, bin_precision, float(val_loss), bin_IoU, bin_dice, bin_f1, confusion_matrix_bin, confusion_matrix_soft, i_soft_dice, i_soft_iou])
 
                 metric_fake_list.append([bin_accuracy, bin_recall, bin_precision, bin_IoU, bin_dice, bin_f1, i_soft_dice, i_soft_iou])
                 confusion_matrix_bin_list.append(confusion_matrix_bin)
