@@ -5,6 +5,9 @@ import torch
 from torch.utils.data import Dataset
 from PIL import Image
 from torchvision import transforms
+import cv2
+import albumentations as A
+import matplotlib.pyplot as plt
 
 # flips the image and label
 def random_flip(image, label):
@@ -18,27 +21,60 @@ class RandomGenerator(object):
     def __init__(self, output_size, random_flip_flag = False):
         self.output_size = output_size
         self.random_flip_flag = random_flip_flag
+        self.transform = A.Compose([
+                A.ToGray(p=0.1),
+                A.RandomBrightnessContrast(brightness_limit=0.2, contrast_limit=0.2, p=0.8),
+                A.HueSaturationValue(hue_shift_limit=6, sat_shift_limit=10, val_shift_limit=8, p=0.8),
+                A.OneOf([
+                    A.RandomGamma(gamma_limit=(90, 120), p=1.0),
+                    A.GaussianBlur(blur_limit=(3, 5), p=1.0),
+                ], p=0.7),
+            ])
 
     def __call__(self, sample):
         image, label = sample['image'], sample['label']
 
         # PIL → NumPy
-        image = np.array(image, dtype=np.float32)   # [H,W,3]
+        image = np.array(image, dtype=np.uint8)   # [H,W,3]
         label = np.array(label, dtype=np.uint8)    # [H,W]
+
+        
+        if random.random() > 0.1:
+            # Define transformation pipeline 
+            image = self.transform(image=image)["image"]
 
         if self.random_flip_flag:
             if random.random() > 0.5:
                 image, label = random_flip(image, label)
 
         H, W = image.shape[:2]
-        
         if (H, W) != tuple(self.output_size):
-            raise ValueError(f"Wrong image size: {H, W}")
+            raise ValueError(f"RandomGenerator: Wrong image size: {H, W}")
+        
+        if image.shape[2] != 3:
+            raise ValueError(f"RandomGenerator: Image does not have 3 channels")
+        
         
         # Normalisation 0-1, if PNGs 0..255
-        if image.max() > 1.0:
-            image = image / 255.0
+        image = image.astype(np.float32) / 255.0
         label = (label > 127).astype(np.uint8)
+
+        """
+         # ==== DEBUG-AUSGABE ====
+        plt.figure(figsize=(8, 4))
+        plt.subplot(1, 2, 1)
+        plt.imshow(image)
+        plt.title("Augmentiertes Bild")
+        plt.axis("off")
+
+        plt.subplot(1, 2, 2)
+        plt.imshow(label, cmap="gray")
+        plt.title("Maske")
+        plt.axis("off")
+
+        plt.show()
+        # =======================
+        """
         
         image = torch.from_numpy(image).permute(2, 0, 1)  # [3,H,W]
         label = torch.from_numpy(label.astype(np.float32))
