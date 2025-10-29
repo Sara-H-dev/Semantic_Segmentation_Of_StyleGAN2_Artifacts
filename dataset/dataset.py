@@ -22,12 +22,12 @@ class RandomGenerator(object):
         self.output_size = output_size
         self.random_flip_flag = random_flip_flag
         self.transform = A.Compose([
-                A.ToGray(p=0.1),
-                A.RandomBrightnessContrast(brightness_limit=0.2, contrast_limit=0.2, p=0.8),
-                A.HueSaturationValue(hue_shift_limit=6, sat_shift_limit=10, val_shift_limit=8, p=0.8),
+                A.ToGray(p=0.05),
+                A.RandomBrightnessContrast(brightness_limit=0.1, contrast_limit=0.1, p=0.8),
+                A.HueSaturationValue(hue_shift_limit=4, sat_shift_limit=20, val_shift_limit=2, p=0.8),
                 A.OneOf([
-                    A.RandomGamma(gamma_limit=(90, 120), p=1.0),
-                    A.GaussianBlur(blur_limit=(3, 5), p=1.0),
+                    A.RandomGamma(gamma_limit=(90, 110), p=1.0),
+                    A.GaussianBlur(blur_limit=(3, 5), p=0.5),
                 ], p=0.7),
             ])
 

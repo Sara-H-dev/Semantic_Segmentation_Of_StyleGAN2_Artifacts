@@ -170,6 +170,14 @@ def update_config(config, bool_test, bool_train, args):
         config.DETERMINISTIC = True
     if args.weight_decay:
         config.TRAIN.WEIGHT_DECAY = args.weight_decay
+    if args.drop_path:
+        config.MODEL.DROP_PATH_RATE = args.drop_path
+    if args.drop_rate:
+        config.MODEL.DROP_RATE = args.drop_rate
+    if args.alpha:
+        beta = 1 - args.alpha
+        config.TRAIN.TVERSKY_LOSS_ALPHA = args.alpha
+        config.TRAIN.TVERSKY_LOSS_BETA = beta
 
     if bool_train:
         if args.sig_threshold:
@@ -177,7 +185,7 @@ def update_config(config, bool_test, bool_train, args):
 
     if bool_test:
         if args.sig_threshold:
-            config.TEST.SIG_THRESHOLD = args.sig_threshold
+            config.TEST.SIG_THRESHOLD = args.sig_threshol
     
     config.freeze()
 

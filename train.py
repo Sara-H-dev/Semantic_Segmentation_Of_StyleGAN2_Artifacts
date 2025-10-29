@@ -22,6 +22,9 @@ def main():
                         help="whether to use gradient checkpointing to save memory")
     parser.add_argument('--sig_threshold', type = float, help = 'treshold that decides if a pixel is an artefact or not')
     parser.add_argument('--weight_decay', type = float)
+    parser.add_argument('--drop_path', type = float)
+    parser.add_argument('--drop_rate', type = float)
+    parser.add_argument('--alpha', type = float)
     parser.add_argument('--cfg', type=str, required=True, metavar="FILE", help='path to config file', )
 
     args = parser.parse_args()
@@ -30,18 +33,21 @@ def main():
 
     now = datetime.now()
     # format: DayMonthYear_HourMinute
-    timestamp_str = now.strftime("%d%m%y_%H%M")
-    output_dir = os.path.join(config.OUTPUT_DIR, timestamp_str)
+    # timestamp_str = now.strftime("%d%m%y_%H%M")
+    #output_dir = os.path.join(config.OUTPUT_DIR, timestamp_str)
     # output_dir = os.path.join(config.OUTPUT_DIR, timestamp_str)
+    output_dir = config.OUTPUT_DIR
     seed = config.SEED
     batch_size = config.DATA.BATCH_SIZE
     base_lr = config.TRAIN.BASE_LR
     img_size = config.DATA.IMG_SIZE
     num_classes = config.MODEL.NUM_CLASSES
     print(f"Weight_decay = {config.TRAIN.WEIGHT_DECAY}")
-
-    
-    
+    print(f"Drop_path = {config.MODEL.DROP_PATH_RATE}")
+    print(f"Drop_rate = {config.MODEL.DROP_RATE}")
+    print(f"tversky alpha = {config.TRAIN.TVERSKY_LOSS_ALPHA}")
+    print(f"tversky beta = {config.TRAIN.TVERSKY_LOSS_BETA}")
+ 
     os.makedirs(output_dir, exist_ok=True)
     # copy the yaml to model_out
     config_path = args.cfg
@@ -66,6 +72,9 @@ def main():
         format='[%(asctime)s.%(msecs)03d] %(message)s', 
         datefmt='%H:%M:%S') #houres, minutes, seconds
     writer = SummaryWriter(output_dir + '/log')
+
+    timestamp_str = now.strftime("%d%m%y_%H%M")
+    logging.info(f"date: {timestamp_str}")
 
     random.seed(seed)
     np.random.seed(seed)

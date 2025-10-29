@@ -57,11 +57,13 @@ def calculate_metrics(  model,
     
     # real
     real_conf_matrix_bin_list = []  # list of [[tp, fp],[fn, tn]]
+    real_confusion_matrix_soft_list = []
     accuracy_list_real = []         # [(acc, val_loss), ...]
     real_image_counter = 0
     # fake
     confusion_matrix_soft_list = [] # list of [[tp, fp],[fn, tn]]
     fake_conf_matrix_bin_list = []  # list of [[tp, fp],[fn, tn]]
+    fake_confusion_matrix_soft_list = []
     accuracy_list_fake = []         # [(acc, val_loss), ...]
     metric_fake_list = []           # [[acc, rec, prec, val_loss, IoU, dice, f1, soft_dice, ..], ..]
     # all
@@ -104,11 +106,13 @@ def calculate_metrics(  model,
             #real picture
             if not ground_truth.any().item(): 
                 real_image_counter += 1
-                confusion_matrix_bin, accuracy = calculate_metrics_real(pred_bin, pred, ground_truth)
+                confusion_matrix_bin, confusion_matrix_soft, accuracy = calculate_metrics_real(pred_bin, pred, ground_truth)
                 #csv_batch_real.writerow([epoch, i_batch, accuracy, confusion_matrix_bin, float(val_loss)]) 
 
                 confusion_matrix_bin_list.append(confusion_matrix_bin)
                 real_conf_matrix_bin_list.append(confusion_matrix_bin)
+                real_confusion_matrix_soft_list.append(confusion_matrix_soft)
+                confusion_matrix_soft_list.append(confusion_matrix_soft)
                 accuracy_list.append((accuracy, float(val_loss)))
                 accuracy_list_real.append((accuracy, float(val_loss)))
             # fake picture
@@ -123,6 +127,7 @@ def calculate_metrics(  model,
                 confusion_matrix_bin_list.append(confusion_matrix_bin)
                 fake_conf_matrix_bin_list.append(confusion_matrix_bin)
                 confusion_matrix_soft_list.append(confusion_matrix_soft)
+                fake_confusion_matrix_soft_list.append(confusion_matrix_soft)
                 accuracy_list.append((bin_accuracy, float(val_loss)))
                 accuracy_list_fake.append((bin_accuracy, float(val_loss)))
             
@@ -145,18 +150,20 @@ def calculate_metrics(  model,
     if real_image_counter > 0:
         mean_acc_and_loss =  np.mean(np.array(accuracy_list_real, dtype=float), axis=0)
         mean_confusion_matrix_bin_real = np.mean(np.array(real_conf_matrix_bin_list, dtype=float), axis=0).flatten().tolist()
+        mean_confusion_matrix_soft_real = np.mean(np.array(real_confusion_matrix_soft_list, dtype=float), axis=0).flatten().tolist()
 
         (mean_accuracy_real, mean_val_loss_real) = mean_acc_and_loss
-        csv_real_epoch.writerow([epoch, float(mean_accuracy_real), mean_confusion_matrix_bin_real, mean_val_loss_real])
+        csv_real_epoch.writerow([epoch, float(mean_accuracy_real), mean_confusion_matrix_bin_real, mean_confusion_matrix_soft_real, mean_val_loss_real])
         logging.info(f"{split} real performance for epoch {epoch} :"
                      f" mean_confusion_matrix_bin [[tp, fp],[fn, tn]] {mean_confusion_matrix_bin_real} "
                      f" mean_accuracy {mean_accuracy_real} mean_val_loss{mean_val_loss_real}")
-
     # fake images mean metrics
+
     (mean_accuracy_fake, mean_val_loss_fake) = np.mean(np.array(accuracy_list_fake, dtype=float), axis=0)
 
     mean_confusion_matrix_bin_fake = np.mean(np.array(fake_conf_matrix_bin_list, dtype=float), axis=0).flatten().tolist()
-    mean_confusion_matrix_soft_fake = np.mean(np.array(confusion_matrix_soft_list, dtype=float), axis=0).flatten().tolist()
+    mean_confusion_matrix_soft_fake = np.mean(np.array(fake_confusion_matrix_soft_list, dtype=float), axis=0).flatten().tolist()
+    
     
     mean_fake_metric = np.mean(np.array(metric_fake_list, dtype=float), axis=0)
     (mean_bin_accuracy, mean_bin_recall, mean_bin_precision, mean_bin_IoU, mean_bin_dice, mean_bin_f1, mean_soft_dice, mean_soft_iou) = mean_fake_metric
@@ -171,13 +178,15 @@ def calculate_metrics(  model,
     # accuracy confusion matrix and val loss for all images
     (mean_accuracy, mean_val_loss) = np.mean(np.array(accuracy_list, dtype=float), axis=0)
     mean_confusion_matrix_bin = np.mean(np.array(confusion_matrix_bin_list, dtype=float), axis=0).flatten().tolist()
+    mean_confusion_matrix_soft = np.mean(np.array(confusion_matrix_soft_list, dtype=float), axis=0).flatten().tolist()
 
     csv_all_epoch.writerow([
         epoch,
         float(mean_accuracy),
         float(mean_val_loss),
         float(mean_train_loss),
-        mean_confusion_matrix_bin
+        mean_confusion_matrix_bin,
+        mean_confusion_matrix_soft
     ])
 
    
@@ -200,6 +209,17 @@ def calculate_metrics_real(pred_bin, pred, ground_truth):
     fn = torch.sum((~pred_bin) & ground_truth).item()
     tn = torch.sum((~pred_bin) & (~ground_truth)).item()
 
+    true_pos = torch.sum(pred * ground_truth)
+    false_pos = torch.sum((1 - ground_truth) * pred)
+    false_neg = torch.sum(ground_truth * (1 - pred))
+    true_neg = torch.sum((1 - pred) * (1 - ground_truth))
+
+    # confusion matrix
+    confusion_matrix_soft = [
+        [float(true_pos.item()), float(false_pos.item())],
+        [float(false_neg.item()), float(true_neg.item())]
+    ]
+
     # accuracy
     total = tp + tn + fp + fn
     if total <= 0: raise ValueError(f"Real metric calculation failed because total = {total}")  
@@ -207,7 +227,7 @@ def calculate_metrics_real(pred_bin, pred, ground_truth):
 
     confusion_matrix_bin = [[tp, fp],[fn, tn]]
 
-    return confusion_matrix_bin, float(accuracy)
+    return confusion_matrix_bin, confusion_matrix_soft, float(accuracy)
 
 # -------------------- Calculating FAKEs Metrics ---------------------------- #
 def calculate_metrics_fake(pred_bin, pred, ground_truth):

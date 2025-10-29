@@ -434,6 +434,47 @@ class FinalPatchExpand_X4(nn.Module):
 
         return x
     
+class FinalPatchExpand_X4_V2(nn.Module):
+    def __init__(self, input_resolution, dim, dim_scale=4, norm_layer=nn.LayerNorm):
+        super().__init__()
+        self.input_resolution = input_resolution
+        self.dim = dim
+        self.dim_scale = dim_scale
+        self.expand = nn.Linear(dim, 16 * dim, bias=False)  # = 16*dim
+        self.act = nn.GELU()
+        self.output_dim = dim
+        # kleine 3x3-Refiner nach dem depth-to-space
+        self.refine1 = nn.Conv2d(dim, dim, kernel_size=3, padding=1, bias=True)
+        self.refine2 = nn.Conv2d(dim, dim, kernel_size=3, padding=1, bias=True)
+        self.norm = norm_layer(self.output_dim)
+
+    def forward(self, x):
+        """
+        x: (B, H*W, C=dim)
+        """
+        H, W = self.input_resolution
+        B, L, C = x.shape
+        assert L == H * W, "input feature has wrong size"
+
+        x = self.expand(x)                           # (B, H*W, 16*dim)
+        x = self.act(x)
+        x = x.reshape(B, H, W, (self.dim_scale**2)*self.dim)
+
+        # depth-to-space (b, h, w, p1*p2*c) -> (b, h*p1, w*p2, c)
+        x = rearrange(x, 'b h w (p1 p2 c) -> b (h p1) (w p2) c',
+                      p1=self.dim_scale, p2=self.dim_scale, c=self.dim)  # (B, H*4, W*4, dim)
+
+        # 3x3-Refinement (glättet Checkerboard)
+        x = x.permute(0, 3, 1, 2).contiguous()       # -> (B, C, H*4, W*4)
+        x = F.gelu(self.refine1(x))
+        x = self.refine2(x)
+        x = x.permute(0, 2, 3, 1).contiguous()       # -> (B, H*4, W*4, C)
+
+        # zurück zu Sequenz + Norm
+        x = x.reshape(B, -1, self.output_dim)
+        x = self.norm(x)
+        return x
+    
 class BasicLayer_up(nn.Module):
     """ A basic Swin Transformer layer for one stage.
 
@@ -702,7 +743,7 @@ class MSUNetSys(nn.Module):
         # Decoder sampled up to patch size, i.e. 256x256, and from there it still needs to be scaled to image size.
         if self.final_upsample == "expand_first":
             print("---final upsample expand_first---", file=sys.stderr)
-            self.up = FinalPatchExpand_X4(
+            self.up = FinalPatchExpand_X4_V2(
                             input_resolution = (img_size // patch_size, img_size // patch_size),
                             dim_scale = 4, 
                             dim = embed_dim)
