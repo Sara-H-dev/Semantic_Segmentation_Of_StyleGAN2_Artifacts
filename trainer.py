@@ -20,6 +20,7 @@ from timm.scheduler.cosine_lr import CosineLRScheduler
 from datetime import datetime
 
 from tqdm import tqdm
+from loss.SymmetricUnfiedFocalLoss_3 import SYM_UIFIED_FOCAL_LOSS
 from loss.DynamicLoss import DynamicLoss
 from scripts.map_generator import save_color_heatmap
 from scripts.validation_functions import calculate_metrics, validation_loss
@@ -103,14 +104,29 @@ def trainer(model, logging, writer, log_save_path = "", config = None, base_lr =
     def core(m):  
         return m.module if isinstance(m, nn.DataParallel) else m   
     core(model).freeze_encoder(freeze_encoder) # freez encoder if wanted
+
+    #-------------- Exclude Norm- Layer and Bias from weight_decay ---------
+    decay_params = []
+    no_decay_params = []
+
+    for name, param in model.named_parameters():
+        if not param.requires_grad:
+            continue  
+
+        if param.ndim == 1 or name.endswith(".bias") or "norm" in name.lower():
+            no_decay_params.append(param)
+        else:
+            decay_params.append(param)
     
     # ------------- AdamW Optimizer ------------------------------
     optimizer = optim.AdamW(
-        filter(lambda p: p.requires_grad, model.parameters()),
+        [
+        {"params": decay_params, "weight_decay": config.TRAIN.WEIGHT_DECAY},
+        {"params": no_decay_params, "weight_decay": 0.0},
+        ],
         lr = base_lr,
         betas= config.TRAIN.OPTIMIZER.BETAS,   # "Momentum"-Parameter
         eps = config.TRAIN.OPTIMIZER.EPS,             # kleine Konstante für Stabilität
-        weight_decay = config.TRAIN.WEIGHT_DECAY,    # L2-Regularisierung (entkoppelt!)
         amsgrad = False         # optional, selten genutzt
     )
 
@@ -219,6 +235,7 @@ def trainer(model, logging, writer, log_save_path = "", config = None, base_lr =
                 train_loss_list.append(loss.item())
             
             # ------------ calculating validation loss ---------
+        
             if opt_step % 100 == 0:                
                 val_loss = validation_loss(
                     model = model,
@@ -228,6 +245,7 @@ def trainer(model, logging, writer, log_save_path = "", config = None, base_lr =
                     bool_break = True, # true if you don't want to go through all validation batches, but want to cancel beforehand
                     n_batches = 20, # Only important if bool_break is true. Number of batches to be validated
                     )
+
             # ------------------- logging --------------------------   
             csv_writer.writerow([step, lr, loss.item(), val_loss])
             iter_num = iter_num + 1;  writer.add_scalar('info/total_loss', loss.item(), iter_num)

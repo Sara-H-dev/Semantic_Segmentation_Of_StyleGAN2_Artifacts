@@ -209,10 +209,10 @@ def calculate_metrics_real(pred_bin, pred, ground_truth):
     fn = torch.sum((~pred_bin) & ground_truth).item()
     tn = torch.sum((~pred_bin) & (~ground_truth)).item()
 
-    true_pos = torch.sum(pred * ground_truth)
-    false_pos = torch.sum((1 - ground_truth) * pred)
-    false_neg = torch.sum(ground_truth * (1 - pred))
-    true_neg = torch.sum((1 - pred) * (1 - ground_truth))
+    false_pos = torch.sum((~ground_truth).float() * pred)
+    false_neg = torch.sum(ground_truth.float() * (1.0 - pred))
+    true_pos  = torch.sum(ground_truth.float() * pred)
+    true_neg  = torch.sum((~ground_truth).float() * (1.0 - pred))
 
     # confusion matrix
     confusion_matrix_soft = [
