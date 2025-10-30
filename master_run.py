@@ -11,7 +11,7 @@ env["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
 # --- Grid ---
 MAX_LRS   = [2e-5, 3e-5]
 weight_decay_1 = 0.0             # fester WD in Stage 1
-WD_GRID   = [1e-5, 1e-4, 1e-3, 1e-2]
+WD_GRID   = [1e-4, 1e-3, 1e-2]
 
 # --- Fixed Args ---
 drop_rate  = 0.0
@@ -117,11 +117,6 @@ for wd in WD_GRID:
         continue
     val = res["value"]
     print(f"[S2] wd={wd} -> {METRIC_COL}={val:.4f}")
-    if val > best2_val:
-        best2_val = val
-        best2_wd = wd
 
-if best2_wd is None:
-    raise SystemExit("[ERROR] Stage 2 lieferte keine gültigen Ergebnisse.")
 
 print(f"[RESULT] BEST COMBO: lr={best_lr}, warmup={best_wu}, wd={best2_wd} -> {METRIC_COL}={best2_val:.4f}")

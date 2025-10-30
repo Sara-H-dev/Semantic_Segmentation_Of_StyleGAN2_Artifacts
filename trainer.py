@@ -24,6 +24,7 @@ from loss.SymmetricUnfiedFocalLoss_3 import SYM_UIFIED_FOCAL_LOSS
 from loss.DynamicLoss import DynamicLoss
 from scripts.map_generator import save_color_heatmap
 from scripts.validation_functions import calculate_metrics, validation_loss
+from scripts.batch_data_loader_V2 import BatchPatternSampler
 from scripts.csv_handler import CSV_Handler
 
 def trainer(model, logging, writer, log_save_path = "", config = None, base_lr = 5e-4):
@@ -53,7 +54,7 @@ def trainer(model, logging, writer, log_save_path = "", config = None, base_lr =
     os.makedirs(pred_dir, exist_ok=True)
 
     csv_object = CSV_Handler(log_save_path)
-    csv_writer, csv_batch_fake, csv_batch_real, csv_real_epoch, csv_fake_epoch, csv_all_epoch = csv_object.return_writer()
+    csv_writer, csv_batch_fake, csv_batch_real, csv_real_epoch, csv_fake_epoch, csv_all_epoch, csv_batch = csv_object.return_writer()
     val_loss = float("nan")
 
     # ----------- preparation of training data ------------------------
@@ -63,12 +64,14 @@ def trainer(model, logging, writer, log_save_path = "", config = None, base_lr =
                                     transform = transforms.Compose(
                                         [RandomGenerator(output_size=[img_size, img_size], random_flip_flag = True)]))
     
+    # databese for fake images
     db_train_fake = SegArtifact_dataset( base_dir = config.DATA.DATA_PATH, 
                                     list_dir = config.LIST_DIR, 
                                     split = "fake_train",
                                     transform = transforms.Compose(
                                         [RandomGenerator(output_size=[img_size, img_size], random_flip_flag = True)]))
     
+    # databese for real images
     db_train_real = SegArtifact_dataset( base_dir = config.DATA.DATA_PATH, 
                                     list_dir = config.LIST_DIR, 
                                     split = "real_train_all",
@@ -197,23 +200,40 @@ def trainer(model, logging, writer, log_save_path = "", config = None, base_lr =
             real_ratio = 0.4
         
         num_real = int((total_fake / (1 - real_ratio)) * real_ratio)
+        if ((num_real + total_fake)  % 2) != 0:
+            num_real = max(0, num_real - 1)
+
+        if num_real < total_real:
+            raise ValueError("More real images are reqzired than available")
         # Supset from real
-        g = torch.Generator()
-        g.manual_seed(int(config.SEED) + int(epoch_num))
+        g = torch.Generator().manual_seed(int(config.SEED) + int(epoch_num))
         indices_real = torch.randperm(total_real, generator=g)[:num_real]
 
         db_train_real_subset = Subset(db_train_real, indices_real)
         db_train_mixed = ConcatDataset([db_train_fake, db_train_real_subset])
 
+        # Indizes im kombinierten Dataset:
+        n_fake = len(db_train_fake)
+        n_real = len(db_train_real_subset)
+
+        fake_indices = list(range(0, n_fake))                 # 0..n_fake-1
+        real_indices = list(range(n_fake, n_fake + n_real))   # n_fake..n_fake+n_real-1
+
+        batch_sampler = BatchPatternSampler(
+            fake_indices=fake_indices,
+            real_indices=real_indices,
+            num_batch = (n_fake + n_real) // 2,
+            batch_size = batch_size,
+            epoch = epoch_num + 1,
+        )
+
         trainloader = DataLoader(  
             db_train_mixed, 
-            batch_size = batch_size, 
-            generator=g, 
-            shuffle = True,                                                      # shuffles the data sequence
+            batch_sampler = batch_sampler,
             num_workers = config.DATA.NUM_WORKERS,                               # number of parallel processes (Number_of_CPU_cores / 2)
             pin_memory = config.DATA.PIN_MEMORY and torch.cuda.is_available(),   # true if GPU available
-            worker_init_fn=make_worker_init_fn(config.SEED),                     # worker seed
-            persistent_workers=False, )   
+            worker_init_fn = make_worker_init_fn(config.SEED),                     # worker seed
+            persistent_workers = False, )   
         
         num_batches = len(trainloader)
         print(f"{num_batches} iterations per epoch.", file=sys.stderr)
@@ -262,7 +282,7 @@ def trainer(model, logging, writer, log_save_path = "", config = None, base_lr =
             logging.info(f"Group {i}: lr={g['lr']:.3e}, wd={g.get('weight_decay', None)}")
         optimizer.zero_grad(set_to_none=True)
 
-        # ==================== TRAIN EPOCH ======================================
+        # ==================== TRAIN BATCH ======================================
         for i_batch, sampled_batch in tqdm(enumerate(trainloader), total=len(trainloader)):
             model.train() # training modus
             step = epoch_num*num_batches + i_batch
@@ -270,6 +290,8 @@ def trainer(model, logging, writer, log_save_path = "", config = None, base_lr =
             image_batch = sampled_batch['image'].to(device)
             label_batch = sampled_batch['label'].to(device)
             case_names  = sampled_batch['case_name']
+            if epoch_num == 1:
+                csv_batch.writerow([epoch_num + 1 , case_names])
             
             """
             # learning rate range test
@@ -303,7 +325,7 @@ def trainer(model, logging, writer, log_save_path = "", config = None, base_lr =
             """
 
             # ------------------- logging --------------------------   
-            csv_writer.writerow([step, lr, loss.item(), val_loss])
+            # csv_writer.writerow([step, lr, loss.item(), val_loss])
             iter_num = iter_num + 1;  writer.add_scalar('info/total_loss', loss.item(), iter_num)
         #==================== END OF EPOCH ======================================
         mean_train_loss = sum(train_loss_list) / len(train_loss_list)

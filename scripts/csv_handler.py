@@ -9,6 +9,11 @@ class CSV_Handler:
         csv_file = open(lr_range_test_file, "w", newline="")
         csv_writer = csv.writer(csv_file)
         csv_writer.writerow(["step", "lr", "train_loss", "val_loss"])
+
+        batch_test_file = os.path.join(log_save_path, "batch_test_file.csv")
+        csv_file_batch = open(batch_test_file, "w", newline="")
+        csv_writer_batch = csv.writer(csv_file_batch)
+        csv_writer_batch.writerow(["epoch", "case_name"])
         
         # val metric per epoch for all
         val_metric_file = os.path.join(log_save_path, "val_metric_all_epoch.csv")
@@ -42,6 +47,7 @@ class CSV_Handler:
         csv_batch_fake.writerow(["epoch","batch","bin_accuracy","bin_recall", "bin_precision", "val_loss", "bin_IoU", "bin_dice", "bin_f1", "confusion_matrix_bin", "confusion_matrix_soft", "i_soft_dice", "i_soft_iou"])
         
         # files
+        self.csv_file_batch = csv_file_batch
         self.csv_batch_fake_file = csv_batch_fake_file
         self.csv_batch_real_file = csv_batch_real_file
         self.csv_fake_epoch_file = csv_fake_epoch_file
@@ -49,6 +55,7 @@ class CSV_Handler:
         self.csv_all_epoch_file = csv_all_epoch_file
         self.csv_file = csv_file
         # writer
+        self.csv_writer_batch = csv_writer_batch
         self.csv_batch_fake = csv_batch_fake
         self.csv_writer = csv_writer
         self.csv_batch_real = csv_batch_real
@@ -66,7 +73,7 @@ class CSV_Handler:
         self.close_files()
 
     def return_writer(self):
-        return self.csv_writer, self.csv_batch_fake, self.csv_batch_real, self.csv_real_epoch, self.csv_fake_epoch, self.csv_all_epoch
+        return self.csv_writer, self.csv_batch_fake, self.csv_batch_real, self.csv_real_epoch, self.csv_fake_epoch, self.csv_all_epoch, self.csv_writer_batch
     
     def close_files(self):
         self.csv_batch_fake_file.close()
@@ -75,3 +82,4 @@ class CSV_Handler:
         self.csv_real_epoch_file.close()
         self.csv_all_epoch_file.close()
         self.csv_file.close()
+        self.csv_file_batch.close()
