@@ -102,7 +102,8 @@ class DynamicLoss(torch.nn.Module):
             if torch.sum(target_i) != 0: 
                 loss_tversky_i = self.tversky_loss(output_i, target_i)
 
-            loss_i = 0.5 * loss_bce_i + 0.5 * loss_tversky_i 
+                loss_i = 0.5 * loss_bce_i + 0.5 * loss_tversky_i 
+            else: loss_i = loss_bce_i
 
             losses.append(loss_i)
 

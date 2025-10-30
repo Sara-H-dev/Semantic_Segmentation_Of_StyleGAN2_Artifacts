@@ -47,11 +47,11 @@ MODEL:
 TRAIN:
   MAX_EPOCHS: 30
   START_EPOCH: 0
-  WARMUP_EPOCHS: 10
+  WARMUP_EPOCHS: 15
   WEIGHT_DECAY: 0.1
-  BASE_LR: 0.00001 # e-4 #Peak-LR after Warm-up
+  BASE_LR: 0.00005 # e-4 #Peak-LR after Warm-up
   WARMUP_LR: 0.000001 #10e-6
-  MIN_LR: 0.0000001 #10e-7
+  MIN_LR: 0.000001 #0.0000001 #10e-7
 
   ACCUMULATION_STEPS: 1
   USE_CHECKPOINT: false
@@ -81,5 +81,6 @@ OUTPUT_DIR : './model_out'
 LIST_DIR : './lists'
 SEED: 1234
 DETERMINISTIC : true
-SAVE_BEST_RUN : true
+SAVE_BEST_RUN : false
 SAVE_LAST_RUN : false
+Dynamic_LOADER : false

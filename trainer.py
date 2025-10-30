@@ -13,7 +13,7 @@ import math
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, ConcatDataset, Subset
 from torchvision import transforms
 from torchvision.utils import save_image
 from timm.scheduler.cosine_lr import CosineLRScheduler
@@ -63,18 +63,33 @@ def trainer(model, logging, writer, log_save_path = "", config = None, base_lr =
                                     transform = transforms.Compose(
                                         [RandomGenerator(output_size=[img_size, img_size], random_flip_flag = True)]))
     
-    logging.info("The length of train set is: {}".format(len(db_train)))
+    db_train_fake = SegArtifact_dataset( base_dir = config.DATA.DATA_PATH, 
+                                    list_dir = config.LIST_DIR, 
+                                    split = "fake_train",
+                                    transform = transforms.Compose(
+                                        [RandomGenerator(output_size=[img_size, img_size], random_flip_flag = True)]))
+    
+    db_train_real = SegArtifact_dataset( base_dir = config.DATA.DATA_PATH, 
+                                    list_dir = config.LIST_DIR, 
+                                    split = "real_train_all",
+                                    transform = transforms.Compose(
+                                        [RandomGenerator(output_size=[img_size, img_size], random_flip_flag = True)]))
+    
+    total_fake = len(db_train_fake)
+    total_real = len(db_train_real)
 
+    """
     trainloader = DataLoader(   db_train, 
                                 batch_size = batch_size, 
                                 shuffle = True,                     # shuffles the data sequence
                                 num_workers = config.DATA.NUM_WORKERS,                    # number of parallel processes (Number_of_CPU_cores / 2)
                                 pin_memory = config.DATA.PIN_MEMORY and torch.cuda.is_available(),           # true if GPU available
                                 worker_init_fn=make_worker_init_fn(config.SEED) )   # worker seed
+    """
+
     if n_gpu > 1:
         model = nn.DataParallel(model)
-    num_batches = len(trainloader)
-    print(f"{num_batches} iterations per epoch.", file=sys.stderr)
+
 
     # ----------------- Dataloader for Validation set ---------------
     db_test = SegArtifact_dataset(
@@ -103,7 +118,7 @@ def trainer(model, logging, writer, log_save_path = "", config = None, base_lr =
     # ---------------------- freeze encoder ------------------------------
     def core(m):  
         return m.module if isinstance(m, nn.DataParallel) else m   
-    core(model).freeze_encoder(freeze_encoder) # freez encoder if wanted
+    #core(model).freeze_encoder(freeze_encoder) # freez encoder if wanted
 
     #-------------- Exclude Norm- Layer and Bias from weight_decay ---------
     decay_params = []
@@ -133,7 +148,7 @@ def trainer(model, logging, writer, log_save_path = "", config = None, base_lr =
     # ------------- Cosine Decay with linear warmup ---------------
     lr_scheduler = CosineLRScheduler(
         optimizer,
-        t_initial= max_epoch - warmup_epochs,
+        t_initial= 60 - warmup_epochs,
         lr_min = config.TRAIN.MIN_LR,
         warmup_lr_init = config.TRAIN.WARMUP_LR,
         warmup_t = warmup_epochs,
@@ -160,12 +175,52 @@ def trainer(model, logging, writer, log_save_path = "", config = None, base_lr =
     opt_step = 0
     unfreeze_in_next_epoch = False
     train_loss_list = []
+    low_real_counter = 0
 
     # ====================== Training START ==========================================
 
     for epoch_num in tqdm(range(max_epoch)):
-    
+
+        # -------- Adapting real ratio --------
+        if(config.Dynamic_LOADER == True):
+            if epoch_num < 9:
+                real_ratio = 0.1
+            elif epoch_num >= 9 and epoch_num < 20:
+                real_ratio = 0.10 + 0.03 * (epoch_num - 8)
+            elif epoch_num >= 20 and epoch_num < 30:
+                real_ratio = 0.4
+            elif epoch_num >= 30 and epoch_num < 35:
+                real_ratio = 0.2
+            else:
+                real_ratio = 0.4
+        else: 
+            real_ratio = 0.4
+        
+        num_real = int((total_fake / (1 - real_ratio)) * real_ratio)
+        # Supset from real
+        g = torch.Generator()
+        g.manual_seed(int(config.SEED) + int(epoch_num))
+        indices_real = torch.randperm(total_real, generator=g)[:num_real]
+
+        db_train_real_subset = Subset(db_train_real, indices_real)
+        db_train_mixed = ConcatDataset([db_train_fake, db_train_real_subset])
+
+        trainloader = DataLoader(  
+            db_train_mixed, 
+            batch_size = batch_size, 
+            generator=g, 
+            shuffle = True,                                                      # shuffles the data sequence
+            num_workers = config.DATA.NUM_WORKERS,                               # number of parallel processes (Number_of_CPU_cores / 2)
+            pin_memory = config.DATA.PIN_MEMORY and torch.cuda.is_available(),   # true if GPU available
+            worker_init_fn=make_worker_init_fn(config.SEED),                     # worker seed
+            persistent_workers=False, )   
+        
+        num_batches = len(trainloader)
+        print(f"{num_batches} iterations per epoch.", file=sys.stderr)
+        # --------------------------------
+        logging.info(f"Epoch {epoch_num +1}: length of train set is: {len(trainloader)} with ratio {real_ratio} this means {num_real} real images and {total_fake} fake")
         # -------- UNFREEZING THE ENCODER --------
+        """
         if freeze_encoder:
             # unfreeze form the deepest encoder level to the highests
             # if stage_unfreeze is triggered, or where has not been a improvment for config.TRAIN.EARLY_STOPPING_PATIENCE
@@ -201,7 +256,7 @@ def trainer(model, logging, writer, log_save_path = "", config = None, base_lr =
                     print(f"Adding {len(new_params)} new parameters to optimizer of layer {n_layer}")
                 else:
                     raise ValueError(f"No new parameter added to optimizer  {n_layer}, that's baaad")
-        
+        """
         # -------------------------------------------
         for i, g in enumerate(optimizer.param_groups):
             logging.info(f"Group {i}: lr={g['lr']:.3e}, wd={g.get('weight_decay', None)}")
@@ -235,7 +290,7 @@ def trainer(model, logging, writer, log_save_path = "", config = None, base_lr =
                 train_loss_list.append(loss.item())
             
             # ------------ calculating validation loss ---------
-        
+            """
             if opt_step % 100 == 0:                
                 val_loss = validation_loss(
                     model = model,
@@ -245,6 +300,7 @@ def trainer(model, logging, writer, log_save_path = "", config = None, base_lr =
                     bool_break = True, # true if you don't want to go through all validation batches, but want to cancel beforehand
                     n_batches = 20, # Only important if bool_break is true. Number of batches to be validated
                     )
+            """
 
             # ------------------- logging --------------------------   
             csv_writer.writerow([step, lr, loss.item(), val_loss])

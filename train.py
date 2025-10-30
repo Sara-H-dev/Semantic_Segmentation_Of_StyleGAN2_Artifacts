@@ -20,11 +20,15 @@ def main():
     parser.add_argument('--deterministic', action='store_true', help='use deterministic training')
     parser.add_argument('--use_checkpoint', action='store_true',
                         help="whether to use gradient checkpointing to save memory")
+    parser.add_argument('--use_dynamic_loader', action='store_true',
+                        help="whether to use gradient checkpointing to save memory")
     parser.add_argument('--sig_threshold', type = float, help = 'treshold that decides if a pixel is an artefact or not')
     parser.add_argument('--weight_decay', type = float)
     parser.add_argument('--drop_path', type = float)
     parser.add_argument('--drop_rate', type = float)
     parser.add_argument('--alpha', type = float)
+    parser.add_argument('--warm_up', type = float)
+    parser.add_argument('--lr', type = float)
     parser.add_argument('--cfg', type=str, required=True, metavar="FILE", help='path to config file', )
 
     args = parser.parse_args()
@@ -33,8 +37,8 @@ def main():
 
     now = datetime.now()
     # format: DayMonthYear_HourMinute
-    # timestamp_str = now.strftime("%d%m%y_%H%M")
-    #output_dir = os.path.join(config.OUTPUT_DIR, timestamp_str)
+    timestamp_str = now.strftime("%d%m%y_%H%M")
+    output_dir = os.path.join(config.OUTPUT_DIR, timestamp_str)
     # output_dir = os.path.join(config.OUTPUT_DIR, timestamp_str)
     output_dir = config.OUTPUT_DIR
     seed = config.SEED
@@ -47,6 +51,10 @@ def main():
     print(f"Drop_rate = {config.MODEL.DROP_RATE}")
     print(f"tversky alpha = {config.TRAIN.TVERSKY_LOSS_ALPHA}")
     print(f"tversky beta = {config.TRAIN.TVERSKY_LOSS_BETA}")
+    print(f"base_lr = {config.TRAIN.BASE_LR}")
+    print(f"Dynamic_LOADER = {config.Dynamic_LOADER}")
+    print(f"warm_up = {config.TRAIN.WARMUP_EPOCHS}")
+    print(f"epochs = {config.TRAIN.MAX_EPOCHS}")
  
     os.makedirs(output_dir, exist_ok=True)
     # copy the yaml to model_out

@@ -132,6 +132,7 @@ _C.SEED = 1234 # Fixed random seed
 _C.DETERMINISTIC = True
 _C.SAVE_BEST_RUN = False
 _C.SAVE_LAST_RUN = False
+_C.Dynamic_LOADER = False
 #_C.LOCAL_RANK = 0 #only if more than one gpu
 # -----------------------------------------------------------------------------
 
@@ -162,29 +163,36 @@ def update_config(config, bool_test, bool_train, args):
     # merge from specific arguments
     config.defrost()
 
-    if args.output_dir:
+    if args.output_dir is not None:
         config.OUTPUT_DIR = args.output_dir
     if args.use_checkpoint:
         config.TRAIN.USE_CHECKPOINT = True
     if args.deterministic:
         config.DETERMINISTIC = True
-    if args.weight_decay:
+    if args.weight_decay is not None:
         config.TRAIN.WEIGHT_DECAY = args.weight_decay
-    if args.drop_path:
+    if args.drop_path is not None:
         config.MODEL.DROP_PATH_RATE = args.drop_path
-    if args.drop_rate:
+    if args.drop_rate is not None:
         config.MODEL.DROP_RATE = args.drop_rate
-    if args.alpha:
+    if args.alpha is not None:
         beta = 1 - args.alpha
         config.TRAIN.TVERSKY_LOSS_ALPHA = args.alpha
         config.TRAIN.TVERSKY_LOSS_BETA = beta
+    if args.use_dynamic_loader:
+        config.Dynamic_LOADER = True
+    if args.lr is not None:
+        config.TRAIN.BASE_LR = args.lr
+
+    if args.warm_up is not None:
+        config.TRAIN.WARMUP_EPOCHS = args.warm_up
 
     if bool_train:
-        if args.sig_threshold:
+        if args.sig_threshold is not None:
             config.TRAIN.SIG_THRESHOLD = args.sig_threshold
 
     if bool_test:
-        if args.sig_threshold:
+        if args.sig_threshold is not None:
             config.TEST.SIG_THRESHOLD = args.sig_threshol
     
     config.freeze()
