@@ -167,7 +167,7 @@ def trainer(model, logging, writer, log_save_path = "", config = None, base_lr =
     stage0_unfreeze = int(max_epoch * config.MODEL.STAGE0_UNFREEZE_PERIODE); bool_s0_unfreezed = False
     
     # ---------------------- Flags an inital values -------------------------------------
-    best_val_dice = -1.0 # stores the best value of the mean soft dice for the validation set
+    best_Score = -1.0 # stores the best value of the mean soft dice for the validation set
     since_best = 0 # counter that counts the number of epochs during which the soft_dice has not improved
     iter_num = 0
     best_performance = 0.0
@@ -205,7 +205,7 @@ def trainer(model, logging, writer, log_save_path = "", config = None, base_lr =
 
         if num_real > total_real:
             raise ValueError("More real images are reqzired than available: num_reall {num_real} num_total {total_real}")
-        print(f"num real {num_real}; num total real {total_real}; num fake {total_fake}")
+        # print(f"num real {num_real}; num total real {total_real}; num fake {total_fake}")
         # Supset from real
         g = torch.Generator().manual_seed(int(config.SEED) + int(epoch_num))
         indices_real = torch.randperm(total_real, generator=g)[:num_real]
@@ -237,7 +237,7 @@ def trainer(model, logging, writer, log_save_path = "", config = None, base_lr =
             persistent_workers = False, )   
         
         num_batches = len(trainloader)
-        print(f"{num_batches} iterations per epoch.", file=sys.stderr)
+        # print(f"{num_batches} iterations per epoch.", file=sys.stderr)
         # --------------------------------
         logging.info(f"Epoch {epoch_num +1}: length of train set is: {len(trainloader)} with ratio {real_ratio} this means {num_real} real images and {total_fake} fake")
         # -------- UNFREEZING THE ENCODER --------
@@ -331,7 +331,7 @@ def trainer(model, logging, writer, log_save_path = "", config = None, base_lr =
 
         # -------- VALIDATION ----------------
         model.eval()
-        mean_dice, ten_output_dict = calculate_metrics(
+        mean_dice, ten_output_dict, Score, FPR = calculate_metrics(
             model = model,
             epoch = epoch_num + 1,
             logging = logging,
@@ -349,15 +349,15 @@ def trainer(model, logging, writer, log_save_path = "", config = None, base_lr =
             mean_train_loss = mean_train_loss)
         
         # ------------------ save best run --------------------------------
-        if mean_dice > best_val_dice:
+        if Score > best_Score:
             save_best_output = ten_output_dict
-            best_val_dice = mean_dice
+            best_Score = Score
             since_best = 0
             if config.SAVE_BEST_RUN:
                 best_path = os.path.join(log_save_path, 'best_model.pth')
                 torch.save({ 'epoch': epoch_num, 'model': core(model).state_dict(), 'optimizer': optimizer.state_dict(),
-                    'iter_num': iter_num, 'best_val_dice': best_val_dice }, best_path)
-                logging.info(f"Saved new BEST checkpoint to {best_path} (val_dice={best_val_dice:.5f})")
+                    'iter_num': iter_num, 'best_score': best_Score }, best_path)
+                logging.info(f"Saved new BEST checkpoint to {best_path} (Score={best_Score:.5f})")
         else: # ----------- early stopping -------------------------------
             since_best += 1
             if (since_best >= config.TRAIN.EARLY_STOPPING_PATIENCE) and (config.TRAIN.EARLY_STOPPING_FLAG == True):

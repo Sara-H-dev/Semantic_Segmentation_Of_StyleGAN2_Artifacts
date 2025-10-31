@@ -25,6 +25,7 @@ def main():
     now = datetime.now()
     # format: DayMonthYear_HourMinute
     timestamp_str = now.strftime("%d%m%y_%H%M")
+    print(f"tima: {timestamp_str}")
     output_dir = os.path.join(config.OUTPUT_DIR, timestamp_str)
     # output_dir = os.path.join(config.OUTPUT_DIR, timestamp_str)
     output_dir = config.OUTPUT_DIR

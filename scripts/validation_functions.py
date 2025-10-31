@@ -60,6 +60,7 @@ def calculate_metrics(  model,
     real_confusion_matrix_soft_list = []
     accuracy_list_real = []         # [(acc, val_loss), ...]
     real_image_counter = 0
+    FRP_list = []
     # fake
     confusion_matrix_soft_list = [] # list of [[tp, fp],[fn, tn]]
     fake_conf_matrix_bin_list = []  # list of [[tp, fp],[fn, tn]]
@@ -106,7 +107,7 @@ def calculate_metrics(  model,
             #real picture
             if not ground_truth.any().item(): 
                 real_image_counter += 1
-                confusion_matrix_bin, confusion_matrix_soft, accuracy = calculate_metrics_real(pred_bin, pred, ground_truth)
+                confusion_matrix_bin, confusion_matrix_soft, accuracy, FRP = calculate_metrics_real(pred_bin, pred, ground_truth)
                 #csv_batch_real.writerow([epoch, i_batch, accuracy, confusion_matrix_bin, float(val_loss)]) 
 
                 confusion_matrix_bin_list.append(confusion_matrix_bin)
@@ -115,6 +116,7 @@ def calculate_metrics(  model,
                 confusion_matrix_soft_list.append(confusion_matrix_soft)
                 accuracy_list.append((accuracy, float(val_loss)))
                 accuracy_list_real.append((accuracy, float(val_loss)))
+                FRP_list.append(float(FRP))
             # fake picture
             else:
                 (bin_accuracy, bin_recall,bin_precision,
@@ -151,9 +153,10 @@ def calculate_metrics(  model,
         mean_acc_and_loss =  np.mean(np.array(accuracy_list_real, dtype=float), axis=0)
         mean_confusion_matrix_bin_real = np.mean(np.array(real_conf_matrix_bin_list, dtype=float), axis=0).flatten().tolist()
         mean_confusion_matrix_soft_real = np.mean(np.array(real_confusion_matrix_soft_list, dtype=float), axis=0).flatten().tolist()
+        mean_FPR = np.mean(np.array(FRP_list, dtype=float), axis=0)
 
         (mean_accuracy_real, mean_val_loss_real) = mean_acc_and_loss
-        csv_real_epoch.writerow([epoch, float(mean_accuracy_real), mean_confusion_matrix_bin_real, mean_confusion_matrix_soft_real, mean_val_loss_real])
+        csv_real_epoch.writerow([epoch, float(mean_accuracy_real), mean_confusion_matrix_bin_real, mean_confusion_matrix_soft_real, mean_val_loss_real, mean_FPR])
         logging.info(f"{split} real performance for epoch {epoch} :"
                      f" mean_confusion_matrix_bin [[tp, fp],[fn, tn]] {mean_confusion_matrix_bin_real} "
                      f" mean_accuracy {mean_accuracy_real} mean_val_loss{mean_val_loss_real}")
@@ -167,6 +170,8 @@ def calculate_metrics(  model,
     
     mean_fake_metric = np.mean(np.array(metric_fake_list, dtype=float), axis=0)
     (mean_bin_accuracy, mean_bin_recall, mean_bin_precision, mean_bin_IoU, mean_bin_dice, mean_bin_f1, mean_soft_dice, mean_soft_iou) = mean_fake_metric
+
+    Score = 0.9 * mean_soft_dice + 0.1 * (1 - mean_FPR)
     
     csv_fake_epoch.writerow([epoch, float(mean_accuracy_fake), 
                 float(mean_val_loss_fake), mean_confusion_matrix_bin_fake, 
@@ -186,7 +191,8 @@ def calculate_metrics(  model,
         float(mean_val_loss),
         float(mean_train_loss),
         mean_confusion_matrix_bin,
-        mean_confusion_matrix_soft
+        mean_confusion_matrix_soft,
+        Score
     ])
 
    
@@ -194,9 +200,9 @@ def calculate_metrics(  model,
                  f"mean_cofusion_matrix [[tp, fp],[fn, tn]]{mean_confusion_matrix_bin} "
                  f"mean_val_loss {mean_val_loss}")
     
-    print(f"epoch{epoch} val_loss:{mean_val_loss} train_loss:{mean_train_loss} mean_soft_dice:{mean_soft_dice}")
+    print(f"epoch{epoch} val_loss:{mean_val_loss} train_loss:{mean_train_loss} mean_soft_dice:{mean_soft_dice} mean_FRP {mean_FPR} Score {Score}")
 
-    return mean_soft_dice, ten_output_saver
+    return mean_soft_dice, ten_output_saver, Score, mean_FPR
 
 # -------------------- Calculating REAL Metrics ---------------------------- #
 def calculate_metrics_real(pred_bin, pred, ground_truth):
@@ -220,6 +226,8 @@ def calculate_metrics_real(pred_bin, pred, ground_truth):
         [float(false_neg.item()), float(true_neg.item())]
     ]
 
+    FPR = fp / (fp + tn)
+
     # accuracy
     total = tp + tn + fp + fn
     if total <= 0: raise ValueError(f"Real metric calculation failed because total = {total}")  
@@ -227,7 +235,7 @@ def calculate_metrics_real(pred_bin, pred, ground_truth):
 
     confusion_matrix_bin = [[tp, fp],[fn, tn]]
 
-    return confusion_matrix_bin, confusion_matrix_soft, float(accuracy)
+    return confusion_matrix_bin, confusion_matrix_soft, float(accuracy), FPR
 
 # -------------------- Calculating FAKEs Metrics ---------------------------- #
 def calculate_metrics_fake(pred_bin, pred, ground_truth):
