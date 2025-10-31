@@ -8,7 +8,7 @@ DATA:
   NUM_WORKERS: 2
 
 HARDWARE:
-  N_GPU : 1
+  N_GPU: 1
 
 MODEL:
   TYPE: "swin"
@@ -40,7 +40,7 @@ MODEL:
     WINDOW_SIZE: 7
     MLP_RATIO: 4.0
     QKV_BIAS: true
-    QK_SCALE: null
+    QK_SCALE:
     APE: false
     PATCH_NORM: true
     FINAL_UPSAMPLE: "expand_first"
@@ -49,7 +49,7 @@ TRAIN:
   MAX_EPOCHS: 30
   START_EPOCH: 0
   WARMUP_EPOCHS: 15
-  WEIGHT_DECAY: 0.1
+  WEIGHT_DECAY: 0.001
   BASE_LR: 0.00005 # e-4 #Peak-LR after Warm-up
   WARMUP_LR: 0.000001 #10e-6
   MIN_LR: 0.000001 #0.0000001 #10e-7
@@ -62,9 +62,9 @@ TRAIN:
   UF_LOSS_DELTA: 0.75
   UF_LOSS_GAMMA: 0.7
   UF_LOSS_WEIGTH: 0.5
-  SIG_THRESHOLD : 0.5
+  SIG_THRESHOLD: 0.5
   EARLY_STOPPING_FLAG: false
-  EARLY_STOPPING_PATIENCE : 6
+  EARLY_STOPPING_PATIENCE: 6
 
   LR_SCHEDULER:
     NAME: "cosine"
@@ -76,12 +76,12 @@ TRAIN:
     BETAS: [0.9, 0.999]
 
 TEST:
-  SIG_THRESHOLD : 0.5
+  SIG_THRESHOLD: 0.5
 
-OUTPUT_DIR : './model_out'
-LIST_DIR : './lists'
+OUTPUT_DIR: 'model_out/mega_search/weight_decay_lr1e-5_wu_20/stage2_lr1e-05_wu20_wd0.001'
+LIST_DIR: './lists'
 SEED: 1234
-DETERMINISTIC : true
-SAVE_BEST_RUN : false
-SAVE_LAST_RUN : false
-Dynamic_LOADER : false
+DETERMINISTIC: true
+SAVE_BEST_RUN: false
+SAVE_LAST_RUN: false
+Dynamic_LOADER: false

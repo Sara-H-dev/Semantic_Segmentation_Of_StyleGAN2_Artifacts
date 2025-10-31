@@ -47,7 +47,7 @@ _C.MODEL.PRETRAIN_IMAGENET1K = './network/pretrained_weights/swin_b-68c6b09e.pth
 _C.MODEL.NUM_CLASSES = 1 # Number of classes, overwritten in data preparation
 _C.MODEL.DROP_RATE = 0.0 # Dropout rate
 _C.MODEL.DROP_PATH_RATE = 0.1 # Drop path rate
-_C.MODEL.ATTN_DROP_RATE = 0
+_C.MODEL.ATTN_DROP_RATE = 0.0
 _C.MODEL.LABEL_SMOOTHING = 0.1 # Label Smoothing
 
 _C.MODEL.FREEZE_ENCODER = True #Encoder Freenzing
@@ -162,40 +162,7 @@ def update_config(config, bool_test, bool_train, args):
     if not bool_test and not bool_train:
         raise ValueError(f"test and train flags are rised incorectly (Both false)!")
     # merge from specific arguments
-    config.defrost()
-
-    if args.output_dir is not None:
-        config.OUTPUT_DIR = args.output_dir
-    if args.use_checkpoint:
-        config.TRAIN.USE_CHECKPOINT = True
-    if args.deterministic:
-        config.DETERMINISTIC = True
-    if args.weight_decay is not None:
-        config.TRAIN.WEIGHT_DECAY = args.weight_decay
-    if args.drop_path is not None:
-        config.MODEL.DROP_PATH_RATE = args.drop_path
-    if args.drop_rate is not None:
-        config.MODEL.DROP_RATE = args.drop_rate
-    if args.alpha is not None:
-        beta = 1 - args.alpha
-        config.TRAIN.TVERSKY_LOSS_ALPHA = args.alpha
-        config.TRAIN.TVERSKY_LOSS_BETA = beta
-    if args.use_dynamic_loader:
-        config.Dynamic_LOADER = True
-    if args.lr is not None:
-        config.TRAIN.BASE_LR = args.lr
-
-    if args.warm_up is not None:
-        config.TRAIN.WARMUP_EPOCHS = args.warm_up
-
-    if bool_train:
-        if args.sig_threshold is not None:
-            config.TRAIN.SIG_THRESHOLD = args.sig_threshold
-
-    if bool_test:
-        if args.sig_threshold is not None:
-            config.TEST.SIG_THRESHOLD = args.sig_threshol
-    
+    #config.defrost()
     config.freeze()
 
 

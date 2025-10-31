@@ -35,12 +35,13 @@ class MSUNet(nn.Module):
                                 window_size = config.MODEL.SWIN.WINDOW_SIZE,    # self-attention-window-size 7x7
                                 mlp_ratio = config.MODEL.SWIN.MLP_RATIO,        # indicates how much this intermediate layer is inflated.
                                 qkv_bias = config.MODEL.SWIN.QKV_BIAS,          # qkv with bias (True)
-                                qk_scale = config.MODEL.SWIN.QK_SCALE,          # overwritting if diffrent scale wanted 
+                                qk_scale = None,          # overwritting if diffrent scale wanted 
                                 drop_rate = config.MODEL.DROP_RATE,             # dropout MLP or features
                                 drop_path_rate = config.MODEL.DROP_PATH_RATE,   # transformer blocks can be sciped (reduce overfitting)
                                 ape = config.MODEL.SWIN.APE,                    # absolute position embedding (False for swin)
                                 patch_norm = config.MODEL.SWIN.PATCH_NORM,      # if after patch-embedding a layernorm (True)
-                                use_checkpoint = config.TRAIN.USE_CHECKPOINT    # activating gradient checkpoint (saves GPU-memory)
+                                use_checkpoint = config.TRAIN.USE_CHECKPOINT,    # activating gradient checkpoint (saves GPU-memory)
+                                attn_drop_rate= config.MODEL.ATTN_DROP_RATE
                                )                      
 
     def forward(self, x):

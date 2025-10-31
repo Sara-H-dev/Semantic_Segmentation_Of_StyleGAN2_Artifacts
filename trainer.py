@@ -291,8 +291,6 @@ def trainer(model, logging, writer, log_save_path = "", config = None, base_lr =
             image_batch = sampled_batch['image'].to(device)
             label_batch = sampled_batch['label'].to(device)
             case_names  = sampled_batch['case_name']
-            if epoch_num == 1:
-                csv_batch.writerow([epoch_num + 1 , case_names])
             
             """
             # learning rate range test
