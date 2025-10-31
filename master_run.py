@@ -11,7 +11,7 @@ env["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
 # --- Grid ---
 MAX_LRS   = [2e-5, 3e-5]
 weight_decay_1 = 0.0             # fester WD in Stage 1
-WD_GRID   = [1e-4, 1e-3, 1e-2]
+WD_GRID   = [1e-3, 1e-2]
 
 # --- Fixed Args ---
 drop_rate  = 0.0

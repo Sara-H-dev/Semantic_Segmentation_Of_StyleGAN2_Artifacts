@@ -47,6 +47,7 @@ _C.MODEL.PRETRAIN_IMAGENET1K = './network/pretrained_weights/swin_b-68c6b09e.pth
 _C.MODEL.NUM_CLASSES = 1 # Number of classes, overwritten in data preparation
 _C.MODEL.DROP_RATE = 0.0 # Dropout rate
 _C.MODEL.DROP_PATH_RATE = 0.1 # Drop path rate
+_C.MODEL.ATTN_DROP_RATE = 0
 _C.MODEL.LABEL_SMOOTHING = 0.1 # Label Smoothing
 
 _C.MODEL.FREEZE_ENCODER = True #Encoder Freenzing

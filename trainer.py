@@ -203,8 +203,9 @@ def trainer(model, logging, writer, log_save_path = "", config = None, base_lr =
         if ((num_real + total_fake)  % 2) != 0:
             num_real = max(0, num_real - 1)
 
-        if num_real < total_real:
-            raise ValueError("More real images are reqzired than available")
+        if num_real > total_real:
+            raise ValueError("More real images are reqzired than available: num_reall {num_real} num_total {total_real}")
+        print(f"num real {num_real}; num total real {total_real}; num fake {total_fake}")
         # Supset from real
         g = torch.Generator().manual_seed(int(config.SEED) + int(epoch_num))
         indices_real = torch.randperm(total_real, generator=g)[:num_real]
