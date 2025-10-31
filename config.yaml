@@ -48,9 +48,9 @@ MODEL:
 TRAIN:
   MAX_EPOCHS: 30
   START_EPOCH: 0
-  WARMUP_EPOCHS: 15
-  WEIGHT_DECAY: 0.001
-  BASE_LR: 0.00005 # e-4 #Peak-LR after Warm-up
+  WARMUP_EPOCHS: 20
+  WEIGHT_DECAY: 0.01
+  BASE_LR: 0.00001 # e-5 #Peak-LR after Warm-up
   WARMUP_LR: 0.000001 #10e-6
   MIN_LR: 0.000001 #0.0000001 #10e-7
 
@@ -78,7 +78,7 @@ TRAIN:
 TEST:
   SIG_THRESHOLD: 0.5
 
-OUTPUT_DIR: 'model_out/mega_search/weight_decay_lr1e-5_wu_20/stage2_lr1e-05_wu20_wd0.001'
+OUTPUT_DIR: 'model_out/DROP/wd_0.01drop_path0.05_drop_rate0.00_attn_drop0.00'
 LIST_DIR: './lists'
 SEED: 1234
 DETERMINISTIC: true

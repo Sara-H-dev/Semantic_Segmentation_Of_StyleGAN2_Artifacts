@@ -85,7 +85,7 @@ for wd in WD_GRID:
     result_dict_wd[score] = wd
     result_path_dict_wd[wd] = out
     result_list_wd.append(score)
-    logging.info(f"wd{wd}_drop_path{drop_path_0}_drop_rate{drop_rate_0}_attn_drop{attn_drop_0}: result {score} in row {res_dict['row_index']}")
+    logging.info(f"wd_{wd}_drop_path{drop_path_0}_drop_rate{drop_rate_0}_attn_drop{attn_drop_0}: result {score} in row {res_dict['row_index']}")
 
 best_wd_score = max(result_list_wd)
 best_wd = result_dict_wd[best_wd_score]
