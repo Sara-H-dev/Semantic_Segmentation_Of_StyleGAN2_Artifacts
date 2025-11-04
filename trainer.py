@@ -63,21 +63,21 @@ def trainer(model, logging, writer, log_save_path = "", config = None, base_lr =
                                     list_dir = config.LIST_DIR, 
                                     split = "train",
                                     transform = transforms.Compose(
-                                        [RandomGenerator(output_size=[img_size, img_size], random_flip_flag = True)]))
+                                        [RandomGenerator(output_size=[img_size, img_size], random_flip_flag = True, transform= True)]))
     
     # databese for fake images
     db_train_fake = SegArtifact_dataset( base_dir = config.DATA.DATA_PATH, 
                                     list_dir = config.LIST_DIR, 
                                     split = "fake_train",
                                     transform = transforms.Compose(
-                                        [RandomGenerator(output_size=[img_size, img_size], random_flip_flag = True)]))
+                                        [RandomGenerator(output_size=[img_size, img_size], random_flip_flag = True, transform = True)]))
     
     # databese for real images
     db_train_real = SegArtifact_dataset( base_dir = config.DATA.DATA_PATH, 
                                     list_dir = config.LIST_DIR, 
                                     split = "real_train_all",
                                     transform = transforms.Compose(
-                                        [RandomGenerator(output_size=[img_size, img_size], random_flip_flag = True)]))
+                                        [RandomGenerator(output_size=[img_size, img_size], random_flip_flag = True, transform = True)]))
     
     total_fake = len(db_train_fake)
     total_real = len(db_train_real)
@@ -100,7 +100,7 @@ def trainer(model, logging, writer, log_save_path = "", config = None, base_lr =
         base_dir = config.DATA.DATA_PATH, 
         split = "val", 
         list_dir = config.LIST_DIR,
-        transform = None,)
+        transform = transforms.Compose([RandomGenerator(output_size=[img_size, img_size], random_flip_flag = False, transform = False)]),)
     
     val_loss_loader = DataLoader(
                 db_test, 

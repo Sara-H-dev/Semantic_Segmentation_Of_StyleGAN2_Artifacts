@@ -18,18 +18,21 @@ def random_flip(image, label):
 
 
 class RandomGenerator(object):
-    def __init__(self, output_size, random_flip_flag = False):
+    def __init__(self, output_size, random_flip_flag = False, transform = True):
         self.output_size = output_size
         self.random_flip_flag = random_flip_flag
-        self.transform = A.Compose([
-                A.ToGray(p=0.05),
-                A.RandomBrightnessContrast(brightness_limit=0.1, contrast_limit=0.1, p=0.8),
-                A.HueSaturationValue(hue_shift_limit=4, sat_shift_limit=20, val_shift_limit=2, p=0.8),
-                A.OneOf([
-                    A.RandomGamma(gamma_limit=(90, 110), p=1.0),
-                    A.GaussianBlur(blur_limit=(3, 5), p=0.5),
-                ], p=0.7),
-            ])
+        if transform == True:
+            self.transform = A.Compose([
+                    A.ToGray(p=0.05),
+                    A.RandomBrightnessContrast(brightness_limit=0.1, contrast_limit=0.1, p=0.8),
+                    A.HueSaturationValue(hue_shift_limit=4, sat_shift_limit=20, val_shift_limit=2, p=0.8),
+                    A.OneOf([
+                        A.RandomGamma(gamma_limit=(90, 110), p=1.0),
+                        A.GaussianBlur(blur_limit=(3, 5), p=0.5),
+                    ], p=0.7),
+                ])
+        else:
+            self.transform = None
 
     def __call__(self, sample):
         image, label = sample['image'], sample['label']
@@ -39,7 +42,7 @@ class RandomGenerator(object):
         label = np.array(label, dtype=np.uint8)    # [H,W]
 
         
-        if random.random() > 0.1:
+        if random.random() > 0.1 and self.transform != None:
             # Define transformation pipeline 
             image = self.transform(image=image)["image"]
 
