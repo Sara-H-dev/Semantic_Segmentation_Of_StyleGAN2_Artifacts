@@ -48,7 +48,8 @@ def calculate_metrics(  model,
                         device = None, 
                         split = "test", 
                         img_size = 1024,
-                        sig_threshold = 0.5,):
+                        sig_threshold = 0.5,
+                        output_num = 10):
     
     patch_size = (img_size, img_size)
     model.eval(); 
@@ -135,7 +136,7 @@ def calculate_metrics(  model,
             
             # ------------------ out tupel ---------------
             out_tuple = (case_name, image, pred) # tupel for ploting the heat map of the best run
-            if(i_batch < 10): 
+            if(i_batch < output_num): 
                 ten_output_saver.append(out_tuple) # list to save ten outputs for generating heat maps for the best run
             num_cases += 1
 

@@ -100,7 +100,7 @@ def trainer(model, logging, writer, log_save_path = "", config = None, base_lr =
         base_dir = config.DATA.DATA_PATH, 
         split = "val", 
         list_dir = config.LIST_DIR,
-        transform = transforms.Compose([RandomGenerator(output_size=[img_size, img_size], random_flip_flag = False)]),)
+        transform = None,)
     
     val_loss_loader = DataLoader(
                 db_test, 
