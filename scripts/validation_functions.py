@@ -171,7 +171,7 @@ def calculate_metrics(  model,
     mean_fake_metric = np.mean(np.array(metric_fake_list, dtype=float), axis=0)
     (mean_bin_accuracy, mean_bin_recall, mean_bin_precision, mean_bin_IoU, mean_bin_dice, mean_bin_f1, mean_soft_dice, mean_soft_iou) = mean_fake_metric
 
-    Score = mean_soft_dice - (1.5 * mean_FPR)
+    Score = mean_soft_dice - (10 * mean_FPR)
     
     csv_fake_epoch.writerow([epoch, float(mean_accuracy_fake), 
                 float(mean_val_loss_fake), mean_confusion_matrix_bin_fake, 

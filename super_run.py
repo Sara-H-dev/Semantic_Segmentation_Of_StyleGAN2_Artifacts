@@ -8,21 +8,24 @@ import logging
 
 # --- Env ---
 env = os.environ.copy()
+#env["CUDA_VISIBLE_DEVICES"] = "0"
 env["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
+#env["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True,max_split_size_mb:128"
+#env["CUDNN_BENCHMARK"] = "0"
 env["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
 
 # --- Grid ---
-WD_GRID   = [1e-2, 1e-3, 1e-4]
-DROP_PATH = [0.2, 0.15, 0.1, 0.0]
-DROP_RATE = [0.2, 0.15, 0.1, 0.05]
-ATTN_DROP = [0.1, 0.05]
+
+ATTN_DROP = [0.1]
+ALPHA = [0.3, 0.4]
+LEARNING_RATE = [8.5e-6, 3e-5]
 
 
 logger = logging.getLogger(__name__)
 
-root_out = Path("./model_out/DROP")
+root_out = Path("./model_out/DROP3")
 root_out.mkdir(parents=True, exist_ok=True)
-logging.basicConfig(filename='./model_out/DROP/super_run.log', encoding='utf-8', level=logging.DEBUG)
+logging.basicConfig(filename='./model_out/DROP3/super_run.log', encoding='utf-8', level=logging.DEBUG)
 
 # --- Fixed Args ---
 cfg_path   = "./config.yaml"
@@ -55,131 +58,10 @@ drop_rate_0 = 0.0
 attn_drop_0 = 0.0
 drop_path_0 = 0.05
 
-# ------------------------------------WEIGHT DECAY------------------------------------------------------------- #
-
-result_dict_wd={}
-result_list_wd = []
-result_path_dict_wd = {}
-res_dict = {}
-
-for wd in WD_GRID:
-    logging.info(f"wd_{wd}_drop_path{drop_path_0:.2f}_drop_rate{drop_rate_0:.2f}_attn_drop{attn_drop_0:.2f}")
-    out = root_out / f"wd_{wd}drop_path{drop_path_0:.2f}_drop_rate{drop_rate_0:.2f}_attn_drop{attn_drop_0:.2f}"
-    out.mkdir(parents=True, exist_ok=True)
-    config_parser.set_yaml_value("OUTPUT_DIR", str(out))
-    config_parser.set_yaml_value("TRAIN.WEIGHT_DECAY", wd)
-    config_parser.set_yaml_value("MODEL.DROP_RATE", drop_rate_0)
-    config_parser.set_yaml_value("MODEL.DROP_PATH_RATE", drop_path_0)
-    config_parser.set_yaml_value("MODEL.ATTN_DROP_RATE", attn_drop_0)
-    cmd = [
-        py, train_py,
-        "--cfg", cfg_path,
-    ]
-    print("CMD:", " ".join(cmd))
-    subprocess.run(cmd, env=env, check=True)
-    df = safe_read_csv(out / CSV_NAME)
-    res_dict = get_best_from_df(df, METRIC_COL)
-    if res_dict is None:
-        raise ValueError("res dictionary is empty")
-    score = res_dict["value"]
-    result_dict_wd[score] = wd
-    result_path_dict_wd[wd] = out
-    result_list_wd.append(score)
-    logging.info(f"wd_{wd}_drop_path{drop_path_0}_drop_rate{drop_rate_0}_attn_drop{attn_drop_0}: result {score} in row {res_dict['row_index']}")
-
-best_wd_score = max(result_list_wd)
-best_wd = result_dict_wd[best_wd_score]
-best_path = result_path_dict_wd[best_wd]
-logging.info(f"Best model with weight decay {best_wd} in {best_path}")
-
-# ------------------------------------DROP OUT PATH------------------------------------------------------------- #
-    
-wd = best_wd
-
-result_dict={}
-result_list = []
-result_path_dict = {}
-res_dict = {}
-result_dict[best_wd_score] = 0.05
-result_list.append(best_wd_score)
-result_path_dict[0.05] = best_path
-
-logging.info("Drop path search:")
-
-for drop_path in DROP_PATH:
-    logging.info(f"drop_path{drop_path:.2f}_drop_rate{drop_rate_0:.2f}_attn_drop{attn_drop_0:.2f}")
-    out = root_out / f"drop_path{drop_path:.2f}_drop_rate{drop_rate_0:.2f}_attn_drop{attn_drop_0:.2f}"
-    out.mkdir(parents=True, exist_ok=True)
-    config_parser.set_yaml_value("OUTPUT_DIR", str(out))
-    config_parser.set_yaml_value("TRAIN.WEIGHT_DECAY", wd)
-    config_parser.set_yaml_value("MODEL.DROP_RATE", drop_rate_0)
-    config_parser.set_yaml_value("MODEL.DROP_PATH_RATE", drop_path)
-    config_parser.set_yaml_value("MODEL.ATTN_DROP_RATE", attn_drop_0)
-    cmd = [
-        py, train_py,
-        "--cfg", cfg_path,
-    ]
-    print("CMD:", " ".join(cmd))
-    subprocess.run(cmd, env=env, check=True)
-    df = safe_read_csv(out / CSV_NAME)
-    res_dict = get_best_from_df(df, METRIC_COL)
-    if res_dict is None:
-        raise ValueError("res dictionary is empty")
-    score = res_dict["value"]
-    result_dict[score] = drop_path
-    result_path_dict[drop_path] = out
-    result_list.append(score)
-    logging.info(f"drop_path{drop_path}_drop_rate{drop_rate_0}_attn_drop{attn_drop_0}: result {score} in row {res_dict['row_index']}")
-
-best_drop_path_score = max(result_list)
-best_drop_path = result_dict[best_drop_path_score]
-best_path = result_path_dict[best_drop_path]
-logging.info(f"Best model with drop path {best_drop_path} in {result_path_dict[best_drop_path]}")
-
-# ------------------------------------DROP OUT RATE ------------------------------------------------------------- #
-
-result_dict_rate = {} # Score : drop rate
-result_list_rate = [] # list of Scores
-result_path_dict = {} # drop rate: out_path
-res_dict = {}
-result_dict_rate[best_drop_path_score] = 0.0
-result_list_rate.append(best_drop_path_score)
-result_path_dict[0.0] = best_path
-
-
-
-logging.info("Drop rate search:")
-
-for drop_rate in DROP_RATE:
-    out = root_out / f"drop_path{best_drop_path:.2f}_drop_rate{drop_rate:.2f}_attn_drop{attn_drop_0:.2f}"
-    out.mkdir(parents=True, exist_ok=True)
-    config_parser.set_yaml_value("OUTPUT_DIR", str(out))
-    config_parser.set_yaml_value("TRAIN.WEIGHT_DECAY", wd)
-    config_parser.set_yaml_value("MODEL.DROP_RATE", drop_rate)
-    config_parser.set_yaml_value("MODEL.DROP_PATH_RATE", best_drop_path)
-    config_parser.set_yaml_value("MODEL.ATTN_DROP_RATE", attn_drop_0)
-    cmd = [
-        py, train_py,
-        "--cfg", cfg_path,
-    ]
-    print("CMD:", " ".join(cmd))
-    subprocess.run(cmd, env=env, check=True)
-    df = safe_read_csv(out / CSV_NAME)
-    res_dict = get_best_from_df(df, METRIC_COL)
-    if res_dict is None:
-        raise ValueError("res dictionary is empty")
-    score = res_dict["value"]
-    result_dict_rate[score] = drop_rate
-    result_path_dict[drop_rate] = out
-    result_list_rate.append(score)
-    logging.info(f"drop_path{best_drop_path}_drop_rate{drop_rate}_attn_drop{attn_drop_0}: result {score}")
-
-best_drop_rate_score = max(result_list_rate)
-best_drop_rate = result_dict_rate[best_drop_rate_score]
-best_path = result_path_dict[best_drop_rate]
-
-
-logging.info(f"Best model with drop rate {best_drop_rate} in {result_path_dict[best_drop_rate]}")
+# ------------------------------------DROP RATE------------------------------------------------------------ #
+wd = 0.001
+best_drop_path = 0.1
+best_drop_rate = 0.0
 
 # ------------------------------------ATTN DROP------------------------------------------------------------- #
 
@@ -187,9 +69,9 @@ result_dict_att = {}
 result_list_att = []
 result_path_dict = {}
 res_dict = {}
-result_dict_att[best_drop_rate_score] = 0.0
-result_list_att.append(best_drop_rate_score)
-result_path_dict[0.0] = best_path
+result_dict_att[0.5520427363938655] = 0.05
+result_list_att.append(0.5520427363938655)
+result_path_dict[0.05] = "model_out/DROP/drop_path0.10_drop_rate0.00_attn_drop0.05"
 
 logging.info("Attention drop search:")
 
@@ -201,6 +83,8 @@ for attn_drop in ATTN_DROP:
     config_parser.set_yaml_value("MODEL.DROP_RATE", best_drop_rate)
     config_parser.set_yaml_value("MODEL.DROP_PATH_RATE", best_drop_path)
     config_parser.set_yaml_value("MODEL.ATTN_DROP_RATE", attn_drop)
+    config_parser.set_yaml_value("TRAIN.TVERSKY_LOSS_ALPHA", 0.2)
+    config_parser.set_yaml_value("TRAIN.TVERSKY_LOSS_BETA", 0.8)
     cmd = [
         py, train_py,
         "--cfg", cfg_path,
@@ -223,15 +107,60 @@ best_path = result_path_dict[best_att]
 
 logging.info(f"Best model with attention drop {best_att} in {best_path}")
 
+# ------------------------------------Alpha Refine------------------------------------------------------------- #
+result_dict_alpha = {}
+result_list_alpha = []
+result_path_dict_alpha = {}
+res_dict = {}
+result_dict_alpha[best_att_score] = 0.2
+result_list_alpha.append(best_att_score)
+result_path_dict_alpha[0.2] = best_path
+
+logging.info("Alpha refine:")
+
+for alpha in ALPHA:
+    beta = 1 - alpha
+    out = root_out / f"alpha_{alpha:.2f}_drop_path{best_drop_path:.2f}_drop_rate{best_drop_rate:.2f}_attn_drop{best_att:.2f}"
+    out.mkdir(parents=True, exist_ok=True)
+    config_parser.set_yaml_value("OUTPUT_DIR", str(out))
+    config_parser.set_yaml_value("TRAIN.WEIGHT_DECAY", wd)
+    config_parser.set_yaml_value("MODEL.DROP_RATE", best_drop_rate)
+    config_parser.set_yaml_value("MODEL.DROP_PATH_RATE", best_drop_path)
+    config_parser.set_yaml_value("MODEL.ATTN_DROP_RATE", best_att)
+    config_parser.set_yaml_value("TRAIN.TVERSKY_LOSS_ALPHA", alpha)
+    config_parser.set_yaml_value("TRAIN.TVERSKY_LOSS_BETA", beta)
+    cmd = [
+        py, train_py,
+        "--cfg", cfg_path,
+    ]
+    print("CMD:", " ".join(cmd))
+    subprocess.run(cmd, env=env, check=True)
+    df = safe_read_csv(out / CSV_NAME)
+    res_dict = get_best_from_df(df, METRIC_COL)
+    if res_dict is None:
+        raise ValueError("res dictionary is empty")
+    score = res_dict["value"]
+    result_dict_alpha[score] = alpha
+    result_list_alpha.append(score)
+    result_path_dict_alpha[alpha] = out
+    logging.info(f"alpha_{alpha}_drop_path{best_drop_path}_drop_rate{best_drop_rate}_attn_drop{best_att}: result{score}")
+
+best_alpha_score = max(result_list_alpha)
+best_alpha = result_dict_alpha[best_alpha_score]
+best_path = result_path_dict_alpha[best_alpha]
+best_beta = 1 - best_alpha
+
+logging.info(f"Best model with alpha {best_alpha} in {best_path}")
+
 # ------------------------------------LEARNING RATE REFINE !!------------------------------------------------------------- #
 
-LEARNING_RATE = [8.5e-6, 3e-5]
+
 result_dict_lr = {}
 result_list_lr = []
 result_path_dict = {}
 res_dict = {}
-result_dict_lr[best_att_score] = 1e-5
-result_list_lr.append(best_att_score)
+result_dict_lr[best_alpha_score] = 1e-5
+result_list_lr.append(best_alpha_score)
 result_path_dict[1e-5] = best_path
 
 logging.info("Learning Rate search:")
@@ -245,6 +174,8 @@ for lr in LEARNING_RATE:
     config_parser.set_yaml_value("MODEL.DROP_PATH_RATE", best_drop_path)
     config_parser.set_yaml_value("MODEL.ATTN_DROP_RATE", best_att)
     config_parser.set_yaml_value("TRAIN.BASE_LR", lr)
+    config_parser.set_yaml_value("TRAIN.TVERSKY_LOSS_ALPHA", best_alpha)
+    config_parser.set_yaml_value("TRAIN.TVERSKY_LOSS_BETA", best_beta)
     cmd = [
         py, train_py,
         "--cfg", cfg_path,

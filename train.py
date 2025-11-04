@@ -14,7 +14,13 @@ from datetime import datetime
 import shutil
 from tensorboardX import SummaryWriter
 
+
 def main():
+    torch.backends.cudnn.benchmark = False   # vermeidet riesige cuDNN-Workspaces
+    torch.backends.cuda.matmul.allow_tf32 = True
+    torch.backends.cudnn.allow_tf32 = True
+    torch.cuda.empty_cache()
+
     parser = argparse.ArgumentParser()
     parser.add_argument('--cfg', type=str, required=True, metavar="FILE", help='path to config file', )
 
@@ -37,13 +43,18 @@ def main():
     print(f"Weight_decay = {config.TRAIN.WEIGHT_DECAY}")
     print(f"Drop_path = {config.MODEL.DROP_PATH_RATE}")
     print(f"Drop_rate = {config.MODEL.DROP_RATE}")
+    print(f"Attention Drop = {config.MODEL.ATTN_DROP_RATE}")
     print(f"tversky alpha = {config.TRAIN.TVERSKY_LOSS_ALPHA}")
     print(f"tversky beta = {config.TRAIN.TVERSKY_LOSS_BETA}")
+    print(f"tversky_bce_mix_factor = { config.TRAIN.LOSS_TVERSKY_BCE_MIX}")
     print(f"base_lr = {config.TRAIN.BASE_LR}")
     print(f"Dynamic_LOADER = {config.Dynamic_LOADER}")
     print(f"warm_up = {config.TRAIN.WARMUP_EPOCHS}")
     print(f"epochs = {config.TRAIN.MAX_EPOCHS}")
- 
+    print(f"seed = {config.SEED}")
+    print(f"pretrained weights = {config.MODEL.PRETRAIN_WEIGHTS}")
+
+   
     os.makedirs(output_dir, exist_ok=True)
     # copy the yaml to model_out
     config_path = args.cfg

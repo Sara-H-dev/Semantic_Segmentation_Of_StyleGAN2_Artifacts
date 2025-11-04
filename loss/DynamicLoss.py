@@ -71,12 +71,13 @@ class FocalTverskyLoss(torch.nn.Module):
 
 #Dynamic Loss Function
 class DynamicLoss(torch.nn.Module):
-    def __init__(self, roi_thresh=0.04, alpha = 0.4, beta = 0.6):
+    def __init__(self, roi_thresh=0.04, alpha = 0.4, beta = 0.6, tversky_bce_mix = 0.5):
         super(DynamicLoss, self).__init__()
         self.roi_thresh = roi_thresh
         self.bce_loss = BCEWithLogitsLoss()
         self.tversky_loss = TverskyLoss(alpha = alpha, beta = beta)
         self.focal_tversky_loss = FocalTverskyLoss(alpha = alpha, beta = beta)
+        self.tversky_bce_mix = tversky_bce_mix
 
     def forward(self, output, target):
 
@@ -102,7 +103,7 @@ class DynamicLoss(torch.nn.Module):
             if torch.sum(target_i) != 0: 
                 loss_tversky_i = self.tversky_loss(output_i, target_i)
 
-                loss_i = 0.5 * loss_bce_i + 0.5 * loss_tversky_i 
+                loss_i = (1-self.tversky_bce_mix) * loss_bce_i + self.tversky_bce_mix * loss_tversky_i 
             else: loss_i = loss_bce_i
 
             losses.append(loss_i)

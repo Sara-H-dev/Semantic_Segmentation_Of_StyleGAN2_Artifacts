@@ -94,6 +94,7 @@ _C.TRAIN.USE_CHECKPOINT = False # Whether to use gradient checkpointing to save 
 # Tversky Loss
 _C.TRAIN.TVERSKY_LOSS_ALPHA = 0.4
 _C.TRAIN.TVERSKY_LOSS_BETA = 0.6
+_C.TRAIN.LOSS_TVERSKY_BCE_MIX = 0.5
 # Unified Focal Loss
 _C.TRAIN.UF_LOSS_DELTA = 0.6
 _C.TRAIN.UF_LOSS_GAMMA = 0.5

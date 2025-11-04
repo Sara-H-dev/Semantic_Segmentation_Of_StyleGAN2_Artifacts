@@ -14,6 +14,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, ConcatDataset, Subset
+from torch import amp
 from torchvision import transforms
 from torchvision.utils import save_image
 from timm.scheduler.cosine_lr import CosineLRScheduler
@@ -116,7 +117,7 @@ def trainer(model, logging, writer, log_save_path = "", config = None, base_lr =
                 pin_memory = torch.cuda.is_available())
     
     # ------------- Loss Function --------------------------------
-    dynamic_loss = DynamicLoss(alpha=config.TRAIN.TVERSKY_LOSS_ALPHA, beta=config.TRAIN.TVERSKY_LOSS_BETA)
+    dynamic_loss = DynamicLoss(alpha=config.TRAIN.TVERSKY_LOSS_ALPHA, beta=config.TRAIN.TVERSKY_LOSS_BETA, tversky_bce_mix = config.TRAIN.LOSS_TVERSKY_BCE_MIX)
 
     # ---------------------- freeze encoder ------------------------------
     def core(m):  
@@ -171,7 +172,7 @@ def trainer(model, logging, writer, log_save_path = "", config = None, base_lr =
     since_best = 0 # counter that counts the number of epochs during which the soft_dice has not improved
     iter_num = 0
     best_performance = 0.0
-    scaler = torch.cuda.amp.GradScaler() # scaler to improve speed
+    scaler = amp.GradScaler('cuda')# scaler to improve speed
     some_thing_happend = False # Flag that ensures that when a layer is opened, the optimizer is adjusted accordingly.
     n_layer = 5
     last_run = False
@@ -307,7 +308,7 @@ def trainer(model, logging, writer, log_save_path = "", config = None, base_lr =
                 scaler.step(optimizer)
                 scaler.update()
                 opt_step += 1
-                lr = optimizer.param_groups[0]['lr']
+                # lr = optimizer.param_groups[0]['lr']
                 train_loss_list.append(loss.item())
             
             # ------------ calculating validation loss ---------
