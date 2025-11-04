@@ -53,6 +53,7 @@ def main():
     print(f"epochs = {config.TRAIN.MAX_EPOCHS}")
     print(f"seed = {config.SEED}")
     print(f"pretrained weights = {config.MODEL.PRETRAIN_WEIGHTS}")
+    print(f"SAVE_BEST_RUN = {config.SAVE_BEST_RUN}")
 
    
     os.makedirs(output_dir, exist_ok=True)

@@ -83,6 +83,7 @@ OUTPUT_DIR: 'model_out/SEED/attn_drop0.05_seed120'
 LIST_DIR: './lists'
 SEED: 120
 DETERMINISTIC: true
+SHOW_PREDICTIONS: 10
 SAVE_BEST_RUN: false
 SAVE_LAST_RUN: false
 Dynamic_LOADER: false

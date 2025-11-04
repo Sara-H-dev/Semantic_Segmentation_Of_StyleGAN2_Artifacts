@@ -132,6 +132,7 @@ _C.OUTPUT_DIR = './model_out'
 _C.LIST_DIR ='./lists'
 _C.SEED = 1234 # Fixed random seed
 _C.DETERMINISTIC = True
+_C.SHOW_PREDICTIONS = 10
 _C.SAVE_BEST_RUN = False
 _C.SAVE_LAST_RUN = False
 _C.Dynamic_LOADER = False

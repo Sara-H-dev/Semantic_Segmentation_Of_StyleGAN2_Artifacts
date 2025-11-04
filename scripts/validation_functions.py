@@ -51,6 +51,9 @@ def calculate_metrics(  model,
                         sig_threshold = 0.5,
                         output_num = 10):
     
+    if output_num >= len(testloader):
+        output_num = len(testloader)
+    
     patch_size = (img_size, img_size)
     model.eval(); 
     num_cases = 0;  # number of validation runs

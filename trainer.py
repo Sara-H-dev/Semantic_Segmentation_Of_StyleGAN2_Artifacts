@@ -347,7 +347,8 @@ def trainer(model, logging, writer, log_save_path = "", config = None, base_lr =
             csv_real_epoch = csv_real_epoch,
             csv_batch_real = csv_batch_real,
             csv_batch_fake = csv_batch_fake,
-            mean_train_loss = mean_train_loss)
+            mean_train_loss = mean_train_loss,
+            output_num= config.SHOW_PREDICTIONS)
         
         # ------------------ save best run --------------------------------
         if Score > best_Score:
