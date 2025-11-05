@@ -9,6 +9,7 @@ import csv
 import pandas as pd
 import matplotlib.pyplot as plt
 import math
+import gc
 
 import torch
 import torch.nn as nn
@@ -19,6 +20,7 @@ from torchvision import transforms
 from torchvision.utils import save_image
 from timm.scheduler.cosine_lr import CosineLRScheduler
 from datetime import datetime
+from PIL import Image
 
 from tqdm import tqdm
 from loss.SymmetricUnfiedFocalLoss_3 import SYM_UIFIED_FOCAL_LOSS
@@ -337,7 +339,7 @@ def trainer(model, logging, writer, log_save_path = "", config = None, base_lr =
 
         # -------- VALIDATION ----------------
         model.eval()
-        mean_dice, ten_output_dict, Score, FPR = calculate_metrics(
+        mean_dice, output_dict, Score, FPR = calculate_metrics(
             model = model,
             epoch = epoch_num + 1,
             logging = logging,
@@ -357,14 +359,32 @@ def trainer(model, logging, writer, log_save_path = "", config = None, base_lr =
         
         # ------------------ save best run --------------------------------
         if Score > best_Score:
-            save_best_output = ten_output_dict
+            save_best_output = output_dict
             best_Score = Score
             since_best = 0
             if config.SAVE_BEST_RUN:
-                best_path = os.path.join(log_save_path, 'best_model.pth')
-                torch.save({ 'epoch': epoch_num, 'model': core(model).state_dict(), 'optimizer': optimizer.state_dict(),
-                    'iter_num': iter_num, 'best_score': best_Score }, best_path)
-                logging.info(f"Saved new BEST checkpoint to {best_path} (Score={best_Score:.5f})")
+                dev = next(core(model).parameters()).device
+                torch.cuda.synchronize()
+                torch.cuda.empty_cache()
+                m = core(model)
+                m_cpu = m.to('cpu')
+
+                payload = {"model": m_cpu.state_dict(),
+                            "epoch": epoch_num + 1,
+                            "best_score": best_Score}
+                
+                best_path = os.path.join(log_save_path, "best_model.pth")
+                tmp = os.path.join(log_save_path, "best_model.pth.tmp")
+                torch.save(payload, tmp, _use_new_zipfile_serialization=False)
+                os.replace(tmp, best_path)
+
+                m.to(dev)
+                del m_cpu, payload
+                gc.collect()
+                torch.cuda.empty_cache()
+                logging.info(f"Saved new BEST weights to {best_path} (Score={best_Score:.5f})")
+                # create_bin_heat_mask_from_list(save_best_output, pred_dir, config.DATA.DATA_PATH)
+
         else: # ----------- early stopping -------------------------------
             since_best += 1
             if (since_best >= config.TRAIN.EARLY_STOPPING_PATIENCE) and (config.TRAIN.EARLY_STOPPING_FLAG == True):
@@ -393,7 +413,7 @@ def trainer(model, logging, writer, log_save_path = "", config = None, base_lr =
         current_lrs = [g['lr'] for g in optimizer.param_groups]
         logging.info(f"epoch {epoch_num + 1} | lrs={[f'{lr:.3e}' for lr in current_lrs]}")
 
-        # --------------------- if last epoch ----------------------------------------
+# --------------------- if last epoch ----------------------------------------
         if last_run == True:
             create_bin_heat_mask_from_list(save_best_output, pred_dir)
             break
@@ -435,15 +455,27 @@ def make_worker_init_fn(base_seed: int):
     return _init
 
 # ------------ creates heat mask and bin mask --------------------
-def create_bin_heat_mask_from_list(ten_output_saver, pred_dir):
+def create_bin_heat_mask_from_list(ten_output_saver, pred_dir, dataset_root):
 
-    for case_name, image_tensor, pred_tensor in ten_output_saver:
+    os.makedirs(pred_dir, exist_ok=True)
+
+    for case_name, pred_tensor in ten_output_saver:
         case_name = str(case_name)
-        image_tensor = image_tensor.detach().cpu()
         pred_tensor  = pred_tensor.detach().cpu()
 
+        # load original image:
+        if case_name.startswith("09"):
+            img_path = os.path.join(dataset_root, "fake_images", f"{case_name}.png")
+        else:
+            img_path = os.path.join(dataset_root, "real_images", f"{case_name}.png")
+
+        if not os.path.exists(img_path):
+            raise FileNotFoundError(f"Bild nicht gefunden: {img_path}")
+
+        image = Image.open(img_path).convert("RGB")
+        image_tensor = torch.from_numpy(np.array(image)).permute(2,0,1).float() / 255.0
+
         if pred_tensor.ndim == 4: pred_tensor = pred_tensor[0] 
-        if image_tensor.ndim == 4: image_tensor = image_tensor[0]
             
         heat   = pred_tensor.clamp(0, 1)         # in [0,1]
         binmsk = (heat > 0.5).float()
@@ -456,6 +488,5 @@ def create_bin_heat_mask_from_list(ten_output_saver, pred_dir):
             heat_hw=heat[0] if heat.ndim == 3 else heat,
             out_png=os.path.join(pred_dir, f"{case_name}_overlay_color.png"),
             alpha= 0.45 )
-
 
     

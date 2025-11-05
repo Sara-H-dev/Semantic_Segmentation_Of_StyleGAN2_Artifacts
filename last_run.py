@@ -78,7 +78,7 @@ config_parser.set_yaml_value("TRAIN.LOSS_TVERSKY_BCE_MIX", mix)
 config_parser.set_yaml_value("MODEL.PRETRAIN_WEIGHTS", pretraining)
 config_parser.set_yaml_value("TRAIN.MAX_EPOCHS", epoch)
 config_parser.set_yaml_value("SAVE_BEST_RUN", True)
-config_parser.set_yaml_value("SHOW_PREDICTIONS", 167)
+config_parser.set_yaml_value("SHOW_PREDICTIONS", 10)
 
 cmd = [
     py, train_py,
@@ -115,7 +115,7 @@ config_parser.set_yaml_value("TRAIN.LOSS_TVERSKY_BCE_MIX", 0.6)
 config_parser.set_yaml_value("MODEL.PRETRAIN_WEIGHTS", pretraining)
 config_parser.set_yaml_value("TRAIN.MAX_EPOCHS", epoch)
 config_parser.set_yaml_value("SAVE_BEST_RUN", True)
-config_parser.set_yaml_value("SHOW_PREDICTIONS", 167)
+config_parser.set_yaml_value("SHOW_PREDICTIONS", 10)
 
 cmd = [
     py, train_py,

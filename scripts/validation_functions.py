@@ -57,7 +57,7 @@ def calculate_metrics(  model,
     patch_size = (img_size, img_size)
     model.eval(); 
     num_cases = 0;  # number of validation runs
-    ten_output_saver = [] # list to save ten outputs for generating heat maps for the best run
+    output_saver = [] # list to save ten outputs for generating heat maps for the best run
     
     # real
     real_conf_matrix_bin_list = []  # list of [[tp, fp],[fn, tn]]
@@ -75,7 +75,7 @@ def calculate_metrics(  model,
     accuracy_list = []              # [(acc, val_loss), ...]
     confusion_matrix_bin_list = []  # list of [[tp, fp],[fn, tn]]
 
-    with torch.inference_mode():
+    with torch.inference_mode(), torch.amp.autocast('cuda', dtype=torch.float16):
         # ------------- calculate the metric and predict ---------------------------------------------
         for i_batch, sampled_batch in tqdm(enumerate(testloader), total=len(testloader)):
 
@@ -90,7 +90,7 @@ def calculate_metrics(  model,
 
             B, C, H, W = image.shape
             assert ((H, W) != tuple(patch_size)) == False 
-            image = image.to(device).float()
+            image = image.float()
 
             if loss_label.ndim == 4: 
                 label = loss_label.squeeze(1) # B, H, W
@@ -100,7 +100,7 @@ def calculate_metrics(  model,
             out_logits = model(image)
             if out_logits.shape[1] != 1:
                 raise ValueError(f"Binary task expected 1 logit channel, got {out_logits.shape[1]}")
-            val_loss = dynamic_loss(out_logits, loss_label)
+            val_loss = float(dynamic_loss(out_logits, loss_label))
 
             # probabilities & binaries for metrics
             pred = torch.sigmoid(out_logits).squeeze(0).squeeze(0)        # (H,W) float
@@ -138,10 +138,12 @@ def calculate_metrics(  model,
                 accuracy_list_fake.append((bin_accuracy, float(val_loss)))
             
             # ------------------ out tupel ---------------
-            out_tuple = (case_name, image, pred) # tupel for ploting the heat map of the best run
+            pred_cpu  = pred.detach().cpu()                 
+            out_tuple = (case_name, pred_cpu)     
             if(i_batch < output_num): 
-                ten_output_saver.append(out_tuple) # list to save ten outputs for generating heat maps for the best run
+                output_saver.append(out_tuple) # list to save ten outputs for generating heat maps for the best run
             num_cases += 1
+            torch.cuda.empty_cache()
 
     if num_cases == 0:
         logging.error(f"No {split} cases processed. Check your dataset/split.")
@@ -206,7 +208,7 @@ def calculate_metrics(  model,
     
     print(f"epoch{epoch} val_loss:{mean_val_loss} train_loss:{mean_train_loss} mean_soft_dice:{mean_soft_dice} mean_FRP {mean_FPR} Score {Score}")
 
-    return mean_soft_dice, ten_output_saver, Score, mean_FPR
+    return mean_soft_dice, output_saver, Score, mean_FPR
 
 # -------------------- Calculating REAL Metrics ---------------------------- #
 def calculate_metrics_real(pred_bin, pred, ground_truth):
