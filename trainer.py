@@ -150,9 +150,14 @@ def trainer(model, logging, writer, log_save_path = "", config = None, base_lr =
     )
 
     # ------------- Cosine Decay with linear warmup ---------------
+    if max_epoch < 60:
+        lr_epoch = 60
+    else:
+        lr_epoch = max_epoch
+
     lr_scheduler = CosineLRScheduler(
         optimizer,
-        t_initial= 60 - warmup_epochs,
+        t_initial= lr_epoch - warmup_epochs,
         lr_min = config.TRAIN.MIN_LR,
         warmup_lr_init = config.TRAIN.WARMUP_LR,
         warmup_t = warmup_epochs,

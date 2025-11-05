@@ -51,10 +51,10 @@ def get_best_from_df(df: pd.DataFrame, col_name: str):
 wd = 0.001
 best_drop_path = 0.1
 best_drop_rate = 0.0
-attn_drop = 0.0
-seed = 53
+attn_drop = 0.05
+seed = 120
 mix = 0.5
-pretraining = "segface" #"imagenet1k"
+pretraining = "imagenet1k" #"imagenet1k"
 epoch = 100
 # ------------------------------------ FINAL RUN ------------------------------------------------------------- #
 
@@ -64,9 +64,9 @@ res_dict = {}
 logging.info("Final Run")
 
 
-out = root_out / f"final_run_1"
-out.mkdir(parents=True, exist_ok=True)
-config_parser.set_yaml_value("OUTPUT_DIR", str(out))
+out_05 = root_out / f"final_run_1"
+out_05.mkdir(parents=True, exist_ok=True)
+config_parser.set_yaml_value("OUTPUT_DIR", str(out_05))
 config_parser.set_yaml_value("TRAIN.WEIGHT_DECAY", wd)
 config_parser.set_yaml_value("MODEL.DROP_RATE", best_drop_rate)
 config_parser.set_yaml_value("MODEL.DROP_PATH_RATE", best_drop_path)
@@ -78,7 +78,7 @@ config_parser.set_yaml_value("TRAIN.LOSS_TVERSKY_BCE_MIX", mix)
 config_parser.set_yaml_value("MODEL.PRETRAIN_WEIGHTS", pretraining)
 config_parser.set_yaml_value("TRAIN.MAX_EPOCHS", epoch)
 config_parser.set_yaml_value("SAVE_BEST_RUN", True)
-config_parser.set_yaml_value("SHOW_PREDICTION", 167)
+config_parser.set_yaml_value("SHOW_PREDICTIONS", 167)
 
 cmd = [
     py, train_py,
@@ -87,13 +87,55 @@ cmd = [
 
 print("CMD:", " ".join(cmd))
 subprocess.run(cmd, env=env, check=True)
-df = safe_read_csv(out / CSV_NAME)
+df = safe_read_csv(out_05 / CSV_NAME)
 res_dict = get_best_from_df(df, METRIC_COL)
 if res_dict is None:
         raise ValueError("res dictionary is empty")
-score = res_dict["value"]
+score_05 = res_dict["value"]
 
-logging.info(f"final_run_ with_score_{score}")
+
+# --------------------- FINAL RUN WITH weight on Tversky ------------------------------ #
+res_dict = {}
+
+
+logging.info("Final Run")
+
+
+out_06 = root_out / f"final_run_1"
+out_06.mkdir(parents=True, exist_ok=True)
+config_parser.set_yaml_value("OUTPUT_DIR", str(out_06))
+config_parser.set_yaml_value("TRAIN.WEIGHT_DECAY", wd)
+config_parser.set_yaml_value("MODEL.DROP_RATE", best_drop_rate)
+config_parser.set_yaml_value("MODEL.DROP_PATH_RATE", best_drop_path)
+config_parser.set_yaml_value("MODEL.ATTN_DROP_RATE", attn_drop)
+config_parser.set_yaml_value("TRAIN.TVERSKY_LOSS_ALPHA", 0.2)
+config_parser.set_yaml_value("TRAIN.TVERSKY_LOSS_BETA", 0.8)
+config_parser.set_yaml_value("SEED", seed)
+config_parser.set_yaml_value("TRAIN.LOSS_TVERSKY_BCE_MIX", 0.6)
+config_parser.set_yaml_value("MODEL.PRETRAIN_WEIGHTS", pretraining)
+config_parser.set_yaml_value("TRAIN.MAX_EPOCHS", epoch)
+config_parser.set_yaml_value("SAVE_BEST_RUN", True)
+config_parser.set_yaml_value("SHOW_PREDICTIONS", 167)
+
+cmd = [
+    py, train_py,
+    "--cfg", cfg_path,
+]
+
+print("CMD:", " ".join(cmd))
+subprocess.run(cmd, env=env, check=True)
+df = safe_read_csv(out_06 / CSV_NAME)
+res_dict = get_best_from_df(df, METRIC_COL)
+if res_dict is None:
+        raise ValueError("res dictionary is empty")
+score_06 = res_dict["value"]
+
+logging.info(f"final_run_ with_score_{score_06}")
+
+if score_05 >= score_06:
+    out = out_05
+else:
+    out = out_06
 
 logging.info(f"Starting evaluation with test set")
 

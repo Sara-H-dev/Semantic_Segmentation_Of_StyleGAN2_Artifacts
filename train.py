@@ -54,6 +54,7 @@ def main():
     print(f"seed = {config.SEED}")
     print(f"pretrained weights = {config.MODEL.PRETRAIN_WEIGHTS}")
     print(f"SAVE_BEST_RUN = {config.SAVE_BEST_RUN}")
+    print(f"SHOW_PREDICTIONS = {config.SHOW_PREDICTIONS}")
 
    
     os.makedirs(output_dir, exist_ok=True)
