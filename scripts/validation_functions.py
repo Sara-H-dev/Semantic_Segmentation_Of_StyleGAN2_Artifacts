@@ -307,3 +307,52 @@ def calculate_metrics_fake(pred_bin, pred, ground_truth):
             float(bin_IoU), float(bin_dice), float(bin_f1),
             confusion_matrix_bin, confusion_matrix_soft,
             i_soft_dice, i_soft_iou)
+
+
+def atrifact_prediction(  model, 
+                        testloader,
+                        device = None, 
+                        img_size = 1024):
+    
+    output_num = len(testloader)
+    
+    patch_size = (img_size, img_size)
+    model.eval(); 
+    num_cases = 0;  # number of validation runs
+    output_saver = [] # list to save ten outputs for generating heat maps for the best run
+   
+    with torch.inference_mode(), torch.amp.autocast('cuda', dtype=torch.float16):
+        # ------------- calculate the metric and predict ---------------------------------------------
+        for i_batch, sampled_batch in tqdm(enumerate(testloader), total=len(testloader)):
+
+            image = sampled_batch["image"].to(device, non_blocking=True)
+            case_name =  sampled_batch['case_name'][0]
+
+            # --------- redimension images and labels ------------------
+            assert image.ndim == 4
+            assert image.shape[0] == 1 
+
+            B, C, H, W = image.shape
+            assert ((H, W) != tuple(patch_size)) == False 
+            image = image.float()
+
+            # =========== forward: ==============================================================
+            out_logits = model(image)
+            if out_logits.shape[1] != 1:
+                raise ValueError(f"Binary task expected 1 logit channel, got {out_logits.shape[1]}")
+
+            # probabilities & binaries for metrics
+            pred = torch.sigmoid(out_logits).squeeze(0).squeeze(0)        # (H,W) float
+
+            # ===================== calculating the metrics ======================================
+            #real picture
+            
+            # ------------------ out tupel ---------------
+            pred_cpu  = pred.detach().cpu()                 
+            out_tuple = (case_name, pred_cpu)     
+            if(i_batch < output_num): 
+                output_saver.append(out_tuple) # list to save ten outputs for generating heat maps for the best run
+            num_cases += 1
+            torch.cuda.empty_cache()
+
+    return output_saver

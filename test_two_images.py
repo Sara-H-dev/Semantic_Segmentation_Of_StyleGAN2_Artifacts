@@ -18,13 +18,13 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 from tqdm import tqdm
 
-from dataset.dataset import SegArtifact_dataset
+
 from loss.DynamicLoss import DynamicLoss
 from network.MSUNet import MSUNet
 from scripts.csv_handler import CSV_Handler
-from scripts.validation_functions import calculate_metrics
+from scripts.validation_functions import atrifact_prediction
 from scripts.map_generator import save_color_heatmap
-from dataset.dataset import SegArtifact_dataset, RandomGenerator
+from dataset.dataset import SegArtifact_no_label_dataset, DataPrepartion
 from PIL import Image
 
 
@@ -42,6 +42,8 @@ def main():
     print(f"Used config lying in path: {args.cfg}")
 
     config = get_config(args, True, False)
+
+    img_size = 512
 
     seed = int(config.SEED)
     random.seed(seed)
@@ -65,7 +67,7 @@ def main():
     now = datetime.now()
     timestamp_str = now.strftime("%d%m%y_%H%M")
     output_root = os.path.abspath(args.out_dir)
-    output_dir  = os.path.join(output_root, f"test_{timestamp_str}")
+    output_dir  = os.path.join(output_root, f"test_two_{timestamp_str}")
     os.makedirs(output_dir, exist_ok=True)
 
     # copy of used config.
@@ -88,7 +90,7 @@ def main():
 
     # --- build model ---
     model = MSUNet( config, 
-                    img_size = config.DATA.IMG_SIZE, 
+                    img_size = img_size, 
                     num_classes=config.MODEL.NUM_CLASSES
                     )
     model.to(device)
@@ -110,11 +112,11 @@ def main():
     print("loaded checkpoint", msg)
 
     # --- Dataset/Loader ---
-    db_test = SegArtifact_dataset(
+    db_test = SegArtifact_no_label_dataset(
         base_dir=config.DATA.DATA_PATH,
         list_dir=config.LIST_DIR,
-        split="test",
-        transform = transforms.Compose([RandomGenerator(output_size=[config.DATA.IMG_SIZE, config.DATA.IMG_SIZE], random_flip_flag = False, transform = False)])
+        split="two",
+        transform = transforms.Compose([DataPrepartion(output_size=[img_size, img_size])])
     )
     
     test_loader = DataLoader(
@@ -125,56 +127,20 @@ def main():
         pin_memory=torch.cuda.is_available()
     )
 
-    # --- Loss/Metrik-CSV ---
-    dynamic_loss = DynamicLoss(
-        alpha=config.TRAIN.TVERSKY_LOSS_ALPHA,
-        beta=config.TRAIN.TVERSKY_LOSS_BETA,
-        tversky_bce_mix=config.TRAIN.LOSS_TVERSKY_BCE_MIX
-    )
-
-    csv_object = CSV_Handler(output_dir)
-    (csv_writer,
-     csv_batch_fake,
-     csv_batch_real,
-     csv_real_epoch,
-     csv_fake_epoch,
-     csv_all_epoch,
-     csv_batch) = csv_object.return_writer()
-
     # --- EVAL ---
     model.eval()
 
     # --- Metric + Outputs + Test Losss ---
-    mean_dice, output_list, Score, FPR = calculate_metrics(
-        model=model,
-        epoch=1,
-        logging=logging,
-        testloader=test_loader,
-        dynamic_loss=dynamic_loss,
-        device=device,
-        split="test",     
-        img_size=config.DATA.IMG_SIZE,
-        sig_threshold=config.TRAIN.SIG_THRESHOLD,
-        csv_all_epoch=csv_all_epoch,
-        csv_fake_epoch=csv_fake_epoch,
-        csv_real_epoch=csv_real_epoch,
-        csv_batch_real=csv_batch_real,
-        csv_batch_fake=csv_batch_fake,
-        mean_train_loss=0.0,
-        output_num=len(test_loader)
-    )
+    output_list = atrifact_prediction(
+                model, 
+                test_loader,
+                device = device, 
+                img_size = img_size)
 
     # Heatmaps/Masks speichern
     pred_dir = os.path.join(output_dir, "predictions")
     create_bin_heat_mask_from_list(output_list, pred_dir, config.DATA.DATA_PATH)
-
-    # Zusammenfassung
-    logging.info(f"mean_dice_test: {mean_dice:.6f}, Score: {Score:.6f}, FPR: {FPR:.6f}")
-    writer.add_scalar('metrics/mean_dice_test', mean_dice, 0)
-    writer.add_scalar('metrics/Score_test', Score, 0)
-    writer.add_scalar('metrics/FPR_test', FPR, 0)
-    writer.close()
-
+    
     # Für stdout / aufrufende Skripte
     print(timestamp_str, file=sys.stdout)
     return timestamp_str
@@ -189,7 +155,7 @@ def create_bin_heat_mask_from_list(ten_output_saver, pred_dir, dataset_root):
         pred_tensor  = pred_tensor.detach().cpu()
 
         # load original image:
-        if case_name.startswith("09"):
+        if case_name.startswith("09") or case_name.startswith("000"):
             img_path = os.path.join(dataset_root, "fake_images", f"{case_name}.png")
         else:
             img_path = os.path.join(dataset_root, "real_images", f"{case_name}.png")
