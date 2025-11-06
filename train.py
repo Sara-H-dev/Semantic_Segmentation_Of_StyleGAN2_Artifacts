@@ -55,6 +55,8 @@ def main():
     print(f"pretrained weights = {config.MODEL.PRETRAIN_WEIGHTS}")
     print(f"SAVE_BEST_RUN = {config.SAVE_BEST_RUN}")
     print(f"SHOW_PREDICTIONS = {config.SHOW_PREDICTIONS}")
+    print(f"Dynamic_LOADER = {config.Dynamic_LOADER}")
+    
 
    
     os.makedirs(output_dir, exist_ok=True)

@@ -8,6 +8,7 @@ import torch
 import torch.backends.cudnn as cudnn
 import sys
 import shutil
+import warnings
 
 from config import get_config
 from datetime import datetime
@@ -24,6 +25,7 @@ from scripts.csv_handler import CSV_Handler
 from scripts.validation_functions import calculate_metrics
 from scripts.map_generator import save_color_heatmap
 from dataset.dataset import SegArtifact_dataset, RandomGenerator
+from PIL import Image
 
 
 def main():
@@ -34,8 +36,10 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--cfg', type=str, required=True, metavar="FILE", help='path to config file')
     parser.add_argument('--check_point_dir', type=str, required=True, metavar="DIR", help='path to directory with best_model.pth')
+    parser.add_argument('--out_dir', type=str, required=True, metavar="DIR", help='path to the out dir')
     args = parser.parse_args()
     check_point_dir = args.check_point_dir
+    print(f"Used config lying in path: {args.cfg}")
 
     config = get_config(args, True, False)
 
@@ -54,6 +58,8 @@ def main():
     else:
         cudnn.benchmark = True
         cudnn.deterministic = False
+
+    warnings.filterwarnings("ignore", category=DeprecationWarning)
 
     # ----- path output ----
     now = datetime.now()
@@ -91,7 +97,7 @@ def main():
     snapshot = os.path.join(check_point_dir, 'best_model.pth')
     if not os.path.exists(snapshot):
         raise FileNotFoundError(f"Checkpoint not found: {snapshot}")
-    ckpt = torch.load(snapshot, map_location=device)
+    ckpt = torch.load(snapshot, map_location=device, weights_only=False)
     state = None
     if isinstance(ckpt, dict) and 'model' in ckpt:
         state = ckpt['model']
