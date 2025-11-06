@@ -415,7 +415,7 @@ def trainer(model, logging, writer, log_save_path = "", config = None, base_lr =
 
 # --------------------- if last epoch ----------------------------------------
         if last_run == True:
-            create_bin_heat_mask_from_list(save_best_output, pred_dir)
+            create_bin_heat_mask_from_list(save_best_output, pred_dir, config.DATA.DATA_PATH)
             break
 
     csv_object.close_files()

@@ -159,7 +159,7 @@ def main():
 
     # Heatmaps/Masks speichern
     pred_dir = os.path.join(output_dir, "predictions")
-    create_bin_heat_mask_from_list(output_list, pred_dir)
+    create_bin_heat_mask_from_list(output_list, pred_dir, config.DATA.DATA_PATH)
 
     # Zusammenfassung
     logging.info(f"mean_dice_test: {mean_dice:.6f}, Score: {Score:.6f}, FPR: {FPR:.6f}")
@@ -172,27 +172,40 @@ def main():
     print(timestamp_str, file=sys.stdout)
     return timestamp_str
 
-def create_bin_heat_mask_from_list(output_saver, pred_dir):
+# ------------ creates heat mask and bin mask --------------------
+def create_bin_heat_mask_from_list(ten_output_saver, pred_dir, dataset_root):
+
     os.makedirs(pred_dir, exist_ok=True)
-    for case_name, image_tensor, pred_tensor in output_saver:
-        case_name   = str(case_name)
-        image_tensor = image_tensor.detach().cpu()
+
+    for case_name, pred_tensor in ten_output_saver:
+        case_name = str(case_name)
         pred_tensor  = pred_tensor.detach().cpu()
 
-        if pred_tensor.ndim == 4: pred_tensor = pred_tensor[0]
-        if image_tensor.ndim == 4: image_tensor = image_tensor[0]
+        # load original image:
+        if case_name.startswith("09"):
+            img_path = os.path.join(dataset_root, "fake_images", f"{case_name}.png")
+        else:
+            img_path = os.path.join(dataset_root, "real_images", f"{case_name}.png")
 
-        heat   = pred_tensor.clamp(0, 1)      # [0,1]
+        if not os.path.exists(img_path):
+            raise FileNotFoundError(f"Bild nicht gefunden: {img_path}")
+
+        image = Image.open(img_path).convert("RGB")
+        image_tensor = torch.from_numpy(np.array(image)).permute(2,0,1).float() / 255.0
+
+        if pred_tensor.ndim == 4: pred_tensor = pred_tensor[0] 
+            
+        heat   = pred_tensor.clamp(0, 1)         # in [0,1]
         binmsk = (heat > 0.5).float()
 
-        save_image(heat,   os.path.join(pred_dir, f"{case_name}_grey_heats.png"))
+        save_image(heat, os.path.join(pred_dir, f"{case_name}_grey_heats.png"))
         save_image(binmsk, os.path.join(pred_dir, f"{case_name}_bin_mask.png"))
 
         save_color_heatmap(
             img_3chw=image_tensor,
             heat_hw=heat[0] if heat.ndim == 3 else heat,
             out_png=os.path.join(pred_dir, f"{case_name}_overlay_color.png"),
-            alpha=0.45
-        )
+            alpha= 0.45 )
+        
 if __name__ == "__main__":
     ts = main()
