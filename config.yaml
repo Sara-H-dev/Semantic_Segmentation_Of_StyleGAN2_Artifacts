@@ -13,7 +13,7 @@ HARDWARE:
 MODEL:
   TYPE: "swin"
   NAME: "swin_b"
-  PRETRAIN_WEIGHTS: "imagenet1k" # segface or imagenet1k
+  PRETRAIN_WEIGHTS: "segface"   # segface or imagenet1k
   PRETRAIN_CKPT: "./pretrained_ckpt/swin_b.pth"
   PRETRAIN_SEGFACE: "./network/pretrained_weights/SegFace_swin_celaba_512.pt"
   PRETRAIN_IMAGENET1K: "./network/pretrained_weights/swin_b-68c6b09e.pth"
@@ -46,7 +46,7 @@ MODEL:
     FINAL_UPSAMPLE: "expand_first"
 
 TRAIN:
-  MAX_EPOCHS: 40
+  MAX_EPOCHS: 60
   START_EPOCH: 0
   WARMUP_EPOCHS: 20
   WEIGHT_DECAY: 0.001
@@ -59,7 +59,7 @@ TRAIN:
 
   TVERSKY_LOSS_ALPHA: 0.2
   TVERSKY_LOSS_BETA: 0.8
-  LOSS_TVERSKY_BCE_MIX: 0.5
+  LOSS_TVERSKY_BCE_MIX: 0.45
   UF_LOSS_DELTA: 0.75
   UF_LOSS_GAMMA: 0.7
   UF_LOSS_WEIGTH: 0.5
@@ -79,11 +79,11 @@ TRAIN:
 TEST:
   SIG_THRESHOLD: 0.5
 
-OUTPUT_DIR: 'model_out/SEED/attn_drop0.05_seed120'
+OUTPUT_DIR: 'model_out/REFINE2/alpha_0.2_mix_0.45_100_epochs_Segface'
 LIST_DIR: './lists'
 SEED: 120
 DETERMINISTIC: true
-SHOW_PREDICTIONS: 10
-SAVE_BEST_RUN: false
+SHOW_PREDICTIONS: 1
+SAVE_BEST_RUN: true
 SAVE_LAST_RUN: false
-Dynamic_LOADER: false
+DYNAMIC_LOADER: false

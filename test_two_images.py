@@ -23,7 +23,7 @@ from loss.DynamicLoss import DynamicLoss
 from network.MSUNet import MSUNet
 from scripts.csv_handler import CSV_Handler
 from scripts.validation_functions import atrifact_prediction
-from scripts.map_generator import save_color_heatmap
+from scripts.map_generator import save_color_heatmap, overlay_mask_on_image
 from dataset.dataset import SegArtifact_no_label_dataset, DataPrepartion
 from PIL import Image
 
@@ -155,10 +155,8 @@ def create_bin_heat_mask_from_list(ten_output_saver, pred_dir, dataset_root):
         pred_tensor  = pred_tensor.detach().cpu()
 
         # load original image:
-        if case_name.startswith("09") or case_name.startswith("000"):
-            img_path = os.path.join(dataset_root, "fake_images", f"{case_name}.png")
-        else:
-            img_path = os.path.join(dataset_root, "real_images", f"{case_name}.png")
+
+        img_path = os.path.join(dataset_root, "fake_images", f"{case_name}.png")
 
         if not os.path.exists(img_path):
             raise FileNotFoundError(f"Bild nicht gefunden: {img_path}")
@@ -173,12 +171,21 @@ def create_bin_heat_mask_from_list(ten_output_saver, pred_dir, dataset_root):
 
         save_image(heat, os.path.join(pred_dir, f"{case_name}_grey_heats.png"))
         save_image(binmsk, os.path.join(pred_dir, f"{case_name}_bin_mask.png"))
+        image.save(os.path.join(pred_dir, f"{case_name}.png"))
 
         save_color_heatmap(
             img_3chw=image_tensor,
             heat_hw=heat[0] if heat.ndim == 3 else heat,
             out_png=os.path.join(pred_dir, f"{case_name}_overlay_color.png"),
             alpha= 0.45 )
+        
+        overlay_mask_on_image(
+            img_path= img_path,
+            mask_path= os.path.join(pred_dir, f"{case_name}_bin_mask.png"),
+            out_path=os.path.join(pred_dir, f"{case_name}_overlay_color.png"),
+            color=(255, 0, 255),
+            alpha= 0.25,
+            border_thickness=2)
         
 if __name__ == "__main__":
     ts = main()

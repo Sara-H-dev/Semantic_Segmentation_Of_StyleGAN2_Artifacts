@@ -193,7 +193,7 @@ def trainer(model, logging, writer, log_save_path = "", config = None, base_lr =
     for epoch_num in tqdm(range(max_epoch)):
 
         # -------- Adapting real ratio --------
-        if(config.Dynamic_LOADER == True):
+        if(config.DYNAMIC_LOADER == True):
             if epoch_num < 9:
                 real_ratio = 0.1
             elif epoch_num >= 9 and epoch_num < 20:

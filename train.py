@@ -48,14 +48,14 @@ def main():
     print(f"tversky beta = {config.TRAIN.TVERSKY_LOSS_BETA}")
     print(f"tversky_bce_mix_factor = { config.TRAIN.LOSS_TVERSKY_BCE_MIX}")
     print(f"base_lr = {config.TRAIN.BASE_LR}")
-    print(f"Dynamic_LOADER = {config.Dynamic_LOADER}")
+    print(f"DYNAMIC_LOADER = {config.DYNAMIC_LOADER}")
     print(f"warm_up = {config.TRAIN.WARMUP_EPOCHS}")
     print(f"epochs = {config.TRAIN.MAX_EPOCHS}")
     print(f"seed = {config.SEED}")
     print(f"pretrained weights = {config.MODEL.PRETRAIN_WEIGHTS}")
     print(f"SAVE_BEST_RUN = {config.SAVE_BEST_RUN}")
     print(f"SHOW_PREDICTIONS = {config.SHOW_PREDICTIONS}")
-    print(f"Dynamic_LOADER = {config.Dynamic_LOADER}")
+    print(f"DYNAMIC_LOADER = {config.DYNAMIC_LOADER}")
     
 
    

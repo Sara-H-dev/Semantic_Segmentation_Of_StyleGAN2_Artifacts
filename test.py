@@ -23,7 +23,7 @@ from loss.DynamicLoss import DynamicLoss
 from network.MSUNet import MSUNet
 from scripts.csv_handler import CSV_Handler
 from scripts.validation_functions import calculate_metrics
-from scripts.map_generator import save_color_heatmap
+from scripts.map_generator import save_color_heatmap, save_contour_heatmap, overlay_mask_on_image
 from dataset.dataset import SegArtifact_dataset, RandomGenerator
 from PIL import Image
 
@@ -203,16 +203,26 @@ def create_bin_heat_mask_from_list(ten_output_saver, pred_dir, dataset_root):
         if pred_tensor.ndim == 4: pred_tensor = pred_tensor[0] 
             
         heat   = pred_tensor.clamp(0, 1)         # in [0,1]
-        binmsk = (heat > 0.5).float()
+        binmsk = (heat > 0.4).float()
 
         save_image(heat, os.path.join(pred_dir, f"{case_name}_grey_heats.png"))
         save_image(binmsk, os.path.join(pred_dir, f"{case_name}_bin_mask.png"))
+        image.save(os.path.join(pred_dir, f"{case_name}.png"))
 
         save_color_heatmap(
             img_3chw=image_tensor,
             heat_hw=heat[0] if heat.ndim == 3 else heat,
-            out_png=os.path.join(pred_dir, f"{case_name}_overlay_color.png"),
+            out_png=os.path.join(pred_dir, f"{case_name}_heatmap.png"),
             alpha= 0.45 )
+        
+        overlay_mask_on_image(
+            img_path= img_path,
+            mask_path= os.path.join(pred_dir, f"{case_name}_bin_mask.png"),
+            out_path=os.path.join(pred_dir, f"{case_name}_overlay_color.png"),
+            color=(255, 0, 255),
+            alpha= 0.25,
+            border_thickness=2)
+        
         
 if __name__ == "__main__":
     ts = main()

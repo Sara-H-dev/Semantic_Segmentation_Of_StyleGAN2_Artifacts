@@ -14,7 +14,7 @@ env["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
 
 logger = logging.getLogger(__name__)
 
-root_out = Path("./model_out/FINAL")
+root_out = Path("./model_out/TWO")
 root_out.mkdir(parents=True, exist_ok=True)
 
 # --- Fixed Args ---
@@ -49,21 +49,16 @@ def get_best_from_df(df: pd.DataFrame, col_name: str):
 # ------------------------------------CONFIG------------------------------------------------------------ #
 
 
-logging.info("Final Run")
 
+out = root_out 
+check_point_dir = Path("./model_out/LAST/alpha_02_mix_0.45")
+cfg_path = check_point_dir / cfg_path
 
-out = root_out / f"final_run_1"
-cfg_path = out / cfg_path
-
-
-bm = out / "best_model.pth"
-if not bm.exists():
-    raise FileNotFoundError(f"{bm} not found")
 
 cmd = [
     py, test_py,
     "--cfg", cfg_path,
-    "--check_point_dir", str(out),
+    "--check_point_dir", check_point_dir,
     "--out", str(root_out)
 ]
 

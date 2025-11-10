@@ -135,7 +135,7 @@ _C.DETERMINISTIC = True
 _C.SHOW_PREDICTIONS = 10
 _C.SAVE_BEST_RUN = False
 _C.SAVE_LAST_RUN = False
-_C.Dynamic_LOADER = False
+_C.DYNAMIC_LOADER = False
 #_C.LOCAL_RANK = 0 #only if more than one gpu
 # -----------------------------------------------------------------------------
 
