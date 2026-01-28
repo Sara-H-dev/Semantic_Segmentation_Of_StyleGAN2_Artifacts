@@ -1,0 +1,164 @@
+== Top Dice auf Fake (höher ist besser) ==
+
+ 1. dice=0.560703 | epoch=24
+    dir: /home/hes37224/Documents/artifact_seg/model_out/parameter_search/alpha_0.2
+    csv: /home/hes37224/Documents/artifact_seg/model_out/parameter_search/alpha_0.2/val_metric_fake_epoch.csv
+
+ 2. dice=0.556402 | epoch=24
+    dir: /home/hes37224/Documents/artifact_seg/model_out/parameter_search/alpha_0.3
+    csv: /home/hes37224/Documents/artifact_seg/model_out/parameter_search/alpha_0.3/val_metric_fake_epoch.csv
+
+ 3. dice=0.554774 | epoch=16
+    dir: /home/hes37224/Documents/artifact_seg/model_out/FinalPatchExpandTest/281025_1223
+    csv: /home/hes37224/Documents/artifact_seg/model_out/FinalPatchExpandTest/281025_1223/val_metric_fake_epoch.csv
+
+ 4. dice=0.553818 | epoch=16
+    dir: /home/hes37224/Documents/artifact_seg/model_out/parameter_search/alpha_0.15
+    csv: /home/hes37224/Documents/artifact_seg/model_out/parameter_search/alpha_0.15/val_metric_fake_epoch.csv
+
+ 5. dice=0.551385 | epoch=18
+    dir: /home/hes37224/Documents/artifact_seg/model_out/second_training/201025_1246/0
+    csv: /home/hes37224/Documents/artifact_seg/model_out/second_training/201025_1246/0/val_metric_fake_epoch.csv
+
+ 6. dice=0.551385 | epoch=18
+    dir: /home/hes37224/Documents/artifact_seg/model_out/weight_decay_search/lr_max_5e-4/weight_decay_search_211025_0955_wd_0/0
+    csv: /home/hes37224/Documents/artifact_seg/model_out/weight_decay_search/lr_max_5e-4/weight_decay_search_211025_0955_wd_0/0/val_metric_fake_epoch.csv
+
+ 7. dice=0.550900 | epoch=12
+    dir: /home/hes37224/Documents/artifact_seg/model_out/weight_decay_search/lr_max_1e-4/221025_2143_lr_e-5
+    csv: /home/hes37224/Documents/artifact_seg/model_out/weight_decay_search/lr_max_1e-4/221025_2143_lr_e-5/val_metric_fake_epoch.csv
+
+ 8. dice=0.550265 | epoch=24
+    dir: /home/hes37224/Documents/artifact_seg/model_out/parameter_search/alpha_0.25
+    csv: /home/hes37224/Documents/artifact_seg/model_out/parameter_search/alpha_0.25/val_metric_fake_epoch.csv
+
+ 9. dice=0.549569 | epoch=7
+    dir: /home/hes37224/Documents/artifact_seg/model_out/parameter_search/alpha_0.35
+    csv: /home/hes37224/Documents/artifact_seg/model_out/parameter_search/alpha_0.35/val_metric_fake_epoch.csv
+
+10. dice=0.547749 | epoch=9
+    dir: /home/hes37224/Documents/artifact_seg/model_out/weight_decay_search/lr_max_1e-4/weight_decay_search_211025_wd_0/221025_1643
+    csv: /home/hes37224/Documents/artifact_seg/model_out/weight_decay_search/lr_max_1e-4/weight_decay_search_211025_wd_0/221025_1643/val_metric_fake_epoch.csv
+
+11. dice=0.547410 | epoch=9
+    dir: /home/hes37224/Documents/artifact_seg/model_out/weight_decay_search/lr_max_1e-4/weight_decay_search_211025_wd_0.1/221025_1913
+    csv: /home/hes37224/Documents/artifact_seg/model_out/weight_decay_search/lr_max_1e-4/weight_decay_search_211025_wd_0.1/221025_1913/val_metric_fake_epoch.csv
+
+12. dice=0.547334 | epoch=12
+    dir: /home/hes37224/Documents/artifact_seg/model_out/weight_decay_search/lr_max_5e-4/weight_decay_search_211025_wd_0.001/221025_1046
+    csv: /home/hes37224/Documents/artifact_seg/model_out/weight_decay_search/lr_max_5e-4/weight_decay_search_211025_wd_0.001/221025_1046/val_metric_fake_epoch.csv
+
+13. dice=0.547200 | epoch=9
+    dir: /home/hes37224/Documents/artifact_seg/model_out/weight_decay_search/lr_max_5e-4/weight_decay_search_211025_wd_0.01/221025_1317
+    csv: /home/hes37224/Documents/artifact_seg/model_out/weight_decay_search/lr_max_5e-4/weight_decay_search_211025_wd_0.01/221025_1317/val_metric_fake_epoch.csv
+
+14. dice=0.546635 | epoch=10
+    dir: /home/hes37224/Documents/artifact_seg/model_out/weight_decay_search/lr_max_5e-4/weight_decay_search_211025_wd_0.0001/221025_0814
+    csv: /home/hes37224/Documents/artifact_seg/model_out/weight_decay_search/lr_max_5e-4/weight_decay_search_211025_wd_0.0001/221025_0814/val_metric_fake_epoch.csv
+
+15. dice=0.546635 | epoch=10
+    dir: /home/hes37224/Documents/artifact_seg/model_out/weight_decay_search/lr_max_5e-4/weight_decay_search_211025_wd_1e-05/211025_1616
+    csv: /home/hes37224/Documents/artifact_seg/model_out/weight_decay_search/lr_max_5e-4/weight_decay_search_211025_wd_1e-05/211025_1616/val_metric_fake_epoch.csv
+
+16. dice=0.538032 | epoch=9
+    dir: /home/hes37224/Documents/artifact_seg/model_out/imagenet1k_test/231025_0847
+    csv: /home/hes37224/Documents/artifact_seg/model_out/imagenet1k_test/231025_0847/val_metric_fake_epoch.csv
+
+17. dice=0.535993 | epoch=23
+    dir: /home/hes37224/Documents/artifact_seg/model_out/augmentation/281025_0857
+    csv: /home/hes37224/Documents/artifact_seg/model_out/augmentation/281025_0857/val_metric_fake_epoch.csv
+
+18. dice=0.533347 | epoch=37
+    dir: /home/hes37224/Documents/artifact_seg/model_out/first_training/141025_1725_best_try/0.05_best_try
+    csv: /home/hes37224/Documents/artifact_seg/model_out/first_training/141025_1725_best_try/0.05_best_try/val_metric_fake_epoch.csv
+
+19. dice=0.530009 | epoch=10
+    dir: /home/hes37224/Documents/artifact_seg/model_out/other_loss/231025_1332
+    csv: /home/hes37224/Documents/artifact_seg/model_out/other_loss/231025_1332/val_metric_fake_epoch.csv
+
+20. dice=0.530009 | epoch=10
+    dir: /home/hes37224/Documents/artifact_seg/model_out/other_loss/241025_0853
+    csv: /home/hes37224/Documents/artifact_seg/model_out/other_loss/241025_0853/val_metric_fake_epoch.csv
+
+
+== Top FPR auf Real (niedriger ist besser) ==
+
+ 1. fpr=0.00000000 | epoch=29
+    dir: /home/hes37224/Documents/artifact_seg/model_out/other_loss/231025_1332
+    csv: /home/hes37224/Documents/artifact_seg/model_out/other_loss/231025_1332/val_metric_real_epoch.csv
+
+ 2. fpr=0.00000003 | epoch=1
+    dir: /home/hes37224/Documents/artifact_seg/model_out/other_loss/241025_1218
+    csv: /home/hes37224/Documents/artifact_seg/model_out/other_loss/241025_1218/val_metric_real_epoch.csv
+
+ 3. fpr=0.00028954 | epoch=12
+    dir: /home/hes37224/Documents/artifact_seg/model_out/other_loss/241025_0853
+    csv: /home/hes37224/Documents/artifact_seg/model_out/other_loss/241025_0853/val_metric_real_epoch.csv
+
+ 4. fpr=0.00040347 | epoch=18
+    dir: /home/hes37224/Documents/artifact_seg/model_out/imagenet1k_test/231025_0847
+    csv: /home/hes37224/Documents/artifact_seg/model_out/imagenet1k_test/231025_0847/val_metric_real_epoch.csv
+
+ 5. fpr=0.00045823 | epoch=19
+    dir: /home/hes37224/Documents/artifact_seg/model_out/parameter_search/alpha_0.35
+    csv: /home/hes37224/Documents/artifact_seg/model_out/parameter_search/alpha_0.35/val_metric_real_epoch.csv
+
+ 6. fpr=0.00068552 | epoch=19
+    dir: /home/hes37224/Documents/artifact_seg/model_out/FinalPatchExpandTest/281025_1223
+    csv: /home/hes37224/Documents/artifact_seg/model_out/FinalPatchExpandTest/281025_1223/val_metric_real_epoch.csv
+
+ 7. fpr=0.00071624 | epoch=28
+    dir: /home/hes37224/Documents/artifact_seg/model_out/parameter_search/alpha_0.15
+    csv: /home/hes37224/Documents/artifact_seg/model_out/parameter_search/alpha_0.15/val_metric_real_epoch.csv
+
+ 8. fpr=0.00081769 | epoch=19
+    dir: /home/hes37224/Documents/artifact_seg/model_out/parameter_search/alpha_0.25
+    csv: /home/hes37224/Documents/artifact_seg/model_out/parameter_search/alpha_0.25/val_metric_real_epoch.csv
+
+ 9. fpr=0.00087842 | epoch=33
+    dir: /home/hes37224/Documents/artifact_seg/model_out/weight_decay_search/lr_max_5e-4/weight_decay_search_211025_0955_wd_0/0
+    csv: /home/hes37224/Documents/artifact_seg/model_out/weight_decay_search/lr_max_5e-4/weight_decay_search_211025_0955_wd_0/0/val_metric_real_epoch.csv
+
+10. fpr=0.00118386 | epoch=37
+    dir: /home/hes37224/Documents/artifact_seg/model_out/parameter_search/alpha_0.3
+    csv: /home/hes37224/Documents/artifact_seg/model_out/parameter_search/alpha_0.3/val_metric_real_epoch.csv
+
+11. fpr=0.00125750 | epoch=19
+    dir: /home/hes37224/Documents/artifact_seg/model_out/parameter_search/alpha_0.2
+    csv: /home/hes37224/Documents/artifact_seg/model_out/parameter_search/alpha_0.2/val_metric_real_epoch.csv
+
+12. fpr=0.00173996 | epoch=17
+    dir: /home/hes37224/Documents/artifact_seg/model_out/weight_decay_search/lr_max_5e-4/weight_decay_search_211025_wd_0.0001/221025_0814
+    csv: /home/hes37224/Documents/artifact_seg/model_out/weight_decay_search/lr_max_5e-4/weight_decay_search_211025_wd_0.0001/221025_0814/val_metric_real_epoch.csv
+
+13. fpr=0.00173996 | epoch=17
+    dir: /home/hes37224/Documents/artifact_seg/model_out/weight_decay_search/lr_max_5e-4/weight_decay_search_211025_wd_1e-05/211025_1616
+    csv: /home/hes37224/Documents/artifact_seg/model_out/weight_decay_search/lr_max_5e-4/weight_decay_search_211025_wd_1e-05/211025_1616/val_metric_real_epoch.csv
+
+14. fpr=0.00176817 | epoch=35
+    dir: /home/hes37224/Documents/artifact_seg/model_out/augmentation/281025_0857
+    csv: /home/hes37224/Documents/artifact_seg/model_out/augmentation/281025_0857/val_metric_real_epoch.csv
+
+15. fpr=0.00193474 | epoch=34
+    dir: /home/hes37224/Documents/artifact_seg/model_out/weight_decay_search/lr_max_5e-4/weight_decay_search_211025_wd_0.001/221025_1046
+    csv: /home/hes37224/Documents/artifact_seg/model_out/weight_decay_search/lr_max_5e-4/weight_decay_search_211025_wd_0.001/221025_1046/val_metric_real_epoch.csv
+
+16. fpr=0.00228363 | epoch=36
+    dir: /home/hes37224/Documents/artifact_seg/model_out/weight_decay_search/lr_max_5e-4/weight_decay_search_211025_wd_0.01/221025_1317
+    csv: /home/hes37224/Documents/artifact_seg/model_out/weight_decay_search/lr_max_5e-4/weight_decay_search_211025_wd_0.01/221025_1317/val_metric_real_epoch.csv
+
+17. fpr=0.00358214 | epoch=31
+    dir: /home/hes37224/Documents/artifact_seg/model_out/weight_decay_search/lr_max_1e-4/weight_decay_search_211025_wd_0/221025_1643
+    csv: /home/hes37224/Documents/artifact_seg/model_out/weight_decay_search/lr_max_1e-4/weight_decay_search_211025_wd_0/221025_1643/val_metric_real_epoch.csv
+
+18. fpr=0.00367634 | epoch=35
+    dir: /home/hes37224/Documents/artifact_seg/model_out/weight_decay_search/lr_max_1e-4/weight_decay_search_211025_wd_0.1/221025_1913
+    csv: /home/hes37224/Documents/artifact_seg/model_out/weight_decay_search/lr_max_1e-4/weight_decay_search_211025_wd_0.1/221025_1913/val_metric_real_epoch.csv
+
+19. fpr=0.00367967 | epoch=29
+    dir: /home/hes37224/Documents/artifact_seg/model_out/weight_decay_search/lr_max_1e-4/221025_2143_lr_e-5
+    csv: /home/hes37224/Documents/artifact_seg/model_out/weight_decay_search/lr_max_1e-4/221025_2143_lr_e-5/val_metric_real_epoch.csv
+
+20. fpr=0.00417265 | epoch=2
+    dir: /home/hes37224/Documents/artifact_seg/model_out/FinalPatchExpandTest/271025_0940
+    csv: /home/hes37224/Documents/artifact_seg/model_out/FinalPatchExpandTest/271025_0940/val_metric_real_epoch.csv

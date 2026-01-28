@@ -1,0 +1,63 @@
+Score: S = 0.600*Dice_fake + 0.400*(1 - FPR_real)
+
+== Top Modelle nach S (höher ist besser) ==
+
+ 1. S=0.734065 | epoch=24 | dice=0.560703 | fpr=0.00589299
+    dir: /home/hes37224/Documents/artifact_seg/model_out/parameter_search/alpha_0.2
+
+ 2. S=0.731016 | epoch=24 | dice=0.556402 | fpr=0.00706203
+    dir: /home/hes37224/Documents/artifact_seg/model_out/parameter_search/alpha_0.3
+
+ 3. S=0.730373 | epoch=16 | dice=0.553818 | fpr=0.00479526
+    dir: /home/hes37224/Documents/artifact_seg/model_out/parameter_search/alpha_0.15
+
+ 4. S=0.728542 | epoch=16 | dice=0.554774 | fpr=0.01080786
+    dir: /home/hes37224/Documents/artifact_seg/model_out/FinalPatchExpandTest/281025_1223
+
+ 5. S=0.727198 | epoch=24 | dice=0.550265 | fpr=0.00740168
+    dir: /home/hes37224/Documents/artifact_seg/model_out/parameter_search/alpha_0.25
+
+ 6. S=0.725807 | epoch=9 | dice=0.547200 | fpr=0.00628216
+    dir: /home/hes37224/Documents/artifact_seg/model_out/weight_decay_search/lr_max_5e-4/weight_decay_search_211025_wd_0.01/221025_1317
+
+ 7. S=0.724237 | epoch=7 | dice=0.549569 | fpr=0.01376179
+    dir: /home/hes37224/Documents/artifact_seg/model_out/parameter_search/alpha_0.35
+
+ 8. S=0.721853 | epoch=12 | dice=0.550900 | fpr=0.02171838
+    dir: /home/hes37224/Documents/artifact_seg/model_out/weight_decay_search/lr_max_1e-4/221025_2143_lr_e-5
+
+ 9. S=0.720998 | epoch=9 | dice=0.538032 | fpr=0.00455239
+    dir: /home/hes37224/Documents/artifact_seg/model_out/imagenet1k_test/231025_0847
+
+10. S=0.720042 | epoch=23 | dice=0.535993 | fpr=0.00388401
+    dir: /home/hes37224/Documents/artifact_seg/model_out/augmentation/281025_0857
+
+11. S=0.719261 | epoch=9 | dice=0.547410 | fpr=0.02296423
+    dir: /home/hes37224/Documents/artifact_seg/model_out/weight_decay_search/lr_max_1e-4/weight_decay_search_211025_wd_0.1/221025_1913
+
+12. S=0.719001 | epoch=9 | dice=0.547749 | fpr=0.02412224
+    dir: /home/hes37224/Documents/artifact_seg/model_out/weight_decay_search/lr_max_1e-4/weight_decay_search_211025_wd_0/221025_1643
+
+13. S=0.717877 | epoch=10 | dice=0.537282 | fpr=0.01122943
+    dir: /home/hes37224/Documents/artifact_seg/model_out/weight_decay_search/lr_max_5e-4/weight_decay_search_211025_wd_0.001/221025_1046
+
+14. S=0.717219 | epoch=10 | dice=0.546635 | fpr=0.02690460
+    dir: /home/hes37224/Documents/artifact_seg/model_out/weight_decay_search/lr_max_5e-4/weight_decay_search_211025_wd_1e-05/211025_1616
+
+15. S=0.717219 | epoch=10 | dice=0.546635 | fpr=0.02690460
+    dir: /home/hes37224/Documents/artifact_seg/model_out/weight_decay_search/lr_max_5e-4/weight_decay_search_211025_0955_wd_0/0
+
+16. S=0.717219 | epoch=10 | dice=0.546635 | fpr=0.02690460
+    dir: /home/hes37224/Documents/artifact_seg/model_out/weight_decay_search/lr_max_5e-4/weight_decay_search_211025_wd_0.0001/221025_0814
+
+17. S=0.716297 | epoch=10 | dice=0.530009 | fpr=0.00427168
+    dir: /home/hes37224/Documents/artifact_seg/model_out/other_loss/231025_1332
+
+18. S=0.716297 | epoch=10 | dice=0.530009 | fpr=0.00427168
+    dir: /home/hes37224/Documents/artifact_seg/model_out/other_loss/241025_0853
+
+19. S=0.676197 | epoch=3 | dice=0.468669 | fpr=0.01251090
+    dir: /home/hes37224/Documents/artifact_seg/model_out/main_test/281025_0840
+
+20. S=0.579374 | epoch=39 | dice=0.311766 | fpr=0.01921376
+    dir: /home/hes37224/Documents/artifact_seg/model_out/FinalPatchExpandTest/271025_0940

@@ -8,6 +8,7 @@
 import os
 import yaml
 from yacs.config import CfgNode as CN
+import sys
 
 _C = CN()
 
@@ -18,51 +19,48 @@ _C.BASE = ['']
 # Data settings
 # -----------------------------------------------------------------------------
 _C.DATA = CN()
-# Batch size for a single GPU, could be overwritten by command line argument
-_C.DATA.BATCH_SIZE = 8
-# Path to dataset, could be overwritten by command line argument
+
+_C.DATA.BATCH_SIZE = 2
 _C.DATA.DATA_PATH = './dataset'
-# Dataset name
-_C.DATA.DATASET = 'imagenet'
-# Input image size
 _C.DATA.IMG_SIZE = 1024
-# Interpolation to resize image (random, bilinear, bicubic)
-_C.DATA.INTERPOLATION = 'bicubic'
-# Use zipped dataset instead of folder dataset
-# could be overwritten by command line argument
-_C.DATA.ZIP_MODE = False
-# Cache Data in Memory, could be overwritten by command line argument
-_C.DATA.CACHE_MODE = 'part'
-# Pin CPU memory in DataLoader for more efficient (sometimes) transfer to GPU.
 _C.DATA.PIN_MEMORY = True
-# Number of data loading threads
 _C.DATA.NUM_WORKERS = 8
+# -----------------------------------------------------------------------------
+# Hardware settings
+# -----------------------------------------------------------------------------
+_C.HARDWARE = CN()
+
+_C.HARDWARE.N_GPU = 1 # number of gpu
 
 # -----------------------------------------------------------------------------
 # Model settings
 # -----------------------------------------------------------------------------
 _C.MODEL = CN()
-# Model type
+
 _C.MODEL.TYPE = 'swin'
-# Model name
 _C.MODEL.NAME = 'swin_b'
-# Checkpoint to resume, could be overwritten by command line argument
-_C.MODEL.PRETRAIN_CKPT = './pretrained_ckpt/swin_b.pth'
-# path to segface weights
-_C.MODEL.PRETRAIN_SEGFACE = './network/pretrained_weights/SegFace_swin_celaba_512.pt'
+_C.MODEL.PRETRAIN_WEIGHTS = 'segface' # segface or imagenet1k
+_C.MODEL.PRETRAIN_CKPT = './pretrained_ckpt/swin_b.pth' # Checkpoint to resume, could be overwritten by command line argument
+_C.MODEL.PRETRAIN_SEGFACE = './network/pretrained_weights/SegFace_swin_celaba_512.pt' # path to segface weights
+_C.MODEL.PRETRAIN_IMAGENET1K = './network/pretrained_weights/swin_b-68c6b09e.pth' # path to segface weights
 
-_C.MODEL.RESUME = ''
-# Number of classes, overwritten in data preparation
-_C.MODEL.NUM_CLASSES = 1
-# Dropout rate
-_C.MODEL.DROP_RATE = 0.0
-# Drop path rate
-_C.MODEL.DROP_PATH_RATE = 0.1
-# Label Smoothing
-_C.MODEL.LABEL_SMOOTHING = 0.1
+_C.MODEL.NUM_CLASSES = 1 # Number of classes, overwritten in data preparation
+_C.MODEL.DROP_RATE = 0.0 # Dropout rate
+_C.MODEL.DROP_PATH_RATE = 0.1 # Drop path rate
+_C.MODEL.ATTN_DROP_RATE = 0.0
+_C.MODEL.LABEL_SMOOTHING = 0.1 # Label Smoothing
 
-# Swin Transformer parameters
+_C.MODEL.FREEZE_ENCODER = True #Encoder Freenzing
+_C.MODEL.STAGE3_UNFREEZE_PERIODE = 0.4 # in percent (0: no freezing, 1: all epochs are freezed)
+_C.MODEL.STAGE2_UNFREEZE_PERIODE = 0.7 # How long should the Encoder be freezed
+_C.MODEL.STAGE1_UNFREEZE_PERIODE = 0.9
+_C.MODEL.STAGE0_UNFREEZE_PERIODE = 0.98
+
+# -----------------------------------------------------------------------------
+# Swin Transformer settings
+# -----------------------------------------------------------------------------
 _C.MODEL.SWIN = CN()
+
 _C.MODEL.SWIN.PATCH_SIZE = 4
 _C.MODEL.SWIN.IN_CHANS = 3
 _C.MODEL.SWIN.EMBED_DIM = 128
@@ -80,100 +78,66 @@ _C.MODEL.SWIN.FINAL_UPSAMPLE= "expand_first"
 # -----------------------------------------------------------------------------
 # Training settings
 # -----------------------------------------------------------------------------
+
 _C.TRAIN = CN()
+_C.TRAIN.MAX_EPOCHS = 300
 _C.TRAIN.START_EPOCH = 0
-_C.TRAIN.EPOCHS = 300
 _C.TRAIN.WARMUP_EPOCHS = 20
-_C.TRAIN.WEIGHT_DECAY = 0.05
+_C.TRAIN.WEIGHT_DECAY = 0.1
 _C.TRAIN.BASE_LR = 5e-4
 _C.TRAIN.WARMUP_LR = 5e-7
 _C.TRAIN.MIN_LR = 5e-6
-# Clip gradient norm
-_C.TRAIN.CLIP_GRAD = 5.0
-# Auto resume from latest checkpoint
-_C.TRAIN.AUTO_RESUME = True
-# Gradient accumulation steps
-# could be overwritten by command line argument
-_C.TRAIN.ACCUMULATION_STEPS = 0
-# Whether to use gradient checkpointing to save memory
-# could be overwritten by command line argument
-_C.TRAIN.USE_CHECKPOINT = False
 
-# LR scheduler
+_C.TRAIN.ACCUMULATION_STEPS = 1 # Gradient accumulation steps # could be overwritten by command line argument
+_C.TRAIN.USE_CHECKPOINT = False # Whether to use gradient checkpointing to save memory
+
+# Tversky Loss
+_C.TRAIN.TVERSKY_LOSS_ALPHA = 0.4
+_C.TRAIN.TVERSKY_LOSS_BETA = 0.6
+_C.TRAIN.LOSS_TVERSKY_BCE_MIX = 0.5
+# Unified Focal Loss
+_C.TRAIN.UF_LOSS_DELTA = 0.6
+_C.TRAIN.UF_LOSS_GAMMA = 0.5
+_C.TRAIN.UF_LOSS_WEIGTH = 0.5
+
+_C.TRAIN.EARLY_STOPPING_PATIENCE = 15
+_C.TRAIN.EARLY_STOPPING_FLAG = False
+_C.TRAIN.SIG_THRESHOLD = 0.5
+
+# -----------------------------------------------------------------------------
+# LR_SCHEDULER
+# -----------------------------------------------------------------------------
 _C.TRAIN.LR_SCHEDULER = CN()
 _C.TRAIN.LR_SCHEDULER.NAME = 'cosine'
-# Epoch interval to decay LR, used in StepLRScheduler
-_C.TRAIN.LR_SCHEDULER.DECAY_EPOCHS = 30
-# LR decay rate, used in StepLRScheduler
-_C.TRAIN.LR_SCHEDULER.DECAY_RATE = 0.1
+_C.TRAIN.LR_SCHEDULER.WARMUP_PREFIX = True 
 
+# -----------------------------------------------------------------------------
 # Optimizer
+# -----------------------------------------------------------------------------
 _C.TRAIN.OPTIMIZER = CN()
 _C.TRAIN.OPTIMIZER.NAME = 'adamw'
-# Optimizer Epsilon
-_C.TRAIN.OPTIMIZER.EPS = 1e-8
-# Optimizer Betas
-_C.TRAIN.OPTIMIZER.BETAS = (0.9, 0.999)
-# SGD momentum
-_C.TRAIN.OPTIMIZER.MOMENTUM = 0.9
+_C.TRAIN.OPTIMIZER.EPS = 1e-8 # Optimizer Epsilon
+_C.TRAIN.OPTIMIZER.BETAS = (0.9, 0.999) # Optimizer Betas
 
 # -----------------------------------------------------------------------------
-# Augmentation settings
-# -----------------------------------------------------------------------------
-_C.AUG = CN()
-# Color jitter factor
-_C.AUG.COLOR_JITTER = 0.4
-# Use AutoAugment policy. "v0" or "original"
-_C.AUG.AUTO_AUGMENT = 'rand-m9-mstd0.5-inc1'
-# Random erase prob
-_C.AUG.REPROB = 0.0
-# Random erase mode
-_C.AUG.REMODE = 'pixel'
-# Random erase count
-_C.AUG.RECOUNT = 1
-# Mixup alpha, mixup enabled if > 0
-_C.AUG.MIXUP = 0.0
-# Cutmix alpha, cutmix enabled if > 0
-_C.AUG.CUTMIX = 0.0
-# Cutmix min/max ratio, overrides alpha and enables cutmix if set
-_C.AUG.CUTMIX_MINMAX = None
-# Probability of performing mixup or cutmix when either/both is enabled
-_C.AUG.MIXUP_PROB = 1.0
-# Probability of switching to cutmix when both mixup and cutmix enabled
-_C.AUG.MIXUP_SWITCH_PROB = 0.5
-# How to apply mixup/cutmix params. Per "batch", "pair", or "elem"
-_C.AUG.MIXUP_MODE = 'batch'
-
-# -----------------------------------------------------------------------------
-# Testing settings
+# Test settings
 # -----------------------------------------------------------------------------
 _C.TEST = CN()
-# Whether to use center crop when testing
-_C.TEST.CROP = True
+_C.TEST.SIG_THRESHOLD = 0.5 # threshold for the gereration of the binary mask for the validation
 
 # -----------------------------------------------------------------------------
 # Misc
 # -----------------------------------------------------------------------------
-# Mixed precision opt level, if O0, no amp is used ('O0', 'O1', 'O2')
-# overwritten by command line argument
-_C.AMP_OPT_LEVEL = ''
-# Path to output folder, overwritten by command line argument
-_C.OUTPUT = ''
-# Tag of experiment, overwritten by command line argument
-_C.TAG = 'default'
-# Frequency to save checkpoint
-_C.SAVE_FREQ = 1
-# Frequency to logging info
-_C.PRINT_FREQ = 10
-# Fixed random seed
-_C.SEED = 0
-# Perform evaluation only, overwritten by command line argument
-_C.EVAL_MODE = False
-# Test throughput only, overwritten by command line argument
-_C.THROUGHPUT_MODE = False
-# local rank for DistributedDataParallel, given by command line argument
-_C.LOCAL_RANK = 0
-
+_C.OUTPUT_DIR = './model_out'
+_C.LIST_DIR ='./lists'
+_C.SEED = 1234 # Fixed random seed
+_C.DETERMINISTIC = True
+_C.SHOW_PREDICTIONS = 10
+_C.SAVE_BEST_RUN = False
+_C.SAVE_LAST_RUN = False
+_C.DYNAMIC_LOADER = False
+#_C.LOCAL_RANK = 0 #only if more than one gpu
+# -----------------------------------------------------------------------------
 
 def _update_config_from_file(config, cfg_file):
     config.defrost()
@@ -186,49 +150,31 @@ def _update_config_from_file(config, cfg_file):
                 _update_config_from_file(
                     config, os.path.join(os.path.dirname(cfg_file), cfg)
                 )
-        print('=> merge config from {}'.format(cfg_file))
+        print('=> merge config from {}'.format(cfg_file), file=sys.stderr)
         config.merge_from_file(cfg_file)
-        config.freeze()
-
-
-def update_config(config, args):
-    _update_config_from_file(config, args.cfg)
-
-    config.defrost()
-    if args.opts:
-        config.merge_from_list(args.opts)
-
-    # merge from specific arguments
-    if args.batch_size:
-        config.DATA.BATCH_SIZE = args.batch_size
-    if args.zip:
-        config.DATA.ZIP_MODE = True
-    if args.cache_mode:
-        config.DATA.CACHE_MODE = args.cache_mode
-    if args.resume:
-        config.MODEL.RESUME = args.resume
-    if args.accumulation_steps:
-        config.TRAIN.ACCUMULATION_STEPS = args.accumulation_steps
-    if args.use_checkpoint:
-        config.TRAIN.USE_CHECKPOINT = True
-    if args.amp_opt_level:
-        config.AMP_OPT_LEVEL = args.amp_opt_level
-    if args.tag:
-        config.TAG = args.tag
-    if args.eval:
-        config.EVAL_MODE = True
-    if args.throughput:
-        config.THROUGHPUT_MODE = True
-
+    else:
+        raise ValueError("config file not found")
     config.freeze()
 
 
-def get_config(args):
+def update_config(config, bool_test, bool_train, args):
+    _update_config_from_file(config, args.cfg)
+    if bool_test and bool_train:
+        raise ValueError(f"test and train flags are rised incorectly (Both true)!")
+    if not bool_test and not bool_train:
+        raise ValueError(f"test and train flags are rised incorectly (Both false)!")
+    # merge from specific arguments
+    #config.defrost()
+    config.freeze()
+
+
+def get_config(args,bool_train, bool_test):
     """Get a yacs CfgNode object with default values."""
     # Return a clone so that the defaults will not be altered
     # This is for the "local variable" use pattern
     config = _C.clone()
     if args != None:
-        update_config(config, args)
-
+        update_config(config, bool_test, bool_train, args)
+    else:
+        raise ValueError("no argumens given")
     return config

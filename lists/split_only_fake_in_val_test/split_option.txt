@@ -1,0 +1,12 @@
+if __name__ == "__main__":
+    create_splits(
+        real_dir =  "../dataset/real_images",
+        fake_dir = "../dataset/fake_images",
+        output_dir = "./",
+        split_ratio = (0.82, 0.09, 0.09),
+        fake_ratio_in_val = 0.5,
+        fake_ratio_in_test = 0.5,
+        fake_ratio_in_train= 0.6,
+        val_test_only_fake= True,
+        use_all_leftovers_in_train = False,
+        seed= 42,)

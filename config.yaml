@@ -1,0 +1,89 @@
+BASE: []
+
+DATA:
+  BATCH_SIZE: 2
+  DATA_PATH: "./dataset"
+  IMG_SIZE: 1024
+  PIN_MEMORY: true
+  NUM_WORKERS: 2
+
+HARDWARE:
+  N_GPU: 1
+
+MODEL:
+  TYPE: "swin"
+  NAME: "swin_b"
+  PRETRAIN_WEIGHTS: "segface"   # segface or imagenet1k
+  PRETRAIN_CKPT: "./pretrained_ckpt/swin_b.pth"
+  PRETRAIN_SEGFACE: "./network/pretrained_weights/SegFace_swin_celaba_512.pt"
+  PRETRAIN_IMAGENET1K: "./network/pretrained_weights/swin_b-68c6b09e.pth"
+
+  NUM_CLASSES: 1
+  DROP_RATE: 0.0
+  DROP_PATH_RATE: 0.1
+  ATTN_DROP_RATE: 0.05
+  LABEL_SMOOTHING: 0.0
+
+  FREEZE_ENCODER: false
+  STAGE3_UNFREEZE_PERIODE: 0.4
+  STAGE2_UNFREEZE_PERIODE: 0.7
+  STAGE1_UNFREEZE_PERIODE: 0.9
+  STAGE0_UNFREEZE_PERIODE: 0.98
+
+  SWIN:
+    PATCH_SIZE: 4
+    IN_CHANS: 3
+    EMBED_DIM: 128
+    DEPTHS: [2, 2, 18, 2]
+    DECODER_DEPTHS: [2, 2, 6, 2]
+    NUM_HEADS: [4, 8, 16, 32]
+    WINDOW_SIZE: 7
+    MLP_RATIO: 4.0
+    QKV_BIAS: true
+    QK_SCALE:
+    APE: false
+    PATCH_NORM: true
+    FINAL_UPSAMPLE: "expand_first"
+
+TRAIN:
+  MAX_EPOCHS: 60
+  START_EPOCH: 0
+  WARMUP_EPOCHS: 20
+  WEIGHT_DECAY: 0.001
+  BASE_LR: 0.00001 # e-5 #Peak-LR after Warm-up
+  WARMUP_LR: 0.000001 #10e-6
+  MIN_LR: 0.000001 #0.0000001 #10e-7
+
+  ACCUMULATION_STEPS: 1
+  USE_CHECKPOINT: false
+
+  TVERSKY_LOSS_ALPHA: 0.2
+  TVERSKY_LOSS_BETA: 0.8
+  LOSS_TVERSKY_BCE_MIX: 0.45
+  UF_LOSS_DELTA: 0.75
+  UF_LOSS_GAMMA: 0.7
+  UF_LOSS_WEIGTH: 0.5
+  SIG_THRESHOLD: 0.5
+  EARLY_STOPPING_FLAG: false
+  EARLY_STOPPING_PATIENCE: 6
+
+  LR_SCHEDULER:
+    NAME: "cosine"
+    WARMUP_PREFIX: true
+
+  OPTIMIZER:
+    NAME: "adamw"
+    EPS: 1e-8
+    BETAS: [0.9, 0.999]
+
+TEST:
+  SIG_THRESHOLD: 0.5
+
+OUTPUT_DIR: 'model_out/REFINE2/alpha_0.2_mix_0.45_100_epochs_Segface'
+LIST_DIR: './lists'
+SEED: 120
+DETERMINISTIC: true
+SHOW_PREDICTIONS: 1
+SAVE_BEST_RUN: true
+SAVE_LAST_RUN: false
+DYNAMIC_LOADER: false

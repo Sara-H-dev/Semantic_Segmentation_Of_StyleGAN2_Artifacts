@@ -1,0 +1,353 @@
+  0: features.0.0.weight                                           torch.Size([128, 3, 4, 4])  torch.float32
+  1: features.0.0.bias                                             torch.Size([128])  torch.float32
+  2: features.0.2.weight                                           torch.Size([128])  torch.float32
+  3: features.0.2.bias                                             torch.Size([128])  torch.float32
+  4: features.1.0.norm1.weight                                     torch.Size([128])  torch.float32
+  5: features.1.0.norm1.bias                                       torch.Size([128])  torch.float32
+  6: features.1.0.attn.relative_position_bias_table                torch.Size([169, 4])  torch.float32
+  7: features.1.0.attn.relative_position_index                     torch.Size([2401])  torch.int64
+  8: features.1.0.attn.qkv.weight                                  torch.Size([384, 128])  torch.float32
+  9: features.1.0.attn.qkv.bias                                    torch.Size([384])  torch.float32
+ 10: features.1.0.attn.proj.weight                                 torch.Size([128, 128])  torch.float32
+ 11: features.1.0.attn.proj.bias                                   torch.Size([128])  torch.float32
+ 12: features.1.0.norm2.weight                                     torch.Size([128])  torch.float32
+ 13: features.1.0.norm2.bias                                       torch.Size([128])  torch.float32
+ 14: features.1.0.mlp.0.weight                                     torch.Size([512, 128])  torch.float32
+ 15: features.1.0.mlp.0.bias                                       torch.Size([512])  torch.float32
+ 16: features.1.0.mlp.3.weight                                     torch.Size([128, 512])  torch.float32
+ 17: features.1.0.mlp.3.bias                                       torch.Size([128])  torch.float32
+ 18: features.1.1.norm1.weight                                     torch.Size([128])  torch.float32
+ 19: features.1.1.norm1.bias                                       torch.Size([128])  torch.float32
+ 20: features.1.1.attn.relative_position_bias_table                torch.Size([169, 4])  torch.float32
+ 21: features.1.1.attn.relative_position_index                     torch.Size([2401])  torch.int64
+ 22: features.1.1.attn.qkv.weight                                  torch.Size([384, 128])  torch.float32
+ 23: features.1.1.attn.qkv.bias                                    torch.Size([384])  torch.float32
+ 24: features.1.1.attn.proj.weight                                 torch.Size([128, 128])  torch.float32
+ 25: features.1.1.attn.proj.bias                                   torch.Size([128])  torch.float32
+ 26: features.1.1.norm2.weight                                     torch.Size([128])  torch.float32
+ 27: features.1.1.norm2.bias                                       torch.Size([128])  torch.float32
+ 28: features.1.1.mlp.0.weight                                     torch.Size([512, 128])  torch.float32
+ 29: features.1.1.mlp.0.bias                                       torch.Size([512])  torch.float32
+ 30: features.1.1.mlp.3.weight                                     torch.Size([128, 512])  torch.float32
+ 31: features.1.1.mlp.3.bias                                       torch.Size([128])  torch.float32
+ 32: features.2.reduction.weight                                   torch.Size([256, 512])  torch.float32
+ 33: features.2.norm.weight                                        torch.Size([512])  torch.float32
+ 34: features.2.norm.bias                                          torch.Size([512])  torch.float32
+ 35: features.3.0.norm1.weight                                     torch.Size([256])  torch.float32
+ 36: features.3.0.norm1.bias                                       torch.Size([256])  torch.float32
+ 37: features.3.0.attn.relative_position_bias_table                torch.Size([169, 8])  torch.float32
+ 38: features.3.0.attn.relative_position_index                     torch.Size([2401])  torch.int64
+ 39: features.3.0.attn.qkv.weight                                  torch.Size([768, 256])  torch.float32
+ 40: features.3.0.attn.qkv.bias                                    torch.Size([768])  torch.float32
+ 41: features.3.0.attn.proj.weight                                 torch.Size([256, 256])  torch.float32
+ 42: features.3.0.attn.proj.bias                                   torch.Size([256])  torch.float32
+ 43: features.3.0.norm2.weight                                     torch.Size([256])  torch.float32
+ 44: features.3.0.norm2.bias                                       torch.Size([256])  torch.float32
+ 45: features.3.0.mlp.0.weight                                     torch.Size([1024, 256])  torch.float32
+ 46: features.3.0.mlp.0.bias                                       torch.Size([1024])  torch.float32
+ 47: features.3.0.mlp.3.weight                                     torch.Size([256, 1024])  torch.float32
+ 48: features.3.0.mlp.3.bias                                       torch.Size([256])  torch.float32
+ 49: features.3.1.norm1.weight                                     torch.Size([256])  torch.float32
+ 50: features.3.1.norm1.bias                                       torch.Size([256])  torch.float32
+ 51: features.3.1.attn.relative_position_bias_table                torch.Size([169, 8])  torch.float32
+ 52: features.3.1.attn.relative_position_index                     torch.Size([2401])  torch.int64
+ 53: features.3.1.attn.qkv.weight                                  torch.Size([768, 256])  torch.float32
+ 54: features.3.1.attn.qkv.bias                                    torch.Size([768])  torch.float32
+ 55: features.3.1.attn.proj.weight                                 torch.Size([256, 256])  torch.float32
+ 56: features.3.1.attn.proj.bias                                   torch.Size([256])  torch.float32
+ 57: features.3.1.norm2.weight                                     torch.Size([256])  torch.float32
+ 58: features.3.1.norm2.bias                                       torch.Size([256])  torch.float32
+ 59: features.3.1.mlp.0.weight                                     torch.Size([1024, 256])  torch.float32
+ 60: features.3.1.mlp.0.bias                                       torch.Size([1024])  torch.float32
+ 61: features.3.1.mlp.3.weight                                     torch.Size([256, 1024])  torch.float32
+ 62: features.3.1.mlp.3.bias                                       torch.Size([256])  torch.float32
+ 63: features.4.reduction.weight                                   torch.Size([512, 1024])  torch.float32
+ 64: features.4.norm.weight                                        torch.Size([1024])  torch.float32
+ 65: features.4.norm.bias                                          torch.Size([1024])  torch.float32
+ 66: features.5.0.norm1.weight                                     torch.Size([512])  torch.float32
+ 67: features.5.0.norm1.bias                                       torch.Size([512])  torch.float32
+ 68: features.5.0.attn.relative_position_bias_table                torch.Size([169, 16])  torch.float32
+ 69: features.5.0.attn.relative_position_index                     torch.Size([2401])  torch.int64
+ 70: features.5.0.attn.qkv.weight                                  torch.Size([1536, 512])  torch.float32
+ 71: features.5.0.attn.qkv.bias                                    torch.Size([1536])  torch.float32
+ 72: features.5.0.attn.proj.weight                                 torch.Size([512, 512])  torch.float32
+ 73: features.5.0.attn.proj.bias                                   torch.Size([512])  torch.float32
+ 74: features.5.0.norm2.weight                                     torch.Size([512])  torch.float32
+ 75: features.5.0.norm2.bias                                       torch.Size([512])  torch.float32
+ 76: features.5.0.mlp.0.weight                                     torch.Size([2048, 512])  torch.float32
+ 77: features.5.0.mlp.0.bias                                       torch.Size([2048])  torch.float32
+ 78: features.5.0.mlp.3.weight                                     torch.Size([512, 2048])  torch.float32
+ 79: features.5.0.mlp.3.bias                                       torch.Size([512])  torch.float32
+ 80: features.5.1.norm1.weight                                     torch.Size([512])  torch.float32
+ 81: features.5.1.norm1.bias                                       torch.Size([512])  torch.float32
+ 82: features.5.1.attn.relative_position_bias_table                torch.Size([169, 16])  torch.float32
+ 83: features.5.1.attn.relative_position_index                     torch.Size([2401])  torch.int64
+ 84: features.5.1.attn.qkv.weight                                  torch.Size([1536, 512])  torch.float32
+ 85: features.5.1.attn.qkv.bias                                    torch.Size([1536])  torch.float32
+ 86: features.5.1.attn.proj.weight                                 torch.Size([512, 512])  torch.float32
+ 87: features.5.1.attn.proj.bias                                   torch.Size([512])  torch.float32
+ 88: features.5.1.norm2.weight                                     torch.Size([512])  torch.float32
+ 89: features.5.1.norm2.bias                                       torch.Size([512])  torch.float32
+ 90: features.5.1.mlp.0.weight                                     torch.Size([2048, 512])  torch.float32
+ 91: features.5.1.mlp.0.bias                                       torch.Size([2048])  torch.float32
+ 92: features.5.1.mlp.3.weight                                     torch.Size([512, 2048])  torch.float32
+ 93: features.5.1.mlp.3.bias                                       torch.Size([512])  torch.float32
+ 94: features.5.2.norm1.weight                                     torch.Size([512])  torch.float32
+ 95: features.5.2.norm1.bias                                       torch.Size([512])  torch.float32
+ 96: features.5.2.attn.relative_position_bias_table                torch.Size([169, 16])  torch.float32
+ 97: features.5.2.attn.relative_position_index                     torch.Size([2401])  torch.int64
+ 98: features.5.2.attn.qkv.weight                                  torch.Size([1536, 512])  torch.float32
+ 99: features.5.2.attn.qkv.bias                                    torch.Size([1536])  torch.float32
+100: features.5.2.attn.proj.weight                                 torch.Size([512, 512])  torch.float32
+101: features.5.2.attn.proj.bias                                   torch.Size([512])  torch.float32
+102: features.5.2.norm2.weight                                     torch.Size([512])  torch.float32
+103: features.5.2.norm2.bias                                       torch.Size([512])  torch.float32
+104: features.5.2.mlp.0.weight                                     torch.Size([2048, 512])  torch.float32
+105: features.5.2.mlp.0.bias                                       torch.Size([2048])  torch.float32
+106: features.5.2.mlp.3.weight                                     torch.Size([512, 2048])  torch.float32
+107: features.5.2.mlp.3.bias                                       torch.Size([512])  torch.float32
+108: features.5.3.norm1.weight                                     torch.Size([512])  torch.float32
+109: features.5.3.norm1.bias                                       torch.Size([512])  torch.float32
+110: features.5.3.attn.relative_position_bias_table                torch.Size([169, 16])  torch.float32
+111: features.5.3.attn.relative_position_index                     torch.Size([2401])  torch.int64
+112: features.5.3.attn.qkv.weight                                  torch.Size([1536, 512])  torch.float32
+113: features.5.3.attn.qkv.bias                                    torch.Size([1536])  torch.float32
+114: features.5.3.attn.proj.weight                                 torch.Size([512, 512])  torch.float32
+115: features.5.3.attn.proj.bias                                   torch.Size([512])  torch.float32
+116: features.5.3.norm2.weight                                     torch.Size([512])  torch.float32
+117: features.5.3.norm2.bias                                       torch.Size([512])  torch.float32
+118: features.5.3.mlp.0.weight                                     torch.Size([2048, 512])  torch.float32
+119: features.5.3.mlp.0.bias                                       torch.Size([2048])  torch.float32
+120: features.5.3.mlp.3.weight                                     torch.Size([512, 2048])  torch.float32
+121: features.5.3.mlp.3.bias                                       torch.Size([512])  torch.float32
+122: features.5.4.norm1.weight                                     torch.Size([512])  torch.float32
+123: features.5.4.norm1.bias                                       torch.Size([512])  torch.float32
+124: features.5.4.attn.relative_position_bias_table                torch.Size([169, 16])  torch.float32
+125: features.5.4.attn.relative_position_index                     torch.Size([2401])  torch.int64
+126: features.5.4.attn.qkv.weight                                  torch.Size([1536, 512])  torch.float32
+127: features.5.4.attn.qkv.bias                                    torch.Size([1536])  torch.float32
+128: features.5.4.attn.proj.weight                                 torch.Size([512, 512])  torch.float32
+129: features.5.4.attn.proj.bias                                   torch.Size([512])  torch.float32
+130: features.5.4.norm2.weight                                     torch.Size([512])  torch.float32
+131: features.5.4.norm2.bias                                       torch.Size([512])  torch.float32
+132: features.5.4.mlp.0.weight                                     torch.Size([2048, 512])  torch.float32
+133: features.5.4.mlp.0.bias                                       torch.Size([2048])  torch.float32
+134: features.5.4.mlp.3.weight                                     torch.Size([512, 2048])  torch.float32
+135: features.5.4.mlp.3.bias                                       torch.Size([512])  torch.float32
+136: features.5.5.norm1.weight                                     torch.Size([512])  torch.float32
+137: features.5.5.norm1.bias                                       torch.Size([512])  torch.float32
+138: features.5.5.attn.relative_position_bias_table                torch.Size([169, 16])  torch.float32
+139: features.5.5.attn.relative_position_index                     torch.Size([2401])  torch.int64
+140: features.5.5.attn.qkv.weight                                  torch.Size([1536, 512])  torch.float32
+141: features.5.5.attn.qkv.bias                                    torch.Size([1536])  torch.float32
+142: features.5.5.attn.proj.weight                                 torch.Size([512, 512])  torch.float32
+143: features.5.5.attn.proj.bias                                   torch.Size([512])  torch.float32
+144: features.5.5.norm2.weight                                     torch.Size([512])  torch.float32
+145: features.5.5.norm2.bias                                       torch.Size([512])  torch.float32
+146: features.5.5.mlp.0.weight                                     torch.Size([2048, 512])  torch.float32
+147: features.5.5.mlp.0.bias                                       torch.Size([2048])  torch.float32
+148: features.5.5.mlp.3.weight                                     torch.Size([512, 2048])  torch.float32
+149: features.5.5.mlp.3.bias                                       torch.Size([512])  torch.float32
+150: features.5.6.norm1.weight                                     torch.Size([512])  torch.float32
+151: features.5.6.norm1.bias                                       torch.Size([512])  torch.float32
+152: features.5.6.attn.relative_position_bias_table                torch.Size([169, 16])  torch.float32
+153: features.5.6.attn.relative_position_index                     torch.Size([2401])  torch.int64
+154: features.5.6.attn.qkv.weight                                  torch.Size([1536, 512])  torch.float32
+155: features.5.6.attn.qkv.bias                                    torch.Size([1536])  torch.float32
+156: features.5.6.attn.proj.weight                                 torch.Size([512, 512])  torch.float32
+157: features.5.6.attn.proj.bias                                   torch.Size([512])  torch.float32
+158: features.5.6.norm2.weight                                     torch.Size([512])  torch.float32
+159: features.5.6.norm2.bias                                       torch.Size([512])  torch.float32
+160: features.5.6.mlp.0.weight                                     torch.Size([2048, 512])  torch.float32
+161: features.5.6.mlp.0.bias                                       torch.Size([2048])  torch.float32
+162: features.5.6.mlp.3.weight                                     torch.Size([512, 2048])  torch.float32
+163: features.5.6.mlp.3.bias                                       torch.Size([512])  torch.float32
+164: features.5.7.norm1.weight                                     torch.Size([512])  torch.float32
+165: features.5.7.norm1.bias                                       torch.Size([512])  torch.float32
+166: features.5.7.attn.relative_position_bias_table                torch.Size([169, 16])  torch.float32
+167: features.5.7.attn.relative_position_index                     torch.Size([2401])  torch.int64
+168: features.5.7.attn.qkv.weight                                  torch.Size([1536, 512])  torch.float32
+169: features.5.7.attn.qkv.bias                                    torch.Size([1536])  torch.float32
+170: features.5.7.attn.proj.weight                                 torch.Size([512, 512])  torch.float32
+171: features.5.7.attn.proj.bias                                   torch.Size([512])  torch.float32
+172: features.5.7.norm2.weight                                     torch.Size([512])  torch.float32
+173: features.5.7.norm2.bias                                       torch.Size([512])  torch.float32
+174: features.5.7.mlp.0.weight                                     torch.Size([2048, 512])  torch.float32
+175: features.5.7.mlp.0.bias                                       torch.Size([2048])  torch.float32
+176: features.5.7.mlp.3.weight                                     torch.Size([512, 2048])  torch.float32
+177: features.5.7.mlp.3.bias                                       torch.Size([512])  torch.float32
+178: features.5.8.norm1.weight                                     torch.Size([512])  torch.float32
+179: features.5.8.norm1.bias                                       torch.Size([512])  torch.float32
+180: features.5.8.attn.relative_position_bias_table                torch.Size([169, 16])  torch.float32
+181: features.5.8.attn.relative_position_index                     torch.Size([2401])  torch.int64
+182: features.5.8.attn.qkv.weight                                  torch.Size([1536, 512])  torch.float32
+183: features.5.8.attn.qkv.bias                                    torch.Size([1536])  torch.float32
+184: features.5.8.attn.proj.weight                                 torch.Size([512, 512])  torch.float32
+185: features.5.8.attn.proj.bias                                   torch.Size([512])  torch.float32
+186: features.5.8.norm2.weight                                     torch.Size([512])  torch.float32
+187: features.5.8.norm2.bias                                       torch.Size([512])  torch.float32
+188: features.5.8.mlp.0.weight                                     torch.Size([2048, 512])  torch.float32
+189: features.5.8.mlp.0.bias                                       torch.Size([2048])  torch.float32
+190: features.5.8.mlp.3.weight                                     torch.Size([512, 2048])  torch.float32
+191: features.5.8.mlp.3.bias                                       torch.Size([512])  torch.float32
+192: features.5.9.norm1.weight                                     torch.Size([512])  torch.float32
+193: features.5.9.norm1.bias                                       torch.Size([512])  torch.float32
+194: features.5.9.attn.relative_position_bias_table                torch.Size([169, 16])  torch.float32
+195: features.5.9.attn.relative_position_index                     torch.Size([2401])  torch.int64
+196: features.5.9.attn.qkv.weight                                  torch.Size([1536, 512])  torch.float32
+197: features.5.9.attn.qkv.bias                                    torch.Size([1536])  torch.float32
+198: features.5.9.attn.proj.weight                                 torch.Size([512, 512])  torch.float32
+199: features.5.9.attn.proj.bias                                   torch.Size([512])  torch.float32
+200: features.5.9.norm2.weight                                     torch.Size([512])  torch.float32
+201: features.5.9.norm2.bias                                       torch.Size([512])  torch.float32
+202: features.5.9.mlp.0.weight                                     torch.Size([2048, 512])  torch.float32
+203: features.5.9.mlp.0.bias                                       torch.Size([2048])  torch.float32
+204: features.5.9.mlp.3.weight                                     torch.Size([512, 2048])  torch.float32
+205: features.5.9.mlp.3.bias                                       torch.Size([512])  torch.float32
+206: features.5.10.norm1.weight                                    torch.Size([512])  torch.float32
+207: features.5.10.norm1.bias                                      torch.Size([512])  torch.float32
+208: features.5.10.attn.relative_position_bias_table               torch.Size([169, 16])  torch.float32
+209: features.5.10.attn.relative_position_index                    torch.Size([2401])  torch.int64
+210: features.5.10.attn.qkv.weight                                 torch.Size([1536, 512])  torch.float32
+211: features.5.10.attn.qkv.bias                                   torch.Size([1536])  torch.float32
+212: features.5.10.attn.proj.weight                                torch.Size([512, 512])  torch.float32
+213: features.5.10.attn.proj.bias                                  torch.Size([512])  torch.float32
+214: features.5.10.norm2.weight                                    torch.Size([512])  torch.float32
+215: features.5.10.norm2.bias                                      torch.Size([512])  torch.float32
+216: features.5.10.mlp.0.weight                                    torch.Size([2048, 512])  torch.float32
+217: features.5.10.mlp.0.bias                                      torch.Size([2048])  torch.float32
+218: features.5.10.mlp.3.weight                                    torch.Size([512, 2048])  torch.float32
+219: features.5.10.mlp.3.bias                                      torch.Size([512])  torch.float32
+220: features.5.11.norm1.weight                                    torch.Size([512])  torch.float32
+221: features.5.11.norm1.bias                                      torch.Size([512])  torch.float32
+222: features.5.11.attn.relative_position_bias_table               torch.Size([169, 16])  torch.float32
+223: features.5.11.attn.relative_position_index                    torch.Size([2401])  torch.int64
+224: features.5.11.attn.qkv.weight                                 torch.Size([1536, 512])  torch.float32
+225: features.5.11.attn.qkv.bias                                   torch.Size([1536])  torch.float32
+226: features.5.11.attn.proj.weight                                torch.Size([512, 512])  torch.float32
+227: features.5.11.attn.proj.bias                                  torch.Size([512])  torch.float32
+228: features.5.11.norm2.weight                                    torch.Size([512])  torch.float32
+229: features.5.11.norm2.bias                                      torch.Size([512])  torch.float32
+230: features.5.11.mlp.0.weight                                    torch.Size([2048, 512])  torch.float32
+231: features.5.11.mlp.0.bias                                      torch.Size([2048])  torch.float32
+232: features.5.11.mlp.3.weight                                    torch.Size([512, 2048])  torch.float32
+233: features.5.11.mlp.3.bias                                      torch.Size([512])  torch.float32
+234: features.5.12.norm1.weight                                    torch.Size([512])  torch.float32
+235: features.5.12.norm1.bias                                      torch.Size([512])  torch.float32
+236: features.5.12.attn.relative_position_bias_table               torch.Size([169, 16])  torch.float32
+237: features.5.12.attn.relative_position_index                    torch.Size([2401])  torch.int64
+238: features.5.12.attn.qkv.weight                                 torch.Size([1536, 512])  torch.float32
+239: features.5.12.attn.qkv.bias                                   torch.Size([1536])  torch.float32
+240: features.5.12.attn.proj.weight                                torch.Size([512, 512])  torch.float32
+241: features.5.12.attn.proj.bias                                  torch.Size([512])  torch.float32
+242: features.5.12.norm2.weight                                    torch.Size([512])  torch.float32
+243: features.5.12.norm2.bias                                      torch.Size([512])  torch.float32
+244: features.5.12.mlp.0.weight                                    torch.Size([2048, 512])  torch.float32
+245: features.5.12.mlp.0.bias                                      torch.Size([2048])  torch.float32
+246: features.5.12.mlp.3.weight                                    torch.Size([512, 2048])  torch.float32
+247: features.5.12.mlp.3.bias                                      torch.Size([512])  torch.float32
+248: features.5.13.norm1.weight                                    torch.Size([512])  torch.float32
+249: features.5.13.norm1.bias                                      torch.Size([512])  torch.float32
+250: features.5.13.attn.relative_position_bias_table               torch.Size([169, 16])  torch.float32
+251: features.5.13.attn.relative_position_index                    torch.Size([2401])  torch.int64
+252: features.5.13.attn.qkv.weight                                 torch.Size([1536, 512])  torch.float32
+253: features.5.13.attn.qkv.bias                                   torch.Size([1536])  torch.float32
+254: features.5.13.attn.proj.weight                                torch.Size([512, 512])  torch.float32
+255: features.5.13.attn.proj.bias                                  torch.Size([512])  torch.float32
+256: features.5.13.norm2.weight                                    torch.Size([512])  torch.float32
+257: features.5.13.norm2.bias                                      torch.Size([512])  torch.float32
+258: features.5.13.mlp.0.weight                                    torch.Size([2048, 512])  torch.float32
+259: features.5.13.mlp.0.bias                                      torch.Size([2048])  torch.float32
+260: features.5.13.mlp.3.weight                                    torch.Size([512, 2048])  torch.float32
+261: features.5.13.mlp.3.bias                                      torch.Size([512])  torch.float32
+262: features.5.14.norm1.weight                                    torch.Size([512])  torch.float32
+263: features.5.14.norm1.bias                                      torch.Size([512])  torch.float32
+264: features.5.14.attn.relative_position_bias_table               torch.Size([169, 16])  torch.float32
+265: features.5.14.attn.relative_position_index                    torch.Size([2401])  torch.int64
+266: features.5.14.attn.qkv.weight                                 torch.Size([1536, 512])  torch.float32
+267: features.5.14.attn.qkv.bias                                   torch.Size([1536])  torch.float32
+268: features.5.14.attn.proj.weight                                torch.Size([512, 512])  torch.float32
+269: features.5.14.attn.proj.bias                                  torch.Size([512])  torch.float32
+270: features.5.14.norm2.weight                                    torch.Size([512])  torch.float32
+271: features.5.14.norm2.bias                                      torch.Size([512])  torch.float32
+272: features.5.14.mlp.0.weight                                    torch.Size([2048, 512])  torch.float32
+273: features.5.14.mlp.0.bias                                      torch.Size([2048])  torch.float32
+274: features.5.14.mlp.3.weight                                    torch.Size([512, 2048])  torch.float32
+275: features.5.14.mlp.3.bias                                      torch.Size([512])  torch.float32
+276: features.5.15.norm1.weight                                    torch.Size([512])  torch.float32
+277: features.5.15.norm1.bias                                      torch.Size([512])  torch.float32
+278: features.5.15.attn.relative_position_bias_table               torch.Size([169, 16])  torch.float32
+279: features.5.15.attn.relative_position_index                    torch.Size([2401])  torch.int64
+280: features.5.15.attn.qkv.weight                                 torch.Size([1536, 512])  torch.float32
+281: features.5.15.attn.qkv.bias                                   torch.Size([1536])  torch.float32
+282: features.5.15.attn.proj.weight                                torch.Size([512, 512])  torch.float32
+283: features.5.15.attn.proj.bias                                  torch.Size([512])  torch.float32
+284: features.5.15.norm2.weight                                    torch.Size([512])  torch.float32
+285: features.5.15.norm2.bias                                      torch.Size([512])  torch.float32
+286: features.5.15.mlp.0.weight                                    torch.Size([2048, 512])  torch.float32
+287: features.5.15.mlp.0.bias                                      torch.Size([2048])  torch.float32
+288: features.5.15.mlp.3.weight                                    torch.Size([512, 2048])  torch.float32
+289: features.5.15.mlp.3.bias                                      torch.Size([512])  torch.float32
+290: features.5.16.norm1.weight                                    torch.Size([512])  torch.float32
+291: features.5.16.norm1.bias                                      torch.Size([512])  torch.float32
+292: features.5.16.attn.relative_position_bias_table               torch.Size([169, 16])  torch.float32
+293: features.5.16.attn.relative_position_index                    torch.Size([2401])  torch.int64
+294: features.5.16.attn.qkv.weight                                 torch.Size([1536, 512])  torch.float32
+295: features.5.16.attn.qkv.bias                                   torch.Size([1536])  torch.float32
+296: features.5.16.attn.proj.weight                                torch.Size([512, 512])  torch.float32
+297: features.5.16.attn.proj.bias                                  torch.Size([512])  torch.float32
+298: features.5.16.norm2.weight                                    torch.Size([512])  torch.float32
+299: features.5.16.norm2.bias                                      torch.Size([512])  torch.float32
+300: features.5.16.mlp.0.weight                                    torch.Size([2048, 512])  torch.float32
+301: features.5.16.mlp.0.bias                                      torch.Size([2048])  torch.float32
+302: features.5.16.mlp.3.weight                                    torch.Size([512, 2048])  torch.float32
+303: features.5.16.mlp.3.bias                                      torch.Size([512])  torch.float32
+304: features.5.17.norm1.weight                                    torch.Size([512])  torch.float32
+305: features.5.17.norm1.bias                                      torch.Size([512])  torch.float32
+306: features.5.17.attn.relative_position_bias_table               torch.Size([169, 16])  torch.float32
+307: features.5.17.attn.relative_position_index                    torch.Size([2401])  torch.int64
+308: features.5.17.attn.qkv.weight                                 torch.Size([1536, 512])  torch.float32
+309: features.5.17.attn.qkv.bias                                   torch.Size([1536])  torch.float32
+310: features.5.17.attn.proj.weight                                torch.Size([512, 512])  torch.float32
+311: features.5.17.attn.proj.bias                                  torch.Size([512])  torch.float32
+312: features.5.17.norm2.weight                                    torch.Size([512])  torch.float32
+313: features.5.17.norm2.bias                                      torch.Size([512])  torch.float32
+314: features.5.17.mlp.0.weight                                    torch.Size([2048, 512])  torch.float32
+315: features.5.17.mlp.0.bias                                      torch.Size([2048])  torch.float32
+316: features.5.17.mlp.3.weight                                    torch.Size([512, 2048])  torch.float32
+317: features.5.17.mlp.3.bias                                      torch.Size([512])  torch.float32
+318: features.6.reduction.weight                                   torch.Size([1024, 2048])  torch.float32
+319: features.6.norm.weight                                        torch.Size([2048])  torch.float32
+320: features.6.norm.bias                                          torch.Size([2048])  torch.float32
+321: features.7.0.norm1.weight                                     torch.Size([1024])  torch.float32
+322: features.7.0.norm1.bias                                       torch.Size([1024])  torch.float32
+323: features.7.0.attn.relative_position_bias_table                torch.Size([169, 32])  torch.float32
+324: features.7.0.attn.relative_position_index                     torch.Size([2401])  torch.int64
+325: features.7.0.attn.qkv.weight                                  torch.Size([3072, 1024])  torch.float32
+326: features.7.0.attn.qkv.bias                                    torch.Size([3072])  torch.float32
+327: features.7.0.attn.proj.weight                                 torch.Size([1024, 1024])  torch.float32
+328: features.7.0.attn.proj.bias                                   torch.Size([1024])  torch.float32
+329: features.7.0.norm2.weight                                     torch.Size([1024])  torch.float32
+330: features.7.0.norm2.bias                                       torch.Size([1024])  torch.float32
+331: features.7.0.mlp.0.weight                                     torch.Size([4096, 1024])  torch.float32
+332: features.7.0.mlp.0.bias                                       torch.Size([4096])  torch.float32
+333: features.7.0.mlp.3.weight                                     torch.Size([1024, 4096])  torch.float32
+334: features.7.0.mlp.3.bias                                       torch.Size([1024])  torch.float32
+335: features.7.1.norm1.weight                                     torch.Size([1024])  torch.float32
+336: features.7.1.norm1.bias                                       torch.Size([1024])  torch.float32
+337: features.7.1.attn.relative_position_bias_table                torch.Size([169, 32])  torch.float32
+338: features.7.1.attn.relative_position_index                     torch.Size([2401])  torch.int64
+339: features.7.1.attn.qkv.weight                                  torch.Size([3072, 1024])  torch.float32
+340: features.7.1.attn.qkv.bias                                    torch.Size([3072])  torch.float32
+341: features.7.1.attn.proj.weight                                 torch.Size([1024, 1024])  torch.float32
+342: features.7.1.attn.proj.bias                                   torch.Size([1024])  torch.float32
+343: features.7.1.norm2.weight                                     torch.Size([1024])  torch.float32
+344: features.7.1.norm2.bias                                       torch.Size([1024])  torch.float32
+345: features.7.1.mlp.0.weight                                     torch.Size([4096, 1024])  torch.float32
+346: features.7.1.mlp.0.bias                                       torch.Size([4096])  torch.float32
+347: features.7.1.mlp.3.weight                                     torch.Size([1024, 4096])  torch.float32
+348: features.7.1.mlp.3.bias                                       torch.Size([1024])  torch.float32
+349: norm.weight                                                   torch.Size([1024])  torch.float32
+350: norm.bias                                                     torch.Size([1024])  torch.float32
+351: head.weight                                                   torch.Size([1000, 1024])  torch.float32
+352: head.bias                                                     torch.Size([1000])  torch.float32
