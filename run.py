@@ -8,34 +8,29 @@ import logging
 
 # --- Env ---
 env = os.environ.copy()
-#env["CUDA_VISIBLE_DEVICES"] = "0"
 env["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
-#env["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True,max_split_size_mb:128"
-#env["CUDNN_BENCHMARK"] = "0"
 env["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
-
-# --- Grid ---
-
-ATTN_DROP = [0.1]
-ALPHA = [0.3, 0.4]
-LEARNING_RATE = [8.5e-6, 3e-5]
 
 
 logger = logging.getLogger(__name__)
 
-root_out = Path("./model_out/DROP3")
+# =========== IMPORTANT PATHS ========================
+# outputpath of the results:
+root_out = Path("./model_out/RUN1")
 root_out.mkdir(parents=True, exist_ok=True)
-logging.basicConfig(filename='./model_out/DROP3/super_run.log', encoding='utf-8', level=logging.DEBUG)
+logging.basicConfig(filename='./model_out/RUN1/run.log', encoding='utf-8', level=logging.DEBUG)
 
-# --- Fixed Args ---
+# path to the hyperparameters file:
 cfg_path   = "./config.yaml"
 py         = "python3"
 train_py   = "train.py"
 
 # --- Metrik/CSV ---
-CSV_NAME   = "val_metric_all_epoch.csv"  # <- konsistent bleiben
-METRIC_COL = "Score"           # <- Spaltenname in der CSV
+CSV_NAME   = "val_metric_all_epoch.csv"  # this is the name of the file there the metrics of each epoch are stored
+METRIC_COL = "Score"                     # this ist the colume that the script uses to determin the best model
+                                         # you can change it, for example for the best dice score or whatever      
 
+# ======== Stuff for parsing the yaml ================ #
 config_parser = Config_Parser(yaml_path= cfg_path, create_missing= False, preserve_formatting= False)
 
 def safe_read_csv(p: Path):
@@ -54,6 +49,13 @@ def get_best_from_df(df: pd.DataFrame, col_name: str):
     idx = s.idxmax()
     return {"row_index": idx, "value": float(s.loc[idx])}
 
+# ============== HYPERPARAMETER ========
+# Here you can set the Hyperparameter like you want, and you can do a gridsearch
+
+ATTN_DROP = [0.1]
+ALPHA = [0.3, 0.4]
+LEARNING_RATE = [8.5e-6, 3e-5]
+
 drop_rate_0 = 0.0
 attn_drop_0 = 0.0
 drop_path_0 = 0.05
@@ -69,9 +71,6 @@ result_dict_att = {}
 result_list_att = []
 result_path_dict = {}
 res_dict = {}
-result_dict_att[0.5520427363938655] = 0.05
-result_list_att.append(0.5520427363938655)
-result_path_dict[0.05] = "model_out/DROP/drop_path0.10_drop_rate0.00_attn_drop0.05"
 
 logging.info("Attention drop search:")
 
@@ -112,9 +111,6 @@ result_dict_alpha = {}
 result_list_alpha = []
 result_path_dict_alpha = {}
 res_dict = {}
-result_dict_alpha[best_att_score] = 0.2
-result_list_alpha.append(best_att_score)
-result_path_dict_alpha[0.2] = best_path
 
 logging.info("Alpha refine:")
 
